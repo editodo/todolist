@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+  @import url("../css/style.css");
+  </style>
+  <link type="text/css" rel="stylesheet" href="../css/slick.css"/>
+
+  <script type="text/javascript" src="../JS/jquery-3.6.4.min.js"></script>
+  <script type="text/javascript" src="../JS/slick.min.js"></script>
+  <script type="text/javascript" src="../JS/common.js"></script>
+  <script type="text/javascript" src="https://www.w3schools.com/lib/w3.js"></script>
+  <title>선택확인</title>
+</head>
+<body>
+  <div id="wrap" class="editodo_wrap">
+
+    <div class="container editodo_step">
+      <div class="editodo_inner side_pd">
+        <ul class="step_process">
+          <li>
+            <span class="step_count"></span>
+            <span class="step_name">테마선택</span>
+          </li>
+          <li>
+            <span class="step_count"></span>
+            <span class="step_name">색상선택</span>
+          </li>
+          <li class="on">
+            <span class="step_count"></span>
+            <span class="step_name">선택확인</span>
+          </li>
+        </ul>
+
+        <section class="section_choose">
+          <h3 class="title">나만의 Todolist 생성 완료!<br >
+            아래의 테마가 맞는지 확인해 주세요.</h3>
+          <div class="layout_sample">
+            <div class="sample_preview">
+              <div class="todolist_table" w3-include-html="../include/sample_skin.html"></div>
+            </div>
+          </div>
+        </section>
+
+        
+        <div class="bottom_btn_group horzion">
+          <button type="buttton" onclick="location.href='step03.html'" class="btn btn_prev">이전</button>
+          <button type="buttton" onclick="location.href='todolist.html'"  class="btn btn_main">시작</button>
+        </div>
+      </div>     
+    </div>
+
+  </div>
+</body>
+</html>
+<script>
+  const theme = sessionStorage.getItem('theme');
+  const color = sessionStorage.getItem('color');
+  const preview = document.querySelector('.sample_preview');
+
+  preview.classList.add(theme, color);
+
+  w3.includeHTML();
+</script>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+  @import url("../css/style.css");
+  </style>
+  <link type="text/css" rel="stylesheet" href="../css/slick.css"/>
+
+  <script type="text/javascript" src="../JS/jquery-3.6.4.min.js"></script>
+  <script type="text/javascript" src="../JS/slick.min.js"></script>
+  <script type="text/javascript" src="../JS/common.js"></script>
+  <script type="text/javascript" src="https://www.w3schools.com/lib/w3.js"></script>
+  <title>마이페이지</title>
+</head>
+<body>
+  <div id="wrap" class="editodo_wrap">
+    <div class="container editodo_mypage">
+      <div class="editodo_inner">
+        <div class="mypage_info">
+          <!-- 비회원 인 경우 -->
+            <button class="btn_info" style="display: none;" onclick="location.href='/login/login.html'">로그인/회원가입<i class="mypage_arrow"></i></button> 
+
+          <!-- 로그인일 경우   -->
+            <button class="btn_info" onclick="location.href='../mypage/user_modify.html'">미녜<i class="mypage_arrow"></i></button>
+        </div>
+        <nav>
+          <ul class="category">
+            <li><button type="button" class="btn_category">테마 및 색상변경</button><i class="icon_direction"></i></li>
+            <li><button type="button" class="btn_category">글꼴변경</button><i class="icon_direction"></i></li>
+          </ul>
+          <ul class="category">
+            <li><button type="button" class="btn_category">공지사항</button><i class="icon_direction"></i></li>
+            <li><button type="button" class="btn_category" onclick="location.href='../policy/terms.html'">이용약관</button><i class="icon_direction"></i></li>
+            <li><button type="button" class="btn_category">개인정보 정책</button><i class="icon_direction"></i></li>
+            <li><button type="button" class="btn_category">문의하기</button><i class="icon_direction"></i></li>
+          </ul>
+          <ul class="category category_util">
+            <li>버전정보 <span class="category_state">1.0.0</span></li>
+            <li>언어 <span class="category_state">Kor</span></li>
+          </ul>
+          <!-- 로그인 된 경우에만 노출 -->
+          <ul class="category" style="display: block">
+            <li><button type="button" class="btn_category" onclick="location.href='../login/login.html'">로그아웃</button></li>
+            <li><button type="button" class="btn_category">회원탈퇴</button></li>
+          </ul> 
+        </nav>
+      </div>
+    </div>
+
+    <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
+
+  </div>
+</body>
+</html>
+<script>
+
+  w3.includeHTML();
+  </script>
+  

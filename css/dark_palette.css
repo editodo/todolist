@@ -1,0 +1,169 @@
+@charset "utf-8";
+/* ============================================
+    darkmode 
+============================================ */
+.darkmode.palette_default .todolist_table {
+  background-color: var(--dark-default-base);
+}
+
+.darkmode.palette_default .editodo_todolist .btn_dark {
+  border-color: var(--dark-default-accent);
+  background-color: var(--dark-default-accent);
+  color: #333 
+}
+
+.darkmode.palette_default .checkbox02 .on {
+  border-color: #666666;
+  background-color: #666666;
+}
+
+.darkmode.palette_default .checkbox02 input[type="checkbox"]:checked+.on {
+  border-color: var(--dark-default-accent);
+  background-color: var(--dark-default-accent);
+}
+
+.darkmode.palette_default .checkbox02 label {
+  color: #DADADA;
+}
+
+.darkmode.palette_default .checkbox02:has(:checked) label {
+  color: #666666;
+}
+
+.darkmode.palette_default .checkbox02 input[type="checkbox"]:checked+.on:after {
+  border-color: var(--dark-default-base);
+}
+
+
+
+/* 민초 */
+.darkmode.palette_mincho .todolist_table {
+  background-color: var(--dark-mimt-base);
+}
+
+.darkmode.palette_mincho .editodo_todolist .btn_dark {
+  border-color: var(--dark-mimt-accent);
+  background-color: var(--dark-mimt-accent);
+}
+
+.darkmode.palette_mincho .checkbox02 .on {
+  border-color: var(--dark-mimt-dominant);
+  background-color: var(--dark-mimt-dominant);
+}
+
+.darkmode.palette_mincho .checkbox02 input[type="checkbox"]:checked+.on {
+  border-color: var(--dark-mimt-accent);
+  background-color: var(--dark-mimt-accent);
+}
+
+.darkmode.palette_mincho .checkbox02 label {
+  color: #DFF1F0;
+}
+
+.darkmode.palette_mincho .checkbox02:has(:checked) label {
+  color: #78ABA9;
+}
+
+.darkmode.palette_mincho .todolist_table .btn_new_todo {
+  background-color: var(--dark-mimt-accent);
+  color: #333;
+}
+
+/* 옐로우 */
+.darkmode.palette_yellow .todolist_table {
+  background-color: var(--dark-yellow-base);
+}
+
+.darkmode.palette_yellow .editodo_todolist .btn_dark {
+  border-color: var(--dark-yellow-accent);
+  background-color: var(--dark-yellow-accent);
+}
+
+.darkmode.palette_yellow .checkbox02 .on {
+  border-color: var(--dark-yellow-dominant);
+  background-color: var(--dark-yellow-dominant);
+}
+
+.darkmode.palette_yellow .checkbox02 input[type="checkbox"]:checked+.on {
+  border-color: var(--dark-yellow-accent);
+  background-color: var(--dark-yellow-accent);
+}
+
+.darkmode.palette_yellow .checkbox02 label {
+  color: #F2EEE0;
+}
+
+.darkmode.palette_yellow .checkbox02:has(:checked) label {
+  color: #958D71;
+}
+
+.darkmode.palette_yellow .todolist_table .btn_new_todo {
+  background-color: var(--dark-yellow-accent);
+  color: #333;
+}
+
+/* 그린 */
+.darkmode.palette_green .todolist_table {
+  background-color: var(--dark-green-base);
+}
+
+.darkmode.palette_green .editodo_todolist .btn_dark {
+  border-color: var(--dark-green-accent);
+  background-color: var(--dark-green-accent);
+}
+
+.darkmode.palette_green .checkbox02 .on {
+  border-color: var(--dark-green-dominant);
+  background-color: var(--dark-green-dominant);
+}
+
+.darkmode.palette_green .checkbox02 input[type="checkbox"]:checked+.on {
+  border-color: var(--dark-green-accent);
+  background-color: var(--dark-green-accent);
+}
+
+.darkmode.palette_green .checkbox02 label {
+  color: #EDFAE7;
+}
+
+.darkmode.palette_green .checkbox02:has(:checked) label {
+  color: #829C76;
+}
+
+.darkmode.palette_green .todolist_table .btn_new_todo {
+  background-color: var(--dark-green-accent);
+  color: #333;
+}
+
+/* 핑키 */
+.darkmode.palette_pinky .todolist_table {
+  background-color: var(--dark-pinky-base);
+}
+
+.darkmode.palette_pinky .editodo_todolist .btn_dark {
+  border-color: var(--dark-pinky-accent);
+  background-color: var(--dark-pinky-accent);
+}
+
+.darkmode.palette_pinky .checkbox02 .on {
+  border-color: var(--dark-pinky-dominant);
+  background-color: var(--dark-pinky-dominant);
+}
+
+.darkmode.palette_pinky .checkbox02 input[type="checkbox"]:checked+.on {
+  border-color: var(--dark-pinky-accent);
+  background-color: var(--dark-pinky-accent);
+}
+
+.darkmode.palette_pinky .checkbox02 label {
+  color: #F3DBE4;
+}
+
+.darkmode.palette_pinky .checkbox02:has(:checked) label {
+  color: #AB7B8E;
+}
+
+.darkmode.palette_pinky .todolist_table .btn_new_todo {
+  background-color: var(--dark-pinky-accent);
+  color: #333;
+}

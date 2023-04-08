@@ -1,0 +1,20 @@
+@charset "uft-8";
+
+
+
+/* ============================================
+    editodo_mypage (nav)  
+============================================ */
+.editodo_mypage {background-color: #F7F8F9; }
+.editodo_mypage.bg-white {background-color: #fff; }
+.editodo_mypage .mypage_info {height: 60px; padding: 0 16px; box-sizing: border-box; border-bottom: 1px solid #eee; background-color: #fff;}
+.editodo_mypage .mypage_info .btn_info {position: relative; height: 60px; font-size: 20px; color:#222; font-weight: 600; letter-spacing: -0.33px;}
+.editodo_mypage .mypage_info .mypage_arrow {position: absolute; top: 24px; right: -16px; width: 12px; height: 12px; background-color: #222; -webkit-mask-image: url("../images/common/direction.svg"); mask-image: url("../images/common/direction.svg"); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center center; mask-position: center center; -webkit-mask-size: 12px 12px; mask-size: 12px 12px;}
+
+.editodo_mypage .category {margin-top: 10px; border-bottom: 1px solid #eee; }
+.editodo_mypage .category li {position: relative; height: 45px; padding: 0 20px; background-color: #fff; line-height: 45px; font-size: 14px; color: #444;}
+.editodo_mypage .category .btn_category {display: block; width: 100%; height: 100%; line-height: 45px; font-size: 14px; color: #444;}
+.editodo_mypage .category .btn_category + .icon_direction {position: absolute; top: 18px; right: 20px; width: 8px; height: 8px; background-color: #ccc; -webkit-mask-image: url("../images/common/direction_small.svg"); mask-image: url("../images/common/direction_small.svg"); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center center; mask-position: center center; -webkit-mask-size: 8px 8px; mask-size: 8px 8px;}
+
+.editodo_mypage .category_util > li {position: relative; }
+.editodo_mypage .category_util .category_state {position: absolute; top: 0; right: 20px; color: #888; font-size: 13px; text-align: right; }

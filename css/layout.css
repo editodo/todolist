@@ -1,0 +1,75 @@
+@charset "utf-8";
+
+/* ============================================
+    layout
+============================================ */
+html, body {position: relative; width: 100%; height: 100%; }
+#wrap {width: 100%; height: 100%; display: flex; flex-wrap: nowrap; flex-direction: column; font-family: 'Noto Sans', sans-serif; font-weight: 400; }
+#wrap .header,
+#wrap .footer {flex-basis: 100%; }
+
+.editodo_inner {max-width: 720px; margin: 0 auto; padding: 0; box-sizing: border-box; }
+.side_pd {padding: 0 18px; box-sizing: border-box; }
+
+
+
+
+
+/* ============================================
+    header
+============================================ */
+#wrap .header {position: relative; flex: 1; width: 100%; height: 50px; background-color: #fff;}
+.header .hd_util {position: absolute; top: 10px; left: 18px; width: 30px; height: 30px; }
+.header .hd_util .hd_back {width: 30px; height: 30px; background-color: #222; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: left center; mask-position: left center;  -webkit-mask-size: 16px 16px; mask-size: 16px 16px;}
+.header .hd_util .hd_back.arrow01 {-webkit-mask-image: url("../images/common/hd_direction.svg"); mask-image: url("../images/common/hd_direction.svg"); }
+.header .hd_util .hd_back.arrow02 {-webkit-mask-image: url("../images/common/hd_arrow.svg"); mask-image: url("../images/common/hd_arrow.svg");}
+.header .hd_tit {height: 50px; font-size: 16px; text-align: center; color: #222; font-weight: 600; line-height: 50px; letter-spacing: -0.33px;}
+
+
+
+
+
+/* ============================================
+    editodo_wrap
+============================================ */
+.container {height: 100%; align-self: stretch; padding-bottom: 100px; background-color: #fff; }
+
+
+
+
+
+/* ============================================
+    editodo_fnb
+============================================ */
+.editodo_fnb {position: fixed; bottom: 0; left: 0; flex: 1; width: 100%; height: 60px;  box-sizing: border-box; border-top: 1px solid #eee; background-color: #fff; }
+.editodo_fnb .fnb_list {display: flex; justify-content: space-around; align-items: center; height: 100%;}
+.editodo_fnb .fnb_list .btn_fnb .fnb_icon {display: block; width: 20px; height: 20px; margin: 0 auto; background-color:#ccc;-webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: top center; mask-position: top center;}
+.editodo_fnb .fnb_list .btn_fnb .fnb_tit {display: block; margin-top: 4px; font-size: 12px; color: #AAAAAA; font-weight: 500; letter-spacing: -0.33px;}
+
+.editodo_fnb .fnb_list .btn_fnb.active .fnb_icon {background-color: #222; }
+.editodo_fnb .fnb_list .btn_fnb.active .fnb_tit {color: #222;} 
+.editodo_fnb .fnb_list .fnb_todolist {-webkit-mask-image: url("../images/common/fnb_todolist.svg"); mask-image: url("../images/common/fnb_todolist.svg"); -webkit-mask-size: 20px 16px; mask-size: 20px 16px;}
+.editodo_fnb .fnb_list .fnb_calendar {-webkit-mask-image: url("../images/common/fnb_calendar.svg"); mask-image: url("../images/common/fnb_calendar.svg"); -webkit-mask-size: 16px 18px; mask-size: 16px 18px;}
+.editodo_fnb .fnb_list .fnb_daily {-webkit-mask-image: url("../images/common/fnb_todolist.svg"); mask-image: url("../images/common/fnb_todolist.svg"); -webkit-mask-size: 20px 16px; mask-size: 20px 16px;}
+.editodo_fnb .fnb_list .fnb_mypage {-webkit-mask-image: url("../images/common/fnb_mypage.svg"); mask-image: url("../images/common/fnb_mypage.svg"); -webkit-mask-size: 16px 18px; mask-size: 16px 18px;}
+
+
+
+
+
+/* ============================================
+    layer
+============================================ */
+.layer {display: none; position: fixed; top: 0; left: 0; z-index: 50;  width: 100%; height: 100%; }
+.layer .dim {position: absolute; top: 0; left: 0; z-index: 60; width: 100%; height: 100%; background-color: rgba(0,0,0,0.2); }
+.layer .layer_content {position: absolute; bottom: 0; left: 0; z-index: 70;}
+
+.layer_drop .layer_content {width: 100%; min-height: 180px; background-color: #fff; box-sizing: border-box; border-radius: 20px 20px 0 0; box-shadow: 0px -3px 14px rgba(34, 34, 34, 0.1);}
+.layer_drop .drop_header {position: relative; min-height: 80px; padding: 30px 15px;  box-sizing: border-box; border-bottom: 1px solid #eee; }
+.layer_drop .drop_header:after {content: ''; position: absolute; top: 5px; left: 50%; width: 50px; height: 3px; border-radius: 18px; background-color: #eee; transform: translateX(-50%); }
+.layer_drop .drop_header .drop_tit {display: block; font-size: 15px; text-align: center; font-weight: 500; color: #222;}
+.layer_drop .drop_list li {height: 50px; line-height: 50px;  }
+.layer_drop .drop_list .btn_drop {display: block; width: 100%; font-size: 14px; color: #444; text-align: center;}
+.layer_drop .drop_list .btn_drop > i {display: inline-block; margin-right: 4px;}
+.layer_drop .drop_list .icon_modify {width: 14px; height: 14px; background-color: #222; -webkit-mask-image: url("../images/common/modify.svg"); mask-image: url("../images/common/modify.svg");}
+.layer_drop .drop_list .icon_garbage {width: 14px; height: 14px; background-color: #ff3030; -webkit-mask-image: url("../images/common/garbage.svg"); mask-image: url("../images/common/garbage.svg"); color: #FF3030;}

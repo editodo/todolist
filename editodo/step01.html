@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+  @import url("../css/style.css");
+  </style>
+  <link type="text/css" rel="stylesheet" href="../css/slick.css"/>
+
+  <script type="text/javascript" src="../JS/jquery-3.6.4.min.js"></script>
+  <script type="text/javascript" src="../JS/slick.min.js"></script>
+  <script type="text/javascript" src="../JS/common.js"></script>
+  <script type="text/javascript" src="https://www.w3schools.com/lib/w3.js"></script>
+  <title>테마선택</title>
+</head>
+<body>
+  <div id="wrap" class="editodo_wrap">
+
+    <div class="container editodo_step">
+      <div class="editodo_inner side_pd">
+        <ul class="step_process on">
+          <li class="on">
+            <span class="step_count"></span>
+            <span class="step_name">테마선택</span>
+          </li>
+          <li>
+            <span class="step_count"></span>
+            <span class="step_name">색상선택</span>
+          </li>
+          <li>
+            <span class="step_count"></span>
+            <span class="step_name">선택확인</span>
+          </li>
+        </ul>
+
+        <section class="section_choose">
+          <h3 class="title">내 마음에 드는<br>테마를 골라볼까요?</h3>
+          <p class="subtitle">
+            나중에 마이페이지에서 수정할 수 있어요.<br>
+            더 많은 테마는 E-T에서 열심히 준비 중이에요!
+          </p>
+          <ul class="slick_list layout_option mode">
+            <li class="on"><button type="button" class="btn_option lightmode">라이트</button></li>
+            <li><button type="button" class="btn_option darkmode">다크</button></li>
+          </ul>
+        </section>
+
+        <div class="bottom_btn_group">
+          <button type="buttton" onclick="location.href='step02.html'" class="btn btn_main full">다음</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
+
+<script>
+$(function(){
+  const editodoWrap = document.querySelector('.editodo_wrap');
+
+  $('.slick-current').addClass('on');
+  // 옵션 - 슬라이드 이동 후 이벤트 시작
+  $('.layout_option').on('afterChange', function(){
+    const current = document.querySelector('.slick-current').children;
+    let target = current[0].classList[1];
+
+    $(this).find('.slick-current').addClass('on');
+    editodoWrap.classList.add(target);
+    sessionStorage.setItem('mode' ,target);
+  });
+
+  //옵션  - 슬라이드 이동 전 이벤트 시작
+  $('.layout_option').on('beforeChange', function(){
+    const current = document.querySelector('.slick-current').children;
+    let target = current[0].classList[1];
+    $('.slick-slide').removeClass('on');
+    editodoWrap.classList.remove(target);
+  });
+
+
+
+});
+sessionStorage.clear();
+
+w3.includeHTML();
+</script>

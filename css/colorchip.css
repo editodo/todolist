@@ -1,0 +1,74 @@
+@charset "utf-8";
+
+
+/* ============================================
+    common 
+============================================ */
+:root {
+  --main-color: #5AC1CC;
+  --dark-color: #222;
+  --white-color: #fff;
+  --gray-lavel-eee: #eee;
+
+  --darkmode-body-color: #12120A;
+
+  /*  디폴트 */
+  --light-default-base: #F5F5F5;
+  --light-default-dominant: #D9D9D9;
+  --light-default-accent: #222222;
+  --dark-default-base: #333333;
+  --dark-default-dominant: #666666;
+  --dark-default-accent: #D8D8D8;
+
+
+  /* 민초 */
+  --light-mimt-base: #D8F0EF;
+  --light-mimt-dominant: #A7D3D2;
+  --light-brown-accent: #997B6A;
+  --dark-mimt-base: #40817D;
+  --dark-mimt-dominant: #A7D3D2;
+  --dark-mimt-accent: #98D2CF;
+
+  /* 체리레몬*/
+  --light-lemon-base: #FFF3CA;
+  --light-lemon-dominant: #D9CC9D;
+  --light-cherry-accent: #F3637D;
+  --dark-yellow-base: #695D34;
+  --dark-yellow-dominant: #97864D;
+  --dark-yellow-accent: #EAE5BA;
+
+
+  /* 그린 */
+  --light-green-base: #E9FFDF;
+  --light-green-dominant: #B9D9AA;
+  --light-green-accent: #228262;
+  --dark-green-base: #374E2D;
+  --dark-green-dominant: #59784C;
+  --dark-green-accent: #CBE2BF;
+
+  /* 핑키 */
+  --light-pinky-base: #FFD8E7;
+  --light-pinky-dominant: #FFB9D4;
+  --light-pinky-accent: #FA6EA5;
+  --dark-pinky-base: #6F2945;
+  --dark-pinky-dominant: #904765;
+  --dark-pinky-accent: #FF9FC5;
+
+
+  /* 스타일 
+  ----------------------------------------------------- */
+  --style-round-20: 20px;
+
+
+
+}
+
+
+
+.font_main {
+  color: var(--main-color);
+}
+
+.bg_main {
+  background-color: var(--main-color);
+}

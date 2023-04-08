@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+  @import url("../css/style.css");
+  </style>
+  <link type="text/css" rel="stylesheet" href="../css/slick.css"/>
+
+  <script type="text/javascript" src="../JS/jquery-3.6.4.min.js"></script>
+  <script type="text/javascript" src="../JS/slick.min.js"></script>
+  <script type="text/javascript" src="../JS/common.js"></script>
+  <script type="text/javascript" src="https://www.w3schools.com/lib/w3.js"></script>
+  <title>투두리스트</title>
+</head>
+<body>
+  <div id="wrap" class="editodo_wrap">
+
+    <div class="container editodo_todolist">
+      <!-- S: edito_inner -->
+      <div class="editodo_inner side_pd">
+        <div class="date_header">
+          <button type="button" class="btn_arrow prev"><span class="visuallyhidden">이전</span></button>
+          <!-- <p class="date_now">03.22(토)</p> -->
+          <p class="date_now"><span class="year"></span>.<span class="month"></span>(<span class="week"></span>)</p>
+          <button type="button" class="btn_arrow next"><span class="visuallyhidden">다음</span></button>
+        </div>
+
+        <div class="todolist_table" w3-include-html="../include/todolist_skin.html"></div> 
+
+        <div class="bottom_btn_group">
+          <button type="buttton" class="btn btn_dark full btn_newtodo">+ New toodo</button>
+        </div>
+      </div>
+      <!-- E: editodo_inner -->
+    </div>
+
+    <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
+
+  </div>
+
+  <div w3-include-html="../include/layer_drop.html"></div>
+</body>
+
+</html>
+<script>
+$(function(){
+  //addEventListener 안먹혀서 jquery 사용. 
+
+  //더보기 
+  $('.item_more').on('click', function(){
+    console.log('ddsss');
+    $('.layer').css('display', 'block');
+  });
+
+  $('.dim').on('click', function(){
+    console.log('dd');
+    $('.layer').css('display', 'none');
+  });
+
+
+}); //End
+
+
+w3.includeHTML();
+
+</script>
+
+<script>
+  const init = {
+    monList: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+    dayList: ['일', '월', '화', '수', '목', '금', '토'],
+    today: new Date(),
+    monForChange: new Date().getMonth(),
+    activeDate: new Date(),
+    getFirstDay: (yy, mm) => new Date(yy, mm, 1),
+    getLastDay: (yy, mm) => new Date(yy, mm + 1, 0),
+    nextMonth: function () {
+      let d = new Date();
+      d.setDate(1);
+      d.setMonth(++this.monForChange);
+      this.activeDate = d;
+      return d;
+    },
+    prevMonth: function () {
+      let d = new Date();
+      d.setDate(1);
+      d.setMonth(--this.monForChange);
+      this.activeDate = d;
+      return d;
+    },
+    addZero: (num) => (num < 10) ? '0' + num : num,
+    activeDTag: null,
+    getIndex: function (node) {
+      let index = 0;
+      while (node = node.previousElementSibling) {
+        index++;
+      }
+      return index;
+    }
+  };
+  
+  const $calBody = document.querySelector('.todolist_table');
+  const $btnNext = document.querySelector('.btn_arrow.next');
+  const $btnPrev = document.querySelector('.btn_arrow.prev');
+  const dailydiary = document.querySelector('.daily-diary');
+  
+  /**
+   * @param {number} date
+   * @param {number} dayIn
+  */
+
+  /**
+   * @param {date} fullDate
+   */
+  function loadYYMM (fullDate) {
+    let yy = fullDate.getFullYear();
+    let mm = fullDate.getMonth();
+    let firstDay = init.getFirstDay(yy, mm);
+    let lastDay = init.getLastDay(yy, mm);
+    let markToday;  // for marking today date
+    let week = ['일', '월', '화', '수', '목', '금', '토']; 
+    let markWeek = week[new Date().getDay()];
+    
+    if (mm === init.today.getMonth() && yy === init.today.getFullYear()) {
+      markToday = init.today.getDate();
+    }
+
+
+    document.querySelector('.date_now .month').textContent = init.monList[mm];
+    document.querySelector('.date_now .year').textContent = yy;
+    document.querySelector('.date_now .week').textContent = week[markWeek];
+
+  }
+
+  loadYYMM(init.today);
+  
+  $btnNext.addEventListener('click', () => loadYYMM(init.nextMonth()));
+  $btnPrev.addEventListener('click', () => loadYYMM(init.prevMonth()));
+  
+
+
+  </script>

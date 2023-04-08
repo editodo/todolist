@@ -1,0 +1,14 @@
+@charset "utf-8";
+
+
+/* ============================================
+    style mode
+============================================ */
+/* 라운드 */
+.style_round .todolist_table {
+  border-radius: var(--style-round-20) !important;
+}
+
+.style_round .checkbox02 .on {
+  border-radius: var(--style-round-20);
+}

@@ -1,0 +1,42 @@
+@charset "utf-8"; 
+
+/* =========================================
+    login
+=========================================== */
+.editodo_login .form_wrap {margin-top: 0; padding-top: 40px; }
+.editodo_login .form_dl:first-child .form_input {border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.editodo_login .form_dl:last-of-type .form_input {border-top-left-radius: 0; border-top-right-radius: 0; }
+.editodo_login .form_dl + .form_dl {margin-top: -1px; }
+
+.editodo_login .login_util {position: relative; margin-top: 16px; }
+.editodo_login .login_util .find_idpw {position: absolute; top: 3px; right: 0; font-size: 12px; color: #888; text-align: right; font-weight: 500;}
+
+
+
+
+
+/* =========================================
+    join
+=========================================== */.editodo_join .form_dl + .save_id {margin-top: 40px; }
+.editodo_join .underline {text-decoration: underline;}
+
+
+
+
+/* =========================================
+    find id & pw
+=========================================== */
+.editodo_join .tab_list {display: flex;}
+.editodo_join .tab_list li {flex-basis: 50%; height: 50px; border-bottom: 2px solid #eee; align-items: center;}
+.editodo_join .tab_group li .btn_tab {display: block; width: 100%; height: 50px; font-size: 14px; color: #666; text-align: center; }
+
+.editodo_join .tab_group li.active {border-color: var(--main-color); }
+.editodo_join .tab_group li.active .btn_tab {color: var(--main-color); font-weight: 500; }
+
+.editodo_join .result {display: none; margin-top: 40px; }
+.editodo_join .result p {font-size: 14px; color: #444; text-align: center; }
+.editodo_join .result ul {width: 100%; min-height: 100px; margin-top: 20px; padding: 25px 20px; box-sizing: border-box; border-radius: 6px; background-color: #f7f8f9;}
+.editodo_join .result ul > li {font-size: 14px; color: #444;}
+.editodo_join .result ul > li + li {margin-top: 10px; }
+
+.editodo_join .result.pw {margin-top: 20px; }
