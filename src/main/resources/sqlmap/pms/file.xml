@@ -1,0 +1,58 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ls.gpis.framework.file">
+    
+    <!-- 파일 리스트를 반환한다. -->
+    <select id="selectFileList" resultType="com.ls.gpis.dto.FileDTO">
+         SELECT UUID,
+                FILENAME,
+                DEL_FLAG,
+                MIMETYPE,
+                B_ID,
+                ISNULL(SIZE, 0) SIZE,
+                CONTENTS_ID,
+                CREATER,
+                CONVERT(VARCHAR(10), CREATED_DATE, 120) CREATED_DATE,
+                UPDATER,
+                CONVERT(VARCHAR(10), UPDATED_DATE, 120) UPDATED_DATE
+           FROM CMT_FILE_INFO
+          WHERE DEL_FLAG = 'N'
+            AND CONTENTS_ID = #{CONTENTS_ID}
+    </select>
+
+    <!-- 파일을 가져온다 -->
+    <select id="selectFile" resultType="com.ls.gpis.dto.FileDTO" >
+         SELECT UUID,
+                FILENAME,
+                MIMETYPE,
+                B_ID,
+                ISNULL(SIZE, 0) SIZE,
+                CONTENTS_ID,
+                CREATER,
+                CONVERT(VARCHAR(10), CREATED_DATE, 120) CREATED_DATE,
+                UPDATER,
+                CONVERT(VARCHAR(10), UPDATED_DATE, 120) UPDATED_DATE
+           FROM CMT_FILE_INFO
+          WHERE DEL_FLAG = 'N'
+            AND UUID = #{UUID}     
+    </select>
+
+	<!-- 파일을 등록한다 -->
+	<insert id="insertFile" parameterType="com.ls.gpis.dto.FileDTO" >
+        INSERT INTO CMT_FILE_INFO(UUID, FILENAME, MIMETYPE, B_ID, CONTENTS_ID, SIZE, DEL_FLAG, CREATER, CREATED_DATE)
+        VALUES(#{UUID}, #{FILENAME}, #{MIMETYPE}, #{B_ID}, #{CONTENTS_ID}, #{SIZE}, 'N', #{CREATER}, GETDATE() )		
+	</insert>
+
+	<!-- 게시물을 삭제처리한다 -->
+	<update id="deleteFile" parameterType="com.ls.gpis.dto.FileDTO" >
+		UPDATE CMT_FILE_INFO
+   		   SET DEL_FLAG = 'Y',
+			   UPDATER = #{UPDATER},
+			   UPDATED_DATE = GETDATE()
+         WHERE UUID = #{UUID}
+	</update>
+
+</mapper>
+

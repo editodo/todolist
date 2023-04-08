@@ -1,0 +1,95 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ls.gpis.framework.group">
+
+	<!--사용자 그룹 권한 정보를 갱신한다.-->
+	<update id="updateGroupAuthLevelMenu" parameterType="map">
+
+       MERGE INTO CMT_GROUP_MENU_MAP CGMM
+       USING(SELECT #{GROUP_ID} GROUP_ID, #{MENU_ID} MENU_ID) SRC  ON (CGMM.GROUP_ID = SRC.GROUP_ID AND  CGMM.MENU_ID = SRC.MENU_ID)
+	   WHEN MATCHED THEN
+		  UPDATE 
+             SET AUTH_LEVEL = #{AUTH_LEVEL}		            
+	   WHEN NOT MATCHED THEN
+	    INSERT (GROUP_ID, MENU_ID, AUTH_LEVEL, CREATED_DATE, CREATER_ID)
+		VALUES(#{GROUP_ID}, #{MENU_ID}, #{AUTH_LEVEL}, GETDATE(), #{CREATER_ID});
+
+	</update>
+
+
+    <!--특정 그룹의 사용자 정보를 추가한다.-->
+    <insert id="insertGroupUserList">
+        INSERT INTO CMT_EMP_GROUP_MAP(GROUP_ID, EMP_USER_ID, CREATED_DATE, CREATER_ID)
+        VALUES(#{GROUP_ID}, #{EMP_USER_ID}, GETDATE(), #{CREATER_ID})
+    </insert>
+
+
+    <!--특정 그룹의 사용자 리스트를 삭제한다.-->
+    <delete id="deleteGroupUserList">
+        DELETE 
+          FROM CMT_EMP_GROUP_MAP
+         WHERE GROUP_ID = #{GROUP_ID}
+    </delete>
+
+    <!-- 그룹 리스트를 반환한다. -->
+    <select id="selectGroupList" resultType="hashmap" >
+        SELECT GROUP_ID,
+               GROUP_NAME,
+	           ACTV,
+	           CREATED_DATE,
+	           CREATER_ID
+          FROM CMT_EMP_GROUP
+        WHERE ACTV = 'Y'  
+    </select>
+
+
+    <!-- 특정 그룹의 사용자 리스트를 반환한다. -->
+    <select id="selectGroupUserList" resultType="hashmap" >
+        SELECT CEGM.GROUP_ID,
+               CEGM.EMP_USER_ID,
+			   CE.EMP_NAME,
+               CE.DEPT_NAME
+          FROM CMT_EMP_GROUP_MAP CEGM
+               LEFT JOIN CMT_EMP CE ON CE.EMP_USER_ID = CEGM.EMP_USER_ID
+          WHERE CEGM.GROUP_ID = #{GROUP_ID}
+    </select>
+
+    <!--신규 그룹정보를 추가한다.-->
+    <insert id="insertNewGroup" parameterType="hashmap">
+        <selectKey keyProperty="GROUP_ID" resultType="int" order="BEFORE">
+            SELECT ISNULL(MAX(GROUP_ID), 0) + 1
+              FROM CMT_EMP_GROUP
+        </selectKey>
+        INSERT INTO 
+            CMT_EMP_GROUP(
+                GROUP_ID, 
+                GROUP_NAME, 
+                ACTV, 
+                CREATED_DATE,
+                CREATER_ID)
+        VALUES(
+                #{GROUP_ID}, 
+                #{GROUP_NAME}, 
+                'Y', 
+                GETDATE(),
+                #{CREATER_ID}
+                )
+    </insert>
+
+    <!--그룹정보를 수정한다.-->
+    <update id="updateGroup" parameterType="hashmap">
+        UPDATE CMT_EMP_GROUP
+           SET GROUP_NAME = #{GROUP_NAME}
+         WHERE GROUP_ID = #{GROUP_ID}
+    </update>
+    
+    <!--그룹정보를 삭제한다.-->
+    <update id="deleteGroup">
+        UPDATE CMT_EMP_GROUP
+           SET ACTV = 'N'
+         WHERE GROUP_ID = #{GROUP_ID}
+    </update>
+
+</mapper>

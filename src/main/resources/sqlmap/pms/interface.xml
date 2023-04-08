@@ -1,0 +1,90 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ls.gpis.framework.interface">
+   
+       <!-- 구매이력 I/F 정보를 반환한다. -->
+       
+       <select id="selectBuyList" resultType="hashMap">
+              SELECT                      
+                      PRODUCT_CLASS
+                     ,PRODUCT_GROUP
+                     ,PRODUCT_SUBCLASS
+                     ,PRODUCT_CODE
+                     ,PRODUCT_NAME
+                     ,CORPORATE_NAME
+                     ,WORKPLACE_NAME
+                     ,CORPORATE_ID
+                     ,MANAGER
+                     ,MANAGER_TEL
+                     ,IN_QTY
+                     ,IN_DAY
+                     ,IN_UNIT
+                     ,BASIC_UNIT
+                     ,IN_CURRENCY
+                     ,IN_AMOUNT
+                     ,IN_AMOUNT_WON
+                     ,IN_COUNTRY
+                     ,IN_COMPANY_CODE
+                     ,IN_COMPANY_NAME
+                     ,RELEASED_DATE
+                     ,DELIVER_DATE
+                     ,LEAD_TIME
+                     ,IF_DATE
+                     ,IF_STATUS
+                     ,IF_MSG
+                FROM ${FLAG_NAME}
+               WHERE IF_DATE BETWEEN #{fromDate} AND DATEADD(DAY, 1, #{toDate})
+       </select>
+
+       <!-- 업체정보 I/F를 반환한다. -->
+       <select id="selectCompanyList" resultType="hashMap">
+                SELECT                      
+                     CORPORATE_ID
+                     ,COMPANY_CODE
+                     ,COMPANY_NAME
+                     ,COMPANY_REGIST_NO
+                     ,REPRESENTATIVE
+                     ,ADDRESS
+                     ,TEL_NO
+                     ,COUNTRY
+                     ,INDUSTRY_CONDTION
+                     ,INDUSTRY_TYPE
+                     ,BUY_SCALE
+                     ,MANAGER
+                     ,MANAGER_TEL
+                     ,CREDIT_NAME
+                     ,CREDIT_GRADE
+                     ,IF_DATE
+                     ,IF_STATUS
+                     ,IF_MSG
+                FROM ${FLAG_NAME}
+                WHERE IF_DATE BETWEEN #{fromDate} AND DATEADD(DAY, 1, #{toDate})
+
+       </select>
+
+       <!-- 업체평가정보 I/F를 반환한다. -->
+       <select id="selectCompanyEstimationList" resultType="hashMap">
+                SELECT                      
+                    CORPORATE_ID
+                     ,COMPANY_CODE
+                     ,RATING_ITEM
+                     ,DISTRIBUTE
+                     ,SCORE
+                     ,RANKING
+                     ,YEAR
+                     ,IF_DATE
+                     ,IF_STATUS
+                     ,IF_MSG
+                FROM ${FLAG_NAME}
+                WHERE IF_DATE BETWEEN #{fromDate} AND DATEADD(DAY, 1, #{toDate})
+
+       </select>
+
+
+
+
+
+</mapper>
+

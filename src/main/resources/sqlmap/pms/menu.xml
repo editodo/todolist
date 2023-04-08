@@ -1,0 +1,197 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ls.gpis.framework.menu">
+
+
+	<!--신규 메뉴정보를 등록한다-->
+	<insert id="insertMenu" parameterType="com.ls.gpis.dto.MenuItemDTO">
+		INSERT INTO CMT_MENU(
+				MENU_ID,
+				MENU_NAME,
+				UP_MENU_ID,
+				MENU_URL,
+				ORDER_NO,
+				ACTV,
+				MENU_ICON,
+				CREATED_DATE,
+				CREATER_ID)
+		VALUES(#{MENU_ID},
+				#{MENU_NAME},
+				#{UP_MENU_ID},
+				#{MENU_URL},
+				#{ORDER_NO},
+				#{ACTV},
+				#{MENU_ICON},
+				GETDATE(),
+				#{CREATER_ID})		
+	</insert>
+
+	<!--메뉴정보를 수정한다-->
+	<update  id="updateMenu" parameterType="com.ls.gpis.dto.MenuItemDTO">
+		UPDATE CMT_MENU
+			SET MENU_NAME = #{MENU_NAME},
+				UP_MENU_ID = #{UP_MENU_ID},
+				MENU_URL = #{MENU_URL},
+				ORDER_NO = #{ORDER_NO},
+				ACTV = #{ACTV},
+				MENU_ICON = #{MENU_ICON}
+		WHERE MENU_ID = #{MENU_ID}
+	</update>
+	
+	<!--전체 메뉴정보를 반환한다.-->
+	<select id="selectMenuList"  resultType="com.ls.gpis.dto.MenuItemDTO">
+		SELECT MENU_ID,
+	   	  	   MENU_NAME,
+	   		   UP_MENU_ID,
+	           MENU_URL,
+	   		   ORDER_NO,
+	   		   ACTV,
+	   		   MENU_ICON,
+	   		   CREATED_DATE,
+	   		   CREATER_ID
+  		  FROM CMT_MENU
+		 WHERE UP_MENU_ID = #{UP_MENU_ID}
+ 		 ORDER BY ORDER_NO
+	</select>
+
+    <!-- 메뉴정보를 반환한다. -->
+    <select id="selectAuthMenuList" resultType="com.ls.gpis.dto.MenuDTO" >
+        
+		SELECT TMP.id, 
+	   		   TMP.name, 
+			   TMP.UP_MENU_ID, 
+			   TMP.url, 
+			   TMP.icon,
+		ISNULL(MAX(AUTH_LEVEL), 0) AUTH_LEVEL
+  FROM (SELECT CM.MENU_ID id,
+			   CM.ORDER_NO,
+			   CM.MENU_NAME name,
+			   CM.UP_MENU_ID,
+			   CM.MENU_URL url,
+			   CM.MENU_ICON icon,
+			   ISNULL(CEMM.AUTH_LEVEL, 0) AS AUTH_LEVEL
+		  FROM CMT_MENU CM
+			   LEFT JOIN CMT_EMP_MENU_MAP CEMM ON CM.MENU_ID = CEMM.MENU_ID AND CEMM.EMP_USER_ID = #{LOGIN_ID}
+		 WHERE UP_MENU_ID = #{UP_MENU_ID}
+		   AND CM.ACTV = 'Y'			 
+		 UNION ALL
+		SELECT CM.MENU_ID id,
+			   CM.ORDER_NO, 
+			   CM.MENU_NAME name,
+			   CM.UP_MENU_ID,
+			   CM.MENU_URL url,
+			   CM.MENU_ICON icon,
+			   MAX(AUTH_LEVEL) AUTH_LEVEL
+		  FROM CMT_MENU CM
+			   LEFT JOIN CMT_GROUP_MENU_MAP CGMM ON CM.MENU_ID = CGMM.MENU_ID
+		 WHERE CGMM.GROUP_ID IN (
+			  SELECT GROUP_ID
+				FROM CMT_EMP_GROUP
+			   WHERE GROUP_ID IN (SELECT GROUP_ID FROM CMT_EMP_GROUP_MAP WHERE EMP_USER_ID = #{LOGIN_ID})
+				 AND ACTV = 'Y')
+		   AND CM.UP_MENU_ID = #{UP_MENU_ID}
+		   AND CM.ACTV = 'Y'
+		 GROUP BY CM.MENU_ID,    
+		 		CM.MENU_NAME,ORDER_NO,
+			   CM.UP_MENU_ID,
+			   CM.MENU_URL,
+			   CM.MENU_ICON) TMP
+	WHERE TMP.AUTH_LEVEL > 0
+			GROUP BY TMP.id,
+					TMP.name, 
+					TMP.ORDER_NO,
+					TMP.UP_MENU_ID,
+					TMP.url,
+					TMP.icon
+		ORDER BY TMP.ORDER_NO 
+
+    </select>
+
+	<!-- 권한정보를 반환한다. -->	
+	<select id="selectAuthList" resultType="hashMap">
+		SELECT T.MENU_ID, MAX(T.AUTH_LEVEL) AUTH_LEVEL
+		FROM (
+				SELECT MENU_ID, AUTH_LEVEL
+				FROM CMT_GROUP_MENU_MAP
+				WHERE GROUP_ID IN (
+							SELECT GROUP_ID
+							FROM CMT_EMP_GROUP_MAP 
+							WHERE GROUP_ID IN (SELECT GROUP_ID
+												FROM CMT_EMP_GROUP
+												WHERE ACTV = 'Y')
+							AND EMP_USER_ID = #{LOGIN_ID}
+									)
+		
+				UNION ALL
+				SELECT MENU_ID, AUTH_LEVEL
+				FROM CMT_EMP_MENU_MAP
+				WHERE EMP_USER_ID = #{LOGIN_ID}
+				)AS T
+		GROUP BY T.MENU_ID
+	</select>
+
+
+	<!--그룹 권한설정용 메뉴정보를 반환한다.-->
+	<select id="selectAuthMenuList_Group" resultType="com.ls.gpis.dto.MenuDTO" parameterType="map">
+		
+		SELECT CM.MENU_ID ID,		
+			   CM.MENU_NAME name,
+	   		   CM.MENU_ICON,
+	   		   ISNULL(CGMM.AUTH_LEVEL, 0) AUTH_LEVEL
+		  FROM CMT_MENU CM
+     		   LEFT JOIN CMT_GROUP_MENU_MAP CGMM ON
+	 		   CM.MENU_ID = CGMM.MENU_ID AND CGMM.GROUP_ID = #{GROUP_ID}
+		 WHERE CM.ACTV = 'Y'
+ 		   AND CM.UP_MENU_ID = #{UP_MENU_ID}
+			
+	</select>
+
+	<!--결제라인 설정용 메뉴정보를 반환한다.-->
+	<select id="selectMenuSignListByUserId" resultType="com.ls.gpis.dto.MenuDTO" parameterType="map">		
+		SELECT CM.MENU_ID ID,		
+			   CM.MENU_NAME name,
+	   		   CM.MENU_ICON,
+	   		   ISNULL(CSMM.SIGN_ID, 0) SIGN_ID
+		  FROM CMT_MENU CM
+     		   LEFT JOIN CMT_SIGN_MENU_MAP CSMM ON
+	 		   CM.MENU_ID = CSMM.MENU_ID AND CSMM.EMP_USER_ID = #{empUserId}
+		 WHERE CM.ACTV = 'Y'
+ 		   AND CM.UP_MENU_ID = #{upMenuId}
+			
+	</select>
+
+
+	<!--사용자 권한설정용 메뉴정보를 반환한다.-->
+	<select id="selectAuthMenuList_id" resultType="com.ls.gpis.dto.MenuDTO" parameterType="map">
+		SELECT CM.MENU_ID id,		
+			   CM.MENU_NAME name,
+			   CM.MENU_ICON,
+			   ISNULL(CEMM.AUTH_LEVEL, 0) AUTH_LEVEL
+		  FROM CMT_MENU CM
+		  	   LEFT JOIN CMT_EMP_MENU_MAP CEMM ON 
+			   CM.MENU_ID = CEMM.MENU_ID AND CEMM.EMP_USER_ID = #{EMP_USER_ID}
+		 WHERE CM.ACTV = 'Y'
+		   AND CM.UP_MENU_ID = #{UP_MENU_ID}		   
+	</select>
+
+	<!--사용자 권한 정보를 갱신한다.-->
+	<update id="updateAuthLevelMenu" parameterType="map">
+
+	   MERGE INTO CMT_EMP_MENU_MAP CEMM
+       USING(SELECT #{EMP_USER_ID} EMP_USER_ID, #{MENU_ID} MENU_ID) SRC  ON (CEMM.EMP_USER_ID = SRC.EMP_USER_ID AND  CEMM.MENU_ID = SRC.MENU_ID)
+	   WHEN MATCHED THEN
+		  UPDATE 
+             SET AUTH_LEVEL = #{AUTH_LEVEL}		            
+	   WHEN NOT MATCHED THEN
+	    INSERT (EMP_USER_ID, MENU_ID, AUTH_LEVEL, CREATED_DATE, CREATER_ID)
+		VALUES(#{EMP_USER_ID}, #{MENU_ID}, #{AUTH_LEVEL}, GETDATE(), #{CREATER_ID});
+
+	</update>
+
+
+	
+
+</mapper>
+

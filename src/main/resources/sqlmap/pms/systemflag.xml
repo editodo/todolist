@@ -1,0 +1,85 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ls.gpis.framework.systemflag">
+   
+       <!-- 전체 시스템 플레그를 조회한다. -->
+       <select id="selectSystemFlagList" resultType="hashMap">
+              SELECT SYSTEM_FLAG_ID
+                     ,FLAG_NAME
+                     ,FLAG_CODE
+                     ,FLAG_DATA
+                     ,OUTPUT_ORDER
+                     ,CREATED_DATE
+                     ,CREATER_ID
+                     ,UPDATE_DATE
+                     ,UPDATE_ID
+                FROM SYSTEM_FLAG
+              WHERE 1 = 1
+                <if test="FLAG_NAME != null and FLAG_NAME != ''">
+                     AND FLAG_NAME = #{FLAG_NAME}
+                </if>     
+                <if test="FLAG_CODE != null and FLAG_CODE != ''">
+                     AND FLAG_CODE = #{FLAG_CODE}
+                </if>     
+              ORDER BY FLAG_NAME, OUTPUT_ORDER ASC
+       </select>
+
+       <!-- 전체 플레그 명칭을 반환한다 -->
+       <select id="selectFLAG_NAMEList" resultType="hashMap">
+              SELECT FLAG_NAME AS text,
+                     FLAG_NAME AS value              
+                FROM SYSTEM_FLAG
+              GROUP BY FLAG_NAME                              
+       </select>
+
+       
+
+
+       <!-- 시스템 플레그 정보를 DB에 저장한다. -->
+       <insert id="insertSystemFlag" parameterType="hashMap" >
+
+              INSERT INTO SYSTEM_FLAG(FLAG_NAME ,FLAG_CODE ,FLAG_DATA ,OUTPUT_ORDER ,CREATED_DATE ,CREATER_ID)
+              VALUES(#{FLAG_NAME} ,#{FLAG_CODE} ,#{FLAG_DATA} ,#{OUTPUT_ORDER} ,GETDATE() ,#{CREATER_ID} )
+	</insert>
+
+        <!--시스템 플래그를 삭제한다.-->
+       <delete id="deleteSystemFlag" parameterType="hashMap">
+              DELETE 
+              FROM SYSTEM_FLAG
+              WHERE SYSTEM_FLAG_ID = #{SYSTEM_FLAG_ID}
+       </delete>
+
+       <!--시스템 플래그 정보를 수정한다.-->
+       <update id="updateSystemFlag" parameterType="hashmap">
+              UPDATE SYSTEM_FLAG
+                 SET FLAG_NAME = #{FLAG_NAME}                    
+                     ,FLAG_CODE = #{FLAG_CODE}                    
+                     ,FLAG_DATA = #{FLAG_DATA}                    
+                     ,OUTPUT_ORDER = #{OUTPUT_ORDER}                    
+                     ,UPDATE_DATE = GETDATE()
+                     ,UPDATE_ID = #{UPDATE_ID}
+              WHERE SYSTEM_FLAG_ID = #{SYSTEM_FLAG_ID}
+       </update>
+       
+       <select id="selectSystemFlag" resultType="hashMap">
+              SELECT TOP 1 SYSTEM_FLAG_ID
+                     ,FLAG_NAME
+                     ,FLAG_CODE
+                     ,FLAG_DATA
+                     ,OUTPUT_ORDER
+                     ,CREATED_DATE
+                     ,CREATER_ID
+                     ,UPDATE_DATE
+                     ,UPDATE_ID
+                FROM SYSTEM_FLAG
+              WHERE 1 = 1
+                <if test="SYSTEM_FLAG_ID != null and SYSTEM_FLAG_ID != ''">
+                     AND SYSTEM_FLAG_ID = #{SYSTEM_FLAG_ID}
+                </if>                            
+       </select>
+
+
+</mapper>
+

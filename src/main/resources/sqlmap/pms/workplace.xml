@@ -1,0 +1,74 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ls.gpis.framework.workplace">
+    
+
+
+    <!--사업장 정보를 업데이트 한다.-->
+  	<update id="updateWorkPlace" parameterType="map">
+
+	   MERGE INTO WORKPLACE CE
+        USING(SELECT #{CORPORATE_ID} CORPORATE_ID,
+        #{WORKPLACE_ID} WORKPLACE_ID) SRC ON (CE.CORPORATE_ID = SRC.CORPORATE_ID and CE.WORKPLACE_ID = SRC.WORKPLACE_ID)
+	   WHEN MATCHED THEN
+		  UPDATE 
+             SET WORKPLACE_NAME = #{WORKPLACE_NAME},
+                ACTV =  #{ACTV}                ,
+                UPDATE_DATE = GETDATE(), 
+                UPDATE_ID = #{UPDATER_ID}
+	   WHEN NOT MATCHED THEN
+	    INSERT (WORKPLACE_ID,WORKPLACE_NAME,CORPORATE_ID, CREATED_DATE, CREATER_ID, ACTV)
+		VALUES(#{WORKPLACE_ID},#{WORKPLACE_NAME},#{CORPORATE_ID}, GETDATE(),  #{CREATER_ID},  #{ACTV});
+    
+	</update>
+
+ 
+
+    <!--전체 사업장 리스트를 반환한다. -->
+    <select id="selectWorkPlaceList" resultType="hashmap" parameterType="map">
+        SELECT a.WORKPLACE_NO
+                ,a.WORKPLACE_ID
+                ,a.WORKPLACE_NAME
+                ,a.CORPORATE_ID
+                ,b.CORPORATE_NAME
+                ,a.ACTV
+                ,FORMAT(a.CREATED_DATE,'yyyy-MM-dd') CREATED_DATE
+                ,(select isnull(emp_name,'') emp_name from cmt_emp where emp_user_id=a.CREATER_ID) CREATER_ID
+                ,FORMAT(a.UPDATE_DATE,'yyyy-MM-dd') UPDATE_DATE
+                ,(select isnull(emp_name,'') emp_name from cmt_emp where emp_user_id=a.UPDATE_ID) UPDATE_ID
+            FROM WORKPLACE a , CORPORATE b
+            where a.CORPORATE_ID = b.CORPORATE_ID
+        <if test="CORPORATE_ID != NULL and CORPORATE_ID != ''">
+            AND a.CORPORATE_ID = #{CORPORATE_ID}
+        </if>
+        <if test="WORKPLACE_ID != NULL and WORKPLACE_ID != ''">
+            AND a.WORKPLACE_ID = #{WORKPLACE_ID}
+        </if>   
+    </select>
+
+    <select id="selectWorkPlace" resultType="hashmap" parameterType="map">
+        SELECT a.WORKPLACE_NO
+                ,a.WORKPLACE_ID
+                ,a.WORKPLACE_NAME
+                ,a.CORPORATE_ID
+                ,b.CORPORATE_NAME
+                ,a.ACTV
+                ,FORMAT(a.CREATED_DATE,'yyyy-MM-dd') CREATED_DATE
+                ,(select isnull(emp_name,'') emp_name from cmt_emp where emp_user_id=a.CREATER_ID) CREATER_ID
+                ,FORMAT(a.UPDATE_DATE,'yyyy-MM-dd') UPDATE_DATE
+                ,(select isnull(emp_name,'') emp_name from cmt_emp where emp_user_id=a.UPDATE_ID) UPDATE_ID
+            FROM WORKPLACE a , CORPORATE b
+            where a.CORPORATE_ID = b.CORPORATE_ID
+        <if test="CORPORATE_ID != NULL and CORPORATE_ID != ''">
+            AND a.CORPORATE_ID = #{CORPORATE_ID}
+        </if>
+        <if test="WORKPLACE_ID != NULL and WORKPLACE_ID != ''">
+            AND a.WORKPLACE_ID = #{WORKPLACE_ID}
+        </if>
+        
+    </select>
+
+</mapper>
+

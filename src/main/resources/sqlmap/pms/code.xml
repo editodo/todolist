@@ -1,0 +1,136 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ls.gpis.framework.code">
+
+
+	<!--신규 코드정보를 등록한다-->
+	<insert id="insertCode" parameterType="com.ls.gpis.dto.CodeDTO">
+		INSERT INTO CMT_COMN_GRP(				
+				GROUP_CODE,
+				GROUP_CODE_ENG,
+				GROUP_CODE_KOR		,
+				COMMENT,
+				ACTV	,
+				CREATED_DATE,	
+				CREATER_ID
+				)
+		VALUES(
+			    #{GROUP_CODE},
+				#{GROUP_CODE_ENG},
+				#{GROUP_CODE_KOR},
+				#{COMMENT},
+				#{ACTV},
+	   			GETDATE(),
+				#{CREATER_ID}
+				)		
+	</insert>
+
+	<!--신규 세부코드정보를 등록한다-->
+	<insert id="insertDetailCode" parameterType="com.ls.gpis.dto.DetailCodeDTO">
+		INSERT INTO CMT_COMN_DTL(				
+				GROUP_CODE,
+				DETAIL_CODE,
+				DETAIL_CODE_ENG,	
+				DETAIL_CODE_KOR,	
+				COMMENT,
+				ACTV,
+				CREATED_DATE,	
+				CREATER_ID
+				)
+		VALUES(
+			    #{GROUP_CODE},
+				#{DETAIL_CODE},
+				#{DETAIL_CODE_ENG},	
+				#{DETAIL_CODE_KOR},	
+				#{COMMENT},
+				#{ACTV},
+	   			GETDATE(),
+				#{CREATER_ID}
+				)		
+	</insert>
+
+	<!--코드정보를 수정한다-->
+	<update  id="updateCode" parameterType="com.ls.gpis.dto.CodeDTO">
+		UPDATE	dbo.CMT_COMN_GRP 
+			SET
+				GROUP_CODE_ENG = #{GROUP_CODE_ENG}, 
+				GROUP_CODE_KOR = #{GROUP_CODE_KOR},
+				COMMENT = #{COMMENT},				
+				ACTV = #{ACTV},				
+				CREATED_DATE = GETDATE(), 
+				CREATER_ID = #{CREATER_ID} 
+		  WHERE
+				GROUP_CODE = #{GROUP_CODE} 
+	</update>
+
+	<!--세부코드정보를 수정한다-->
+	<update  id="updateDetailCode" parameterType="com.ls.gpis.dto.DetailCodeDTO">
+		UPDATE	dbo.CMT_COMN_DTL 
+			SET
+				DETAIL_CODE_ENG = #{DETAIL_CODE_ENG}, 	
+				DETAIL_CODE_KOR = #{DETAIL_CODE_KOR},	
+				COMMENT = #{COMMENT},	
+				ACTV = #{ACTV},				
+				CREATED_DATE = GETDATE(), 
+				CREATER_ID = #{CREATER_ID} 
+		  WHERE
+				GROUP_CODE = #{GROUP_CODE} AND DETAIL_CODE = #{DETAIL_CODE}
+	</update>
+	
+	<!--코드정보를 삭제한다-->
+	<delete  id="deleteCode">
+		DELETE FROM dbo.CMT_COMN_GRP WHERE GROUP_CODE = #{groupCode}
+	</delete>
+
+	<!--세부코드정보를 삭제한다-->
+	<delete  id="deleteDetailCode" parameterType="com.ls.gpis.dto.DetailCodeDTO">
+		DELETE FROM dbo.CMT_COMN_DTL WHERE GROUP_CODE = #{GROUP_CODE} AND DETAIL_CODE = #{DETAIL_CODE} 
+	</delete>
+
+	<!--세부코드정보를 삭제한다-->
+	<delete  id="deleteDetailCodeList" >
+		DELETE FROM dbo.CMT_COMN_DTL WHERE GROUP_CODE = #{groupCode} 
+	</delete>
+
+	<!--전체 코드정보를 반환한다.-->
+	<select id="selectCodeList"  resultType="com.ls.gpis.dto.CodeDTO">
+		SELECT
+				GROUP_CODE,
+				GROUP_CODE_ENG		,
+				GROUP_CODE_KOR,	
+				COMMENT,
+				ACTV,
+				CREATED_DATE,	
+				CREATER_ID
+		  FROM	dbo.CMT_COMN_GRP
+		 <if test="groupCode != null and groupCode != ''">				
+  		  WHERE GROUP_CODE = #{groupCode} 	
+		 </if>	  
+		 ORDER BY GROUP_CODE ASC
+	</select>
+
+	<!--전체 세부코드정보를 반환한다.-->
+	<select id="selectDetailCodeList" parameterType="com.ls.gpis.dto.DetailCodeDTO" resultType="com.ls.gpis.dto.DetailCodeDTO">
+		SELECT
+				GROUP_CODE,
+				DETAIL_CODE		,
+				DETAIL_CODE_ENG,	
+				DETAIL_CODE_KOR,	
+				COMMENT,
+				ACTV,
+				CREATED_DATE,	
+				CREATER_ID
+		  FROM
+				dbo.CMT_COMN_DTL  
+  		 <if test="GROUP_CODE != null and GROUP_CODE != ''">				
+  		  WHERE GROUP_CODE = #{GROUP_CODE} 	
+		 </if>	
+		 <if test="DETAIL_CODE != null and DETAIL_CODE != ''">				
+  		  AND DETAIL_CODE = #{DETAIL_CODE} 	
+		 </if>	    
+		  ORDER BY GROUP_CODE, DETAIL_CODE ASC
+	</select>
+</mapper>
+

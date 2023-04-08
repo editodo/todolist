@@ -1,0 +1,68 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ls.gpis.framework.dept">
+
+    <!-- 지정한 날짜의 사용자 리스트를 반환한다. -->
+     <!--USE_SYNC 값은 N 인 ID는 가져오지 않는다.-->
+    <select id="selectHRDeptList" resultType="hashmap" >
+
+        SELECT ORG_CD DEPT_CODE,
+               ORG_NM DEPT_NAME,
+               UP_ORG_CD UP_DEPT_CODE,
+               ORG_LEVEL DEPT_LEVEL,
+               ORG_LANK DEPT_LANK,
+               ORG_LINE DEPT_LINE,
+               LOGIN LOGIN,
+               HNAME HNAME,
+               CALL_CD CALL_CD,
+               CALL_NAME CALL_NAME,
+               ORG_CLASS_CD DEPT_CLASS_CD,
+               OFFICE_CODE OFFICE_CODE
+          FROM IF_HR_ORG
+         WHERE IFCREATETIME =  (SELECT MAX(IFCREATETIME)
+                                  FROM IF_HR_ORG
+                                 WHERE IFCREATETIME LIKE #{yyyymmdd} + '%')
+           
+    </select>
+
+    <!--사용자 정보를 업데이트 한다.-->
+  	<update id="updateDeptList" parameterType="map">
+
+	   MERGE INTO DEPT_DATA DD
+        USING(SELECT #{DEPT_CODE} DEPT_CODE) SRC ON (DD.DEPT_CODE = SRC.DEPT_CODE)
+	   WHEN MATCHED THEN
+		  UPDATE 
+             SET DEPT_NAME = #{DEPT_NAME},
+                UP_DEPT_CODE = #{UP_DEPT_CODE},
+                DEPT_LEVEL = #{DEPT_LEVEL},
+                DEPT_LANK = #{DEPT_LANK},
+                DEPT_LINE = #{DEPT_LINE},
+                LOGIN = #{LOGIN},
+                HNAME = #{HNAME},
+                CALL_CD  = #{CALL_CD},
+                CALL_NAME = #{CALL_NAME},
+                DEPT_CLASS_CD = #{DEPT_CLASS_CD},
+                OFFICE_CODE = #{OFFICE_CODE}                
+	   WHEN NOT MATCHED THEN
+	    INSERT (DEPT_CODE, DEPT_NAME, UP_DEPT_CODE, DEPT_LEVEL, DEPT_LANK, DEPT_LINE, LOGIN, HNAME, CALL_CD, CALL_NAME, DEPT_CLASS_CD, OFFICE_CODE, ACTV)                 
+		VALUES(#{DEPT_CODE}, #{DEPT_NAME}, #{UP_DEPT_CODE},  #{DEPT_LEVEL},  #{DEPT_LANK}, #{DEPT_LINE}, #{LOGIN}, #{HNAME}, #{CALL_CD}, #{CALL_NAME}, #{DEPT_CLASS_CD}, #{OFFICE_CODE}, 'Y');
+    
+	</update>
+
+    <!--인사시스템에 등록되지 않은 부서정보를 비활성화 처리 한다.-->
+    <update id="syncDisableDept" parameterType="String">
+        UPDATE DEPT_DATA
+           SET ACTV = 'N'
+        WHERE DEPT_CODE NOT IN (
+                                    SELECT DEPT_CODE               
+                                      FROM IF_HR_ORG
+                                     WHERE IFCREATETIME LIKE #{yyyymmdd} + '%'
+                                )
+    </update>
+
+
+
+
+</mapper>

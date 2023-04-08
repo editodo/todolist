@@ -1,0 +1,31 @@
+@charset "utf-8";
+
+/*
+ * Project		:	대시보드
+ * File			:	response.css
+ * Author		:	YoungJae Lee
+ * Date			:	May. 2018
+ * Description	:	반응형 - 해상도 대응
+ */
+
+
+@media all and (min-width: 1651px) {
+	
+}
+
+ 
+@media all and (min-width: 1281px) and (max-width: 1650px) {
+
+}
+
+
+@media all and (max-width: 1300px) {
+	ul.gnbMenu .top-heading {margin:0 20px;}
+ 	#header .user_name {display:none;}
+	#header .userInfo a.logout_btn {background:none;}
+}
+
+@media all and (max-height: 750px) {
+	.loginForm {top:8%;}
+	.copy {display:none;}
+}

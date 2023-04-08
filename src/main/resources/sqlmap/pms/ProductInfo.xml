@@ -1,0 +1,44 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ls.gpis.framework.ProductInfo">
+ 
+
+    <!--전체 제품분류 리스트를 반환한다. -->
+    <select id="selectProductInfoList" resultType="hashmap" parameterType="map">
+        SELECT C.CORPORATE_NAME
+                ,P.PRODUCT_CLASS
+                ,P.PRODUCT_GROUP
+                ,P.PRODUCT_SUBCLASS
+                ,FORMAT(P.CREATED_DATE,'yyyy-MM-dd') CREATED_DATE
+                ,(select isnull(emp_name,'') emp_name from cmt_emp where emp_user_id=P.CREATER_ID) CREATER_ID
+                ,FORMAT(P.UPDATE_DATE,'yyyy-MM-dd') UPDATE_DATE
+                ,(select isnull(emp_name,'') emp_name from cmt_emp where emp_user_id=P.UPDATE_ID) UPDATE_ID
+            FROM PRODUCT_INFO P
+            INNER JOIN CORPORATE C ON C.CORPORATE_ID = P.CORPORATE_ID
+        where 1=1
+        <if test="CORPORATE_ID != NULL and CORPORATE_ID != ''">
+            AND P.CORPORATE_ID = #{CORPORATE_ID}
+        </if>
+        ORDER BY P.CORPORATE_ID, P.PRODUCT_CLASS, P.PRODUCT_GROUP
+    </select>
+
+    <select id="selectCoper" resultType="hashmap" parameterType="map">
+        SELECT CORPORATE_NO
+                ,CORPORATE_ID
+                ,CORPORATE_NAME
+                ,ACTV
+                ,CREATED_DATE
+                ,CREATER_ID
+                ,UPDATE_DATE
+                ,UPDATE_ID
+            FROM CORPORATE
+        where 1=1
+        <if test="CORPORATE_ID != NULL and CORPORATE_ID != ''">
+            AND CORPORATE_ID = #{CORPORATE_ID}
+        </if>        
+    </select>
+
+</mapper>
+

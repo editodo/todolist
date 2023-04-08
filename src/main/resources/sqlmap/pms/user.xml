@@ -1,0 +1,184 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ls.gpis.framework.user">
+    
+
+
+    <!--사용자 정보를 업데이트 한다.-->
+  	<update id="updateEmpUser" parameterType="map">
+
+	   MERGE INTO CMT_EMP CE
+        USING(SELECT #{LOGIN_ID} LOGIN_ID) SRC ON (CE.EMP_USER_ID = SRC.LOGIN_ID)
+	   WHEN MATCHED THEN
+		  UPDATE 
+             SET PASSWORD = #{PASS_SHA256},
+                EMP_NAME = #{EMP_HNAME},
+                EMAIL = #{EMAIL},                
+                DEPT_NAME = #{DEPT_NAME},
+                TEL_NO = #{TEL_NO},                                
+                COST_CD = #{COST_CD},
+                COST_NM = #{COST_NM},
+                LINE_CD = #{LINE_CD},
+                LINE_NAME = #{LINE_NAME},
+                ACTV = 'Y'                
+	   WHEN NOT MATCHED THEN
+	    INSERT (EMP_NO, EMP_USER_ID, PASSWORD, EMP_NAME, EMAIL, DEPT_CODE, DEPT_NAME, OFFC_TEL, MOBILE, OFFICE_CODE, 
+                POS_GRD_CD, POS_GRD_NM, HIRE_YMD, COST_CD, COST_NM, LINE_CD, LINE_NAME, ACTV, USE_SYNC)
+		VALUES(#{EMP_NO}, #{LOGIN_ID}, #{PASS_SHA256},  #{EMP_HNAME},  #{EMAIL}, #{DEPT_CODE}, #{DEPT_NAME}, #{TEL_NO1}, #{TEL_NO2}, #{OFFICE_CODE},
+                #{POS_GRD_CD},#{POS_GRD_NM},#{HIRE_YMD},#{COST_CD},#{COST_NM},#{LINE_CD},#{LINE_NAME}, 'Y','Y');
+    
+	</update>
+
+ 
+
+    <!--전체 사용자 리스트를 반환한다. -->
+    <select id="selectUserList" resultType="hashmap" >
+        SELECT EMP_NO,
+               EMP_USER_ID,
+	           EMP_NAME,
+               PASSWORD,
+               EMAIL,               
+               DEPT_NAME
+          FROM CMT_EMP
+    </select>
+
+    
+    <!-- 전체 사용자의 기본정보 리스트를 반환한다.-->    
+    <select id="selectUserBaseInfoList" resultType="hashmap" >
+        SELECT 
+                EMP_USER_ID,
+	            EMP_NAME,                       
+                DEPT_NAME,
+		        EMAIL,
+		        CORPORATE_ID,
+		        (SELECT CORPORATE_NAME FROM CORPORATE WHERE CORPORATE_ID = CMT_EMP.CORPORATE_ID) CORPORATE_NAME
+           FROM CMT_EMP
+    </select>
+
+
+
+    <select id="selectUser" resultType="hashmap" parameterType="map">
+        SELECT EMP_NO,
+               EMP_USER_ID,
+	           EMP_NAME,
+	           CORPORATE_ID,
+               DEPT_NAME,
+               PASSWORD,
+               ACTV
+          FROM CMT_EMP
+        WHERE EMP_USER_ID = #{EMP_USER_ID}            
+    </select>
+
+    
+
+
+    <!--사용자 리스트를 반환한다. -->
+    <select id="selectUserList_nopass" resultType="hashMap" >
+        SELECT EMP_NO,
+               EMP_USER_ID,
+	           EMP_NAME,
+               EMAIL,               
+               DEPT_NAME
+          FROM CMT_EMP        
+    </select>
+
+    <!--검색조건에 맞는 사용자 리스트를 반환한다.
+            MOBILE,
+            JIK_NAME,
+    -->
+    <select id="selectUserListCond" resultType="hashMap" >
+        SELECT EMP_NO,
+               EMP_USER_ID,
+	           EMP_NAME,
+               EMAIL,               
+               DEPT_NAME, 
+               GROUP_DISP_YN, 
+               TASK, 
+               CORPORATE_ID,
+               TEL_NO,              
+               ACTV,
+               USE_SYNC,
+               GROUP_DISP_YN,
+               TASK
+          FROM CMT_EMP
+         WHERE 1=1
+        <if test="CORPORATE_ID != NULL and CORPORATE_ID != ''">
+            AND CORPORATE_ID = #{CORPORATE_ID}
+        </if>
+        <if test="DEPT_NAME != NULL and EMP_NO != ''">
+            AND EMP_NO LIKE '%' + #{EMP_NO} +'%'
+        </if>
+        <if test="EMP_USER_ID != NULL and EMP_USER_ID != ''">
+            AND EMP_USER_ID LIKE '%' + #{EMP_USER_ID} +'%'
+        </if>
+        <if test="EMP_NAME != NULL and EMP_NAME != ''">
+            AND EMP_NAME LIKE '%' + #{EMP_NAME} +'%'
+        </if>
+        <if test="DEPT_NAME != NULL and DEPT_NAME != ''">
+            AND DEPT_NAME LIKE '%' + #{DEPT_NAME} +'%'
+        </if>
+        <if test="ACTV != NULL and ACTV != ''">
+            AND ACTV = #{ACTV}
+        </if>        
+    </select>
+
+    <!--로컬 사용자를 추가한다 -->    
+    <insert id="insertLocalUser" parameterType="map"> 
+        INSERT INTO CMT_EMP(EMP_NO, 
+                            EMP_USER_ID, 
+                            EMP_NAME, 
+                            CORPORATE_ID, 
+                            DEPT_NAME, 
+                            GROUP_DISP_YN,
+                            TASK,
+                            EMAIL, 
+                            TEL_NO, 
+                            PASSWORD, 
+                            ACTV, 
+                            CREATED_DATE, 
+                            CREATER_ID)
+        VALUES(#{EMP_NO}, 
+                #{EMP_USER_ID}, 
+                #{EMP_NAME}, 
+                #{CORPORATE_ID}, 
+                #{DEPT_NAME}, 
+                #{GROUP_DISP_YN}, 
+                #{TASK}, 
+                #{EMAIL}, 
+                #{MOBILE}, 
+                #{PASSWORD},
+                'Y', 
+                GETDATE(), 
+                #{CREATER_ID})
+    </insert>
+
+    <!--로컬 사용자 정보를 수정한다. 
+            JIK_NAME = #{JIK_NAME},
+            MOBILE = #{MOBILE},-->
+    <update id="updateUser" parameterType="map"> 
+        UPDATE CMT_EMP
+           SET EMP_NO = #{EMP_NO},
+               CORPORATE_ID = #{CORPORATE_ID},
+               DEPT_NAME = #{DEPT_NAME},
+               GROUP_DISP_YN = #{GROUP_DISP_YN},
+               TASK = #{TASK},
+               EMP_NAME = #{EMP_NAME},
+               EMAIL = #{EMAIL},               
+               ACTV = #{ACTV},
+               TEL_NO = #{TEL_NO},
+               UPDATE_DATE = GETDATE(),
+               UPDATE_ID = #{UPDATE_ID}
+         WHERE EMP_USER_ID = #{EMP_USER_ID}
+    </update>
+    
+    <!-- 패스워드 변경한다. -->
+    <update id="updateUserPassword" parameterType="map"> 
+        UPDATE CMT_EMP
+           SET PASSWORD = #{PASSWORD}             
+         WHERE EMP_USER_ID = #{EMP_USER_ID}
+    </update>
+
+</mapper>
+

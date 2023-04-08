@@ -1,0 +1,92 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ls.gpis.framework.home">
+    
+
+
+    <!--법인 정보를 업데이트 한다.-->
+  	<!-- <update id="updateCoper" parameterType="map">
+
+	   MERGE INTO CORPORATE CE
+        USING(SELECT #{CORPORATE_ID} CORPORATE_ID) SRC ON (CE.CORPORATE_ID = SRC.CORPORATE_ID)
+	   WHEN MATCHED THEN
+		  UPDATE 
+             SET CORPORATE_NAME = #{CORPORATE_NAME},
+                ACTV =  #{ACTV}                ,
+                UPDATE_DATE = GETDATE(), 
+                UPDATE_ID = #{UPDATER_ID}
+	   WHEN NOT MATCHED THEN
+	    INSERT (CORPORATE_ID, CORPORATE_NAME, CREATED_DATE, CREATER_ID, ACTV)
+		VALUES(#{CORPORATE_ID}, #{CORPORATE_NAME}, GETDATE(),  #{CREATER_ID},  #{ACTV});
+    
+	</update> -->
+
+ 
+
+    <!--마지막 업데이트 일자. -->
+    <select id="selectLastDate" resultType="hashmap">
+         SELECT TOP 1 * FROM (
+            SELECT * FROM (
+            SELECT TOP 1 CONVERT(VARCHAR(10), CREATED_DATE, 121) AS LASTDATE FROM BUY_LIST_SUMMARY
+            ORDER BY CREATED_DATE DESC) AS A
+            UNION ALL
+            SELECT * FROM (
+            SELECT TOP 1 CONVERT(VARCHAR(10), UPDATE_DATE, 121) AS LASTDATE FROM BUY_LIST_SUMMARY
+            ORDER BY UPDATE_DATE DESC) AS B
+            ) AA
+            ORDER BY AA.LASTDATE DESC
+    </select>
+
+    <!-- 법인별 구매금액 그래프 -->
+    <select id="selectCoperMoneyList" resultType="hashmap">
+        SELECT 
+            C.CORPORATE_NAME AS ITEM, 
+            FLOOR(SUM(IN_AMOUNT_WON)) AS VALUE
+        FROM BUY_LIST_SUMMARY BL
+        INNER JOIN CORPORATE C ON C.CORPORATE_ID    = BL.CORPORATE_ID
+        WHERE YEAR(CONVERT(DATETIME, IN_DAY)) = YEAR(GETDATE())
+        GROUP BY BL.CORPORATE_ID, C.CORPORATE_NAME;
+    </select>
+
+    <!-- 국가별 구매금액 그래프 -->
+    <select id="selectWorkPlaceMoneyList" resultType="hashmap">
+        SELECT TOP 5
+            ISNULL(ITEM, '기타')  AS ITEM,
+            FLOOR(SUM(IN_AMOUNT_WON)) AS VALUE
+        FROM (
+            SELECT 
+                CASE WHEN IN_COUNTRY = 'South Korea' THEN 'KOREA'  ELSE IN_COUNTRY END AS ITEM,
+                IN_AMOUNT_WON
+            FROM BUY_LIST_SUMMARY
+            WHERE 1 = 1            
+            AND YEAR(CONVERT(DATETIME, IN_DAY)) = YEAR(GETDATE()) 
+        ) AS A
+        GROUP BY ITEM
+        ORDER BY VALUE DESC;
+    </select>
+
+    <!-- 거래 업체 수 -->
+    <select id="selectyearTotalCompany" resultType="hashmap">
+        SELECT 
+            COUNT(IN_COMPANY_NAME) AS YEARTOTALCOMPANY 
+        FROM (
+            SELECT 
+                IN_COMPANY_NAME 
+            FROM BUY_LIST_SUMMARY 
+            WHERE YEAR(CONVERT(DATETIME, IN_DAY)) = YEAR(GETDATE())
+            GROUP BY IN_COMPANY_NAME
+        ) AS A;
+    </select>
+
+    <!-- 전체 거래 금액 -->
+    <select id="selectyearTotalMoney" resultType="hashmap">
+        SELECT 
+            DBO.FN_SET_KMONEY(CONVERT(VARCHAR(30), FLOOR(SUM(IN_AMOUNT_WON)))) as  YEARTOTALMONEY 
+        FROM BUY_LIST_SUMMARY
+        WHERE YEAR(CONVERT(DATETIME, IN_DAY)) = YEAR(GETDATE())
+    </select>
+
+</mapper>
+

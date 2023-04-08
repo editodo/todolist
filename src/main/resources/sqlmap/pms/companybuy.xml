@@ -1,0 +1,231 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ls.gpis.framework.companybuy">
+    <!-- 게시물 리스트를 반환한다. -->
+    <select id="selectCompanyBuyList" resultType="hashmap" parameterType="hashmap" >
+        SELECT 
+            BL.PRODUCT_CLASS,
+            BL.PRODUCT_GROUP,
+            BL.PRODUCT_SUBCLASS,
+            BL.COMPANY_ID, 
+            BL.PRODUCT_CODE, 
+            BL.PRODUCT_NAME,
+            BL.CORPORATE_NAME,
+            BL.WORKPLACE_NAME,
+            SUM(IN_QTY) AS IN_QTY,
+            IN_UNIT,
+            IN_CURRENCY,
+            SUM(IN_AMOUNT) AS IN_AMOUNT,
+            IN_COUNTRY,
+            IN_COMPANY_CODE,
+            IN_COMPANY_NAME,
+            BL.CORPORATE_ID
+        FROM BUY_LIST BL
+                INNER JOIN COMPANY C ON BL.IN_COMPANY_CODE = C.COMPANY_CODE
+        WHERE 1=1
+        
+        <if test='searchText != "" and searchText != null '>
+            <foreach item="searchText" index="index" collection="search_text_List">
+            <if test='searchText != "" and searchText != null  '>
+                and contains(BL.SEARCH_TEXT,'"*${searchText}*"')
+            </if>
+                
+            </foreach>
+        </if>
+        <if test='search_text_List1 != "" and search_text_List1 != null  '>
+            and contains(BL.SEARCH_TEXT,'"*${search_text_List1}*"')
+        </if>
+        <if test='PRODUCT_GROUP != "" and PRODUCT_GROUP != null and PRODUCT_GROUP != "전체"' >
+            and BL.PRODUCT_CLASS = #{PRODUCT_GROUP}
+        </if>
+        <if test='PRODUCT_CLASS != "" and PRODUCT_CLASS != null and PRODUCT_CLASS != "전체" and PRODUCT_CLASS != "없음"' >
+            and BL.PRODUCT_GROUP = #{PRODUCT_CLASS}
+        </if>
+        <if test='PRODUCT_SUBCLASS != "" and PRODUCT_SUBCLASS != null and PRODUCT_SUBCLASS != "전체"' >
+            and BL.PRODUCT_SUBCLASS = #{PRODUCT_SUBCLASS}
+        </if>
+        <if test='PRODUCT_NAME != "" and PRODUCT_NAME != null'>
+            and BL.PRODUCT_NAME = #{PRODUCT_NAME}
+        </if>
+        <if test='CORPORATE_ID != "" and CORPORATE_ID != null and CORPORATE_ID != "전체" '>
+            and BL.CORPORATE_ID = #{CORPORATE_ID}
+        </if>
+         <if test='WORKPLACE_NAME != "" and WORKPLACE_NAME != null and WORKPLACE_NAME != "전체" '>
+            and BL.WORKPLACE_NAME = #{WORKPLACE_NAME}
+        </if>
+        <choose>
+            <when test="search_country_List.size != 0">
+                and BL.IN_COUNTRY in
+                <foreach item="searchCountryText" index="index" collection="search_country_List" separator="," open="(" close=")"  >
+                    #{searchCountryText}
+                </foreach>
+            </when>
+        </choose>
+
+        <if test='IN_COMPANY_NAME != "" and IN_COMPANY_NAME != null '>
+            and BL.IN_COMPANY_NAME = #{IN_COMPANY_NAME}
+        </if>
+        GROUP BY 
+        BL.PRODUCT_CLASS,
+        BL.PRODUCT_GROUP,
+        BL.PRODUCT_SUBCLASS,
+        BL.COMPANY_ID, 
+        BL.PRODUCT_CODE, 
+        BL.PRODUCT_NAME,
+        BL.CORPORATE_NAME,
+        BL.WORKPLACE_NAME,
+        IN_UNIT,
+        IN_CURRENCY,
+        IN_COUNTRY,
+        IN_COMPANY_CODE,
+        IN_COMPANY_NAME,
+        BL.CORPORATE_ID
+    </select>
+
+
+<select id="selectCompanyBuyCompanyList" resultType="hashmap" parameterType="hashmap" >
+        SELECT 
+            BL.PRODUCT_CLASS,
+            BL.PRODUCT_GROUP,
+            BL.PRODUCT_SUBCLASS,
+            BL.COMPANY_ID, 
+            BL.PRODUCT_CODE, 
+            BL.PRODUCT_NAME,
+            BL.CORPORATE_NAME,
+            BL.WORKPLACE_NAME,
+            IN_QTY AS IN_QTY,
+            IN_UNIT,
+            IN_CURRENCY,
+            IN_AMOUNT AS IN_AMOUNT,
+            IN_COUNTRY,
+            IN_COMPANY_CODE,
+            IN_COMPANY_NAME,
+            IN_DAY
+        FROM BUY_LIST BL
+                INNER JOIN COMPANY C ON BL.IN_COMPANY_CODE = C.COMPANY_CODE
+        WHERE 1=1
+            and BL.IN_COMPANY_CODE = #{IN_COMPANY_CODE}
+            <if test='PRODUCT_CODE != "" and PRODUCT_CODE != null '>
+                and BL.PRODUCT_CODE = #{PRODUCT_CODE}
+            </if>
+            <if test='PRODUCT_NAME != "" and PRODUCT_NAME != null '>
+                and BL.PRODUCT_NAME = #{PRODUCT_NAME}
+            </if>
+        ORDER BY IN_DAY DESC
+    </select>
+
+    <select id="selectCompanyInfoList" resultType="hashmap" parameterType="hashmap" >
+        
+        SELECT 
+                COM.COMPANY_ID,
+                COM.CORPORATE_ID,
+                COM.WORKPLACE_ID,      
+                COM.COMPANY_CODE,
+                COM.COMPANY_NAME,   
+                COM.REPRESENTATIVE,
+                COM.COMPANY_REGIST_NO,
+                COM.INDUSTRY_CONDTION,
+                COM.INDUSTRY_TYPE,
+                COM.ADDRESS,
+                COM.TEL_NO,
+                COM.COUNTRY,      
+                COM.BUY_SCALE,
+                CO.CORPORATE_NAME,      
+                COM.MANAGER,
+                COM.MANAGER_TEL,
+                COM.CREDIT_NAME,
+                COM.CREDIT_GRADE,
+                (SELECT SUM(SCORE)  FROM COMPANY_ESTIMATION WHERE COMPANY_CODE = COM.COMPANY_CODE AND CORPORATE_ID = COM.CORPORATE_ID GROUP BY COMPANY_CODE, CORPORATE_ID  ) AS SCORE
+            FROM COMPANY COM
+            INNER JOIN CORPORATE CO ON CO.CORPORATE_ID = COM.CORPORATE_ID   
+            WHERE 1 = 1 
+            AND COM.COMPANY_CODE = #{IN_COMPANY_CODE}
+
+    </select>
+
+    <select id="coperList" resultType="hashmap">
+        select '전체' CORPORATE_NAME, '전체' CORPORATE_ID
+        union all
+        select CORPORATE_NAME, CORPORATE_ID
+            from CORPORATE
+            group by CORPORATE_NAME, CORPORATE_ID
+    </select>
+
+    <select id="workplaceList" resultType="hashmap" parameterType="string">
+        select '전체' WORKPLACE_NAME
+        union all
+        select isnull(WORKPLACE_NAME,'')
+            from WORKPLACE
+			where WORKPLACE_NAME is not null
+              and CORPORATE_ID = #{CORPORATE_ID}
+            group by WORKPLACE_NAME
+    </select>
+
+    <select id="countryList" resultType="hashmap" >
+        select isnull(COUNTRY,'') IN_COUNTRY
+            from COMPANY
+			where COUNTRY is not null
+            group by COUNTRY;
+    </select>
+    
+    <select id="product_group_list" resultType="hashmap" parameterType="hashmap" >
+       select '전체' PRODUCT_GROUP
+        union all
+        select distinct product_class as PRODUCT_GROUP
+          from PRODUCT_INFO
+          where product_class is not null
+          <if test='CORPORATE_ID != "" and CORPORATE_ID != null and CORPORATE_ID != "전체" '>
+                AND CORPORATE_ID = #{CORPORATE_ID}
+            </if> 
+    </select>
+
+    <!-- 전체 없는 버전 -->
+    <select id="product_group_list2" resultType="hashmap" >
+        select distinct product_class as PRODUCT_GROUP_TEXT,
+                        product_class as PRODUCT_GROUP_VALUE
+          from PRODUCT_INFO
+          where product_class is not null            
+            <if test="CORPORATE_ID != NULL and CORPORATE_ID != ''">
+                AND CORPORATE_ID = #{CORPORATE_ID}
+            </if>        
+    </select>
+
+
+    <select id="product_class_list" resultType="hashmap" parameterType="hashmap">
+       select '전체' PRODUCT_CLASS
+        union all
+        select distinct ISNULL(PRODUCT_GROUP, '없음') as product_class
+          from PRODUCT_INFO
+          where 1 = 1
+          <!-- where PRODUCT_GROUP is not null -->
+          and PRODUCT_CLASS = #{PRODUCT_GROUP}
+          
+            
+        <if test='CORPORATE_ID != "" and CORPORATE_ID != null and CORPORATE_ID != "전체" '>
+            AND CORPORATE_ID = #{CORPORATE_ID}
+        </if> 
+    </select>
+
+    <select id="product_subclass_list" resultType="hashmap" parameterType="hashmap">
+       select '전체' PRODUCT_SUBCLASS
+        union all
+        select distinct PRODUCT_SUBCLASS
+            from PRODUCT_INFO
+            where PRODUCT_SUBCLASS is not null
+            and PRODUCT_CLASS = #{PRODUCT_GROUP}
+
+        <choose>
+            <when test='PRODUCT_CLASS == "없음"'>
+                and ISNULL(PRODUCT_GROUP, '') = ''
+            </when>
+            <otherwise>
+                and ISNULL(PRODUCT_GROUP, '') = ISNULL(#{PRODUCT_CLASS}, '')
+            </otherwise>
+        </choose>       
+        <if test='CORPORATE_ID != "" and CORPORATE_ID != null and CORPORATE_ID != "전체" '>
+            AND CORPORATE_ID = #{CORPORATE_ID}
+        </if> 
+    </select>
+</mapper>
