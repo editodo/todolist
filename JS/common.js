@@ -30,7 +30,7 @@ $(function(){
   });
 
   //옵션 & 테마 적용 
-  editodoWrap.classList.add('palette_default'); // 디폴트 컬러 적용
+  editodoWrap.classList.add('palette_simple'); // 디폴트 컬러 적용
   editodoWrap.classList.add(mode, theme, color); // 선택된 옵션 적용
 
 

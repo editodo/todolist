@@ -5,7 +5,7 @@
 
 /* layout
 ============================= */
-#wrap.darkmode .header {background-color: var(--darkmode-body-color); }
+#wrap.darkmode .header {background-color: var(--body-color); }
 .darkmode .header .hd_tit {color: #999999; }
 .darkmode .header .hd_util .hd_back.arrow01 {background-color: #999999; }
 .darkmode .header .hd_util .hd_back {background-color: #999999;}
@@ -17,7 +17,7 @@
 
 /* common 
 ============================= */
-.darkmode .container {background-color: var(--darkmode-body-color); }
+.darkmode .container {background-color: var(---body-color); }
 .darkmode .btn_dark {border-color: var(--dark-accent-default); background-color: var(--dark-accent-default); color: #333 !important;  } 
 
 
@@ -27,7 +27,7 @@
 /* ============================================
     옵션 스텝  
 ============================================ */
-.darkmode .editodo_step .step_process .step_count {background-color: var(--darkmode-body-color); }
+.darkmode .editodo_step .step_process .step_count {background-color: var(--body-color); }
 
 
 
@@ -72,7 +72,7 @@
 /* ============================================
     fnb  
 ============================================ */
-.darkmode .editodo_fnb {border-color: #333333; background-color: var(--darkmode-body-color);}
+.darkmode .editodo_fnb {border-color: #333333; background-color: var(--body-color);}
 .darkmode .editodo_fnb .fnb_list .btn_fnb .fnb_icon {background-color: #444444;}
 .darkmode .editodo_fnb .fnb_list .btn_fnb .fnb_tit {color: #444; }
 .darkmode .editodo_fnb .fnb_list .btn_fnb.active .fnb_icon {background-color: #BBBBBB; }
@@ -92,13 +92,13 @@
     시스템 모드 - dark 인 경우 
 ============================================ */
     #wrap .header {
-        background-color: var(--darkmode-body-color);
+        background-color: var(--body-color);
     }
 
 
     /* common */
     .container {
-        background-color: var(--darkmode-body-color);
+        background-color: var(--body-color);
     }
 
     .btn_dark {
@@ -134,7 +134,7 @@
         background-color: #999999;
     }
 
-    .editodo_step .step_process .step_count {background-color: var(--darkmode-body-color); }
+    .editodo_step .step_process .step_count {background-color: var(--body-color); }
     
 
     /* ============================================
@@ -181,7 +181,7 @@ mypage
     }
 
     .editodo_mypage.bg-white {
-        background-color: var(--darkmode-body-color);
+        background-color: var(--body-color);
     }
 
 
@@ -192,7 +192,7 @@ fnb
 ============================================ */
     .editodo_fnb {
         border-color: #333333;
-        background-color: var(--darkmode-body-color);
+        background-color: var(--body-color);
     }
 
     .editodo_fnb .fnb_list .btn_fnb .fnb_icon {

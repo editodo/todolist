@@ -1,6 +1,5 @@
 @charset "utf-8";
 
-
 /* ============================================
     common 
 ============================================ */
@@ -10,65 +9,126 @@
   --white-color: #fff;
   --gray-lavel-eee: #eee;
 
-  --darkmode-body-color: #12120A;
+}
 
-  /*  디폴트 */
-  --light-default-base: #F5F5F5;
-  --light-default-dominant: #D9D9D9;
-  --light-default-accent: #222222;
-  --dark-default-base: #333333;
-  --dark-default-dominant: #666666;
-  --dark-default-accent: #D8D8D8;
+.lightmode {
+  --body-color: #FFFFFF;
+  --base-color: #FFFFFF;
+}
 
-
-  /* 민초 */
-  --light-mimt-base: #D8F0EF;
-  --light-mimt-dominant: #A7D3D2;
-  --light-brown-accent: #997B6A;
-  --dark-mimt-base: #40817D;
-  --dark-mimt-dominant: #A7D3D2;
-  --dark-mimt-accent: #98D2CF;
-
-  /* 체리레몬*/
-  --light-lemon-base: #FFF3CA;
-  --light-lemon-dominant: #D9CC9D;
-  --light-cherry-accent: #F3637D;
-  --dark-yellow-base: #695D34;
-  --dark-yellow-dominant: #97864D;
-  --dark-yellow-accent: #EAE5BA;
-
-
-  /* 그린 */
-  --light-green-base: #E9FFDF;
-  --light-green-dominant: #B9D9AA;
-  --light-green-accent: #228262;
-  --dark-green-base: #374E2D;
-  --dark-green-dominant: #59784C;
-  --dark-green-accent: #CBE2BF;
-
-  /* 핑키 */
-  --light-pinky-base: #FFD8E7;
-  --light-pinky-dominant: #FFB9D4;
-  --light-pinky-accent: #FA6EA5;
-  --dark-pinky-base: #6F2945;
-  --dark-pinky-dominant: #904765;
-  --dark-pinky-accent: #FF9FC5;
-
-
-  /* 스타일 
-  ----------------------------------------------------- */
-  --style-round-20: 20px;
-
-
-
+.darkmode {
+  --body-color: #12120A;
+  --base-color: #333333;
 }
 
 
 
-.font_main {
-  color: var(--main-color);
+/* 심플 팔레트 
+====================================================== */
+.palette_simple {
+  --base: #F5F5F5;
+  --dominant: #D9D9D9;
+  --accent: #222222;
+  --checkbox-label: #444444;
+  --checkbox-checked-label: #AAAAAA;
 }
 
-.bg_main {
-  background-color: var(--main-color);
+.darkmode.palette_simple {
+  --base: #333333;
+  --dominant: #666666;
+  --accent: #D8D8D8;
+  --checkbox-label: #DADADA;
+  --checkbox-checked-label: #666666;
+}
+
+
+
+/* 민초 팔레트 
+====================================================== */
+.palette_mincho {
+  --base: #D8F0EF;
+  --dominant: #A7D3D2;
+  --accent: #997B6A;
+  --checkbox-label: #1D5A58;
+  --checkbox-checked-label: #679A98;
+}
+
+.darkmode.palette_mincho {
+  --base: #40817D;
+  --dominant: #A7D3D2;
+  --accent: #98D2CF;
+  --checkbox-label: #DFF1F0;
+  --checkbox-checked-label: #78ABA9;
+}
+
+
+
+/* 레몬 팔레트 
+====================================================== */
+.palette_lemon {
+  --base: #FFF3CA;
+  --dominant: #D9CC9D;
+  --accent: #F3637D;
+  --checkbox-label: #473C15;
+  --checkbox-checked-label: #958D71;
+}
+
+.darkmode.palette_lemon {
+  --base: #695D34;
+  --dominant: #97864D;
+  --accent: #EAE5BA;
+  --checkbox-label: #F2EEE0;
+  --checkbox-checked-label: #958D71;
+}
+
+
+
+/* 그린 팔레트 
+====================================================== */
+.palette_green {
+  --base: #E9FFDF;
+  --dominant: #B9D9AA;
+  --accent: #228262;
+  --checkbox-label: #18320C;
+  --checkbox-checked-label: #829C76;
+}
+
+.darkmode.palette_green {
+  --base: #374E2D;
+  --dominant: #59784C;
+  --accent: #CBE2BF;
+  --checkbox-label: #EDFAE7;
+  --checkbox-checked-label: #829C76;
+}
+
+
+
+/* 핑키 팔레트 
+====================================================== */
+.palette_pinky {
+  --base: #FFD8E7;
+  --dominant: #FFB9D4;
+  --accent: #FA6EA5;
+  --checkbox-label: #411023;
+  --checkbox-checked-label: #AB7B8E;
+}
+
+.darkmode.palette_pinky {
+  --base: #6F2945;
+  --dominant: #904765;
+  --accent: #FF9FC5;
+  --checkbox-label: #F3DBE4;
+  --checkbox-checked-label: #AB7B8E;
+}
+
+
+
+/* 테마선택  
+====================================================== */
+.style_simple {
+  --style: 0;
+}
+
+.style_round {
+  --style: 20px;
 }
