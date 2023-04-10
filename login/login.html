@@ -18,6 +18,9 @@
 <body>
   <div id="wrap" class="editodo_wrap">
     <header class="header side_pd">
+      <div class="hd_util">
+        <button type="button" onclick="window.history.go(-1)" class="hd_back arrow02"><span class="visuallyhidden">뒤로가기</span></button>
+      </div>
       <h3 class="hd_tit">로그인</h3>
     </header>
 
@@ -52,13 +55,12 @@
           <button type="buttton" class="btn btn_main full">로그인</button>
           <button type="buttton" class="btn btn_sub full" onclick="location.href='join.html'">회원가입</button>
         </div>
-        <div class="sns_group">
+        <div class="sns_group" style="display: none; ">
             sns 추가
         </div>
       </div>
     </div>
 
-    <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
 
   </div>
 </body>

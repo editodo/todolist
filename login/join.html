@@ -7,16 +7,13 @@
   <style>
   @import url("../css/style.css");
   </style>
-  <link type="text/css" rel="stylesheet" href="../css/slick.css"/>
-
   <script type="text/javascript" src="../JS/jquery-3.6.4.min.js"></script>
-  <script type="text/javascript" src="../JS/slick.min.js"></script>
-  <script type="text/javascript" src="../JS/common.js"></script>
+  <script type="text/javascript" src="/JS/common.js"></script>
   <script type="text/javascript" src="https://www.w3schools.com/lib/w3.js"></script>
   <title>회원가입</title>
 </head>
 <body>
-  <div id="wrap" class="editodo_wrap">
+  <div id="wrap" class="editodo_wrap lightmode ">
     <header class="header side_pd">
       <div class="hd_util">
         <button type="button" class="hd_back arrow01" onclick="window.history.go(-1)"><span class="visuallyhidden">뒤로가기</span></button>
@@ -56,7 +53,7 @@
               <label for="saveID">
                 <input type="checkbox" id="saveID">
                 <span class="on"></span>
-                <a href="../policy/terms.html" class="underline">이용약관</a>과 <em class="underline">개인정보처리방침</em>에 동의합니다. 
+                <button type="button" class="open_terms underline">이용약관</button>과 <button type="button" class="open_personal underline">개인정보처리방침</button>에 동의합니다. 
               </label>
             </div>
           </form>
@@ -68,7 +65,29 @@
       </div>
     </div>
 
-    <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
+    <div class="layer layer_popup layer_terms">
+      <div clas="layer_content">
+        <div class="layer_header">
+          <h3 class="title">이용약관</h3>
+          <button type="button" class="layer_colse close_terms"><span class="visuallyhidden">닫기</span></button>
+        </div>
+        <div class="layer_body">
+          <div class="policy" w3-include-html="../policy/terms.html"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer layer_popup layer_personal">
+      <div clas="layer_content">
+        <div class="layer_header">
+          <h3 class="title">개인정보처리방침</h3>
+          <button type="button" class="layer_colse close_personal"><span class="visuallyhidden">닫기</span></button>
+        </div>
+        <div class="layer_body">
+          <div class="policy" w3-include-html="../policy/personal.html"></div>
+        </div>
+      </div>
+    </div>
 
   </div>
 </body>
@@ -84,6 +103,31 @@
   const saveId = document.querySelector('#saveID'); 
   const submit = document.querySelector('#submit'); 
   const CLASS_NAME = 'field_chk';
+
+  const policyTerms = document.querySelector('.open_terms');
+  const OpenTerms = document.querySelector('.layer_terms');
+  const closeTerms = document.querySelector('.close_terms');
+
+  const policyPersonal = document.querySelector('.open_personal');
+  const openPersonal = document.querySelector('.layer_personal');
+  const closePersonal = document.querySelector('.close_personal');
+
+  //팝업 열기
+  policyTerms.addEventListener('click', function(){
+    OpenTerms.style.display = 'block';
+  });
+  policyPersonal.addEventListener('click', function(){
+    openPersonal.style.display = 'block';
+  });
+  //팝업 닫기
+  closeTerms.addEventListener('click', function(){
+    OpenTerms.style.display = 'none';
+  });
+  closePersonal.addEventListener('click', function(){
+    openPersonal.style.display = 'none';
+  });
+
+
 
   function handlerSubmitJoin(){
     if(user_id.value == "") {
@@ -145,4 +189,6 @@
 
 
   w3.includeHTML();
-</script>
+  
+  </script>
+  

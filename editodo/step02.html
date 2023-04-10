@@ -43,7 +43,7 @@
           </p>
 
           <ul class="slick_list layout_option theme">
-            <li class="on"><button type="button" class="btn_option style_simple">심플</button></li>
+            <li><button type="button" class="btn_option style_simple">심플</button></li>
             <li><button type="button" class="btn_option style_round">라운드</button></li>
             <li><button type="button" class="btn_option style_skitch">스케치</button></li>
             <li><button type="button" class="btn_option style_kitsch">키치</button></li>
@@ -72,7 +72,6 @@
 $(function(){
   const editodoWrap = document.querySelector('.editodo_wrap');
 
-  $('.slick-current').addClass('on');
   // 옵션 - 슬라이드 이동 후 이벤트 시작
   $('.layout_option').on('afterChange', function(){
     const current = document.querySelector('.slick-current').children;

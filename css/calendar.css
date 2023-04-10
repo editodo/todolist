@@ -4,8 +4,8 @@
     투두리스트 
 ============================================ */
 .date_header {display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; height: 50px; line-height: 50px; }
-.date_header .date_now {font-size: 15px; color: #222; font-weight: 600; }
-.date_header .btn_arrow {display: block; width: 30px; height: 30px; background-color: #666666; -webkit-mask-image: url("../images/common/calendar_direction.svg"); mask-image: url("../images/common/calendar_direction.svg"); -webkit-mask-position: right center; mask-position: right center;  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 8px 8px; mask-size: 8px 8px;}
+.date_header .date_now {font-size: 15px; color: var(--text-color); font-weight: 600; }
+.date_header .btn_arrow {display: block; width: 30px; height: 30px; background-color: var(--calendar-colr); -webkit-mask-image: url("../images/common/calendar_direction.svg"); mask-image: url("../images/common/calendar_direction.svg"); -webkit-mask-position: right center; mask-position: right center;  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 8px 8px; mask-size: 8px 8px;}
 .date_header .btn_arrow.prev {mask-position: left center; transform: rotate(180deg); }
 
 .editodo_todolist .todolist_table {height: 403px; margin-top: 10px; padding: 20px 20px; box-sizing: border-box; border-radius: var(--style); box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1); background-color: var(--base); overflow-x: hidden; overflow-y: auto; }

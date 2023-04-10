@@ -5,20 +5,38 @@
 ============================================ */
 :root {
   --main-color: #5AC1CC;
-  --dark-color: #222;
-  --white-color: #fff;
-  --gray-lavel-eee: #eee;
+  --dark-color: #222222;
+  --lightgray-color: #EEEEEE;
 
 }
 
 .lightmode {
   --body-color: #FFFFFF;
   --base-color: #FFFFFF;
+  --text-color: #222222;
+  --sub-text-color: #444444;
+  --guide-text-color: #888888;
+  --border-color: #EEEEEE;
+  --fnb: #CCCCCC;
+  --fnb-text : #AAAAAA;
+  --fnb-active : #222222;
+  --calendar-colr : #666666;
+  --dim : rgba(0,0,0,0.2);
 }
 
 .darkmode {
   --body-color: #12120A;
   --base-color: #333333;
+  --text-color: #FFFFFF;
+  --sub-text-color: #DDDDDD;
+  --guide-text-color: #777777;
+  --border-color: #333333;
+  --fnb : #444444;
+  --fnb-text : #666666;
+  --fnb-active : #BBBBBB;
+  --calendar-colr : #999999;
+  --dim : rgba(255,255,255,0.2);
+  
 }
 
 
@@ -45,7 +63,7 @@
 
 /* 민초 팔레트 
 ====================================================== */
-.palette_mincho {
+.lightmode.palette_mincho {
   --base: #D8F0EF;
   --dominant: #A7D3D2;
   --accent: #997B6A;
@@ -65,7 +83,7 @@
 
 /* 레몬 팔레트 
 ====================================================== */
-.palette_lemon {
+.lightmode.palette_lemon {
   --base: #FFF3CA;
   --dominant: #D9CC9D;
   --accent: #F3637D;
@@ -85,7 +103,7 @@
 
 /* 그린 팔레트 
 ====================================================== */
-.palette_green {
+.lightmode.palette_green {
   --base: #E9FFDF;
   --dominant: #B9D9AA;
   --accent: #228262;
@@ -105,7 +123,7 @@
 
 /* 핑키 팔레트 
 ====================================================== */
-.palette_pinky {
+.lightmode.palette_pinky {
   --base: #FFD8E7;
   --dominant: #FFB9D4;
   --accent: #FA6EA5;
@@ -131,4 +149,10 @@
 
 .style_round {
   --style: 20px;
+}
+
+
+
+@media (prefers-color-scheme: dark) {
+
 }

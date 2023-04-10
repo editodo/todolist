@@ -38,10 +38,9 @@
     </div>
 
     <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
-
+    <div w3-include-html="../include/layer_drop.html"></div>
   </div>
 
-  <div w3-include-html="../include/layer_drop.html"></div>
 </body>
 
 </html>
@@ -51,13 +50,12 @@ $(function(){
 
   //더보기 
   $('.item_more').on('click', function(){
-    console.log('ddsss');
     $('.layer').css('display', 'block');
   });
 
-  $('.dim').on('click', function(){
+  $('.layer_drop .dim').on('click', function(){
     console.log('dd');
-    $('.layer').css('display', 'none');
+    //$('.layer').css('display', 'none');
   });
 
 
