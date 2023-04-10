@@ -8,7 +8,7 @@
 .date_header .btn_arrow {display: block; width: 30px; height: 30px; background-color: #666666; -webkit-mask-image: url("../images/common/calendar_direction.svg"); mask-image: url("../images/common/calendar_direction.svg"); -webkit-mask-position: right center; mask-position: right center;  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 8px 8px; mask-size: 8px 8px;}
 .date_header .btn_arrow.prev {mask-position: left center; transform: rotate(180deg); }
 
-.editodo_todolist .todolist_table {height: 403px; margin-top: 10px;padding: 20px 20px; box-sizing: border-box; box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1); background-color: #f5f5f5; overflow-x: hidden; overflow-y: auto; }
+.editodo_todolist .todolist_table {height: 403px; margin-top: 10px; padding: 20px 20px; box-sizing: border-box; border-radius: var(--style); box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1); background-color: var(--base); overflow-x: hidden; overflow-y: auto; }
 
 .todolist_tbody li {position: relative; }
 .todolist_tbody li + li {margin-top: 16px; }
@@ -18,8 +18,7 @@
 .todolist_table .item_write .write_input {display: block; width: calc(100% - 34px); height: 26px; margin: 0 auto; box-sizing: border-box; border: none; border-bottom: 2px solid #222; background-color: transparent; }
 
 
-.todolist_table .btn_new_todo {height: 28px; padding: 0 15px; box-sizing: border-box; border-radius: 18px; background-color: #222; font-size: 13px; color: #fff; font-weight: 500; text-align: center; line-height: 28px; }  
-.todolist_table > .todolist_tbody + .bottom_btn_group {margin-top: 30px; text-align: center; }
+.editodo_todolist .btn_newtodo {border-color: var(--accent); background-color: var(--accent); color: var(--base-color); }  
 
 
 
