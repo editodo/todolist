@@ -43,7 +43,7 @@
 
 /* 심플 팔레트 
 ====================================================== */
-.palette_simple {
+.lightmode.palette_simple {
   --base: #F5F5F5;
   --dominant: #D9D9D9;
   --accent: #222222;

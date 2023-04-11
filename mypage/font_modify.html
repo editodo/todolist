@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+  @import url("../css/style.css");
+  </style>
+  <link type="text/css" rel="stylesheet" href="../css/slick.css"/>
+
+  <script type="text/javascript" src="../JS/jquery-3.6.4.min.js"></script>
+  <script type="text/javascript" src="../JS/slick.min.js"></script>
+  <script type="text/javascript" src="../JS/common.js"></script>
+  <script type="text/javascript" src="https://www.w3schools.com/lib/w3.js"></script>
+  <title>마이페이지</title>
+</head>
+<body>
+  <div id="wrap" class="editodo_wrap">
+    <header class="header side_pd">
+      <div class="hd_util">
+        <button type="button" class="hd_back arrow02" onclick="window.history.go(-1)"><span class="visuallyhidden">뒤로가기</span></button>
+      </div>
+      <h3 class="hd_tit">글꼴 변경</h3>
+    </header>
+
+    <div class="container editodo_font_modify">
+      <div class="editodo_inner side_pd">
+        <section class="layout_sample">
+          <h3 class="visuallyhidden">글꼴 미리보기</h3>
+          <div class="sample_preview">
+           <p class="font_view"> 
+            더 많은 테마는 E-T에서 열심히 준비 중이에요!
+            <br>123456789!@#%&*()_+-=
+          </p>
+          </div>
+        </section>
+          
+        <ul class="font_list">
+          <li>
+            <div class="radiobox">
+              <label for="font01">
+                <input type="radio" name="font" id="font01" checked>
+                <span class="on"></span>
+                기본 글씨체
+              </label>
+            </div>
+          </li>
+          <li>
+            <div class="radiobox">
+              <label for="font02">
+                <input type="radio" name="font" id="font02">
+                <span class="on"></span>
+                미녜 주인체
+              </label>
+            </div>
+          </li>
+          <li>
+            <div class="radiobox">
+              <label for="font03">
+                <input type="radio" name="font" id="font03">
+                <span class="on"></span>
+                요한 요정체
+              </label>
+            </div>
+          </li>
+          <li>
+            <div class="radiobox">
+              <label for="font04">
+                <input type="radio" name="font" id="font04">
+                <span class="on"></span>
+                석모 튼튼체
+              </label>
+            </div>
+          </li>
+          <li>
+            <div class="radiobox">
+              <label for="item02">
+                <input type="radio" name="font" id="item02">
+                <span class="on"></span>
+                조희 낮잠체
+              </label>
+            </div>
+          </li>
+        </ul>
+
+      </div>
+    </div>
+
+    <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
+
+  </div>
+</body>
+</html>
+
+<script>
+  w3.includeHTML();
+</script>

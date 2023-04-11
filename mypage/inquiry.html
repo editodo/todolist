@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+  @import url("../css/style.css");
+  </style>
+  <link type="text/css" rel="stylesheet" href="../css/slick.css"/>
+
+  <script type="text/javascript" src="../JS/jquery-3.6.4.min.js"></script>
+  <script type="text/javascript" src="../JS/slick.min.js"></script>
+  <script type="text/javascript" src="../JS/common.js"></script>
+  <script type="text/javascript" src="https://www.w3schools.com/lib/w3.js"></script>
+  <title>마이페이지</title>
+</head>
+<body>
+  <div id="wrap" class="editodo_wrap">
+    <header class="header side_pd">
+      <div class="hd_util">
+        <button type="button" class="hd_back arrow02" onclick="window.history.go(-1)"><span class="visuallyhidden">뒤로가기</span></button>
+      </div>
+      <h3 class="hd_tit">문의하기</h3>
+    </header>
+
+    <div class="container editodo_inquiry">
+      <div class="editodo_inner side_pd">
+        <div class="form_wrap">
+          <form action="">
+            <dl class="form_dl">
+              <dt><label for="userEmail" class="form_label">답변 받으실 이메일</label></dt>
+              <dd><input type="text" id="userEmail" class="form_input" value="mine5959@email.com"></dd>
+            </dl>
+            <dl class="form_dl">
+              <dt><label for="type" class="form_label">문의유형</label></dt>
+              <dd>
+                <select name="" id="type" class="form_select">
+                  <option value="" disabled selected>카테고리 선택</option>
+                  <option value="">이용 문의</option>
+                  <option value="">오류 신고</option>
+                  <option value="">서비스 제안</option>
+                  <option value="">기타</option>
+                </select>
+              </dd>
+            </dl>
+            <dl class="form_dl">
+              <dt><label for="area" class="form_label">문의 내용</label></dt>
+              <dd><textarea name="" id="area" class="form_textarea" placeholder="내용을 입력하세요."></textarea></dd>
+            </dl>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
+
+  </div>
+</body>
+</html>
+
+<script>
+  w3.includeHTML();
+</script>
