@@ -49,6 +49,7 @@ textarea 입니다
         <div class="record_sammary">
           <p class="txt">오늘 하루 요약 스티커</p>
           <ul class="sticker_emoji">
+              <li style="background-image: url('../images/emoji/emoji_face1.svg')"></li>
           </ul>
         </div>
         <div class="bottom_btn_group">
@@ -62,16 +63,3 @@ textarea 입니다
   </div>
 </body>
 </html>
-<script>
-const emojiList = document.querySelector('.sticker_emoji')
-
-for(let i = 1; i <= 10; i++){ //이모지 저장된 갯수만큼 li 노출
-  const li = document.createElement('li');
-  emojiList.append(li);
-  
-  li.style= `background-image:url(../images/emoji/emoji_face${i}.svg)` 
-}
-
-w3.includeHTML();
-  
-</script>
