@@ -53,6 +53,7 @@
 /* ================================================
   terms
 ==================================================*/
+.editodo_policy .header .hd_util .hd_back.arrow {-webkit-mask-image: url("../images/common/hd_arrow.svg"); mask-image: url("../images/common/hd_arrow.svg");} 
 .policy {margin-top: 20px; color: #666; font-size: 14px; font-weight: 400; line-height: 19px;}
 .policy h3 {color: #666; font-size: 14px; font-weight: 400;}
 .policy h3 + p {margin-top: 20px; }
