@@ -1,5 +1,4 @@
 @charset "utf-8";
-
 /* ============================================
     layout
 ============================================ */
@@ -73,7 +72,6 @@ html, body {position: relative; width: 100%; height: 100%; }
 .layer_drop .drop_list .btn_drop > i {display: inline-block; margin-right: 4px;}
 .layer_drop .drop_list .icon_modify {width: 14px; height: 14px; background-color: var(--text-color); -webkit-mask-image: url("../images/common/modify.svg"); mask-image: url("../images/common/modify.svg");}
 .layer_drop .drop_list .icon_garbage {width: 14px; height: 14px; background-color: #ff3030; -webkit-mask-image: url("../images/common/garbage.svg"); mask-image: url("../images/common/garbage.svg"); color: #FF3030;}
-
 
 /* layer_popup */
 .layer_popup {background-color: var(--body-color); overflow-x: none; overflow-y: auto; }

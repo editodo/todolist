@@ -1,5 +1,4 @@
 @charset "utf-8";
-
 /* ================================================
   common
 ==================================================*/
@@ -9,7 +8,6 @@
 .policy-count.chapter > li {counter-increment: period; }
 .policy-count.chapter > li:before {content: "제 " counter(period)" 조"; margin-right: 5px; font-size: 13px; color: #666; font-weight: 500; }
 
-
 /* 1 */
 .policy-count.num > li {counter-increment: count; }
 .policy-count.num > li:before {content: counter(count) "."; margin-right: 5px; }
@@ -18,7 +16,6 @@
 .policy-count.brackets > li {counter-increment: count; }
 .policy-count.brackets > li:before {content: "(" counter(count) ")"; margin-right: 5px; }
 
-
 /* ① */
 .policy-count.ellipse > li {counter-increment: number; }
 .policy-count.ellipse > li:before {content: counter(number); display: inline-block; width: 14px; height: 14px; margin: 0 4px 3px 0; border: 1px solid #969696; border-radius: 100%; box-sizing: border-box; background-color: transparent; text-align: center; color: #969696; font-size: 10px; line-height: 12px; vertical-align: middle;}
@@ -26,6 +23,7 @@
 /* 넘버림 없애기 */
 .policy-count .clear  {counter-reset: none !important; }
 .policy-count .clear:before {content: "" !important; margin: 0 !important; }
+
 
 
 /* list-style 
@@ -43,11 +41,12 @@
 .list-dash li {position: relative; padding-left: 10px; }
 .list-dash li:before {content: '-'; position: absolute; top:0; left: 0; font-size: 12px; color: #a1a1a1; }
 
-
 /* style : 1.  */
 .list-number {counter-reset: period; }
 .list-number > li {counter-increment: period; }
 .list-number > li:before {content: counter(period)"."; margin-right: 5px; }
+
+
 
 
 

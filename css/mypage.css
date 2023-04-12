@@ -23,7 +23,8 @@
 /* ============================================
     step_modify //테마 및 색상 변경
 ============================================ */
-.editodo_step_modify .section_choose .title {font-size: 14px; }
+.editodo_step_modify .section_choose {margin-top: 20px; }
+.editodo_step_modify .section_choose .title {font-size: 12px; color: var(--sub-text-color); font-weight: 400; }
 .editodo_step_modify .section_choose .layout_option {margin-top: 5px; }
 
 
@@ -36,7 +37,7 @@
 .editodo_font_modify .layout_sample {margin-top: 20px; }
 .editodo_font_modify .sample_preview {width: 100%; height: 212px; padding: 87px 20px; box-sizing: border-box; border-radius: var(--style); background-color: var(--base); font-size: 14px; text-align: center; overflow: hidden; color: var(--text-color); }
 
-.editodo_font_modify .font_list {margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+.editodo_font_modify .font_list {height: 212px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); overflow-x: hidden; overflow-y: auto; }
 .editodo_font_modify .font_list li {height: 40px; line-height: 40px; }
 .editodo_font_modify .font_list li .radiobox {display: block; margin-right: 0; padding-left: 0; }
 .editodo_font_modify .font_list li .radiobox label {display: block; }
@@ -49,7 +50,6 @@
 /* ============================================
     notice //공지사항 
 ============================================ */
-
 .accrodion_list .accrodion_head {padding: 10px 18px; border-bottom: 1px solid var(--border-color); background-color: var(--body-color);}
 .accrodion_list .accrodion_head .title {font-size: 14px; color: var(--text-color); font-weight: 400; }
 .accrodion_list .accrodion_head .date {display: block; margin-top: 5px; font-size: 12px; color: var(--guide-text-color); }
@@ -65,3 +65,16 @@
     inquiry //문의하기 
 ============================================ */
 .editodo_inquiry .form_textarea {height: 250px;}
+
+
+
+
+
+/* ============================================
+    leave //탈퇴하기 
+============================================ */
+.editodo_leave .title {margin-top: 20px; font-size: 18px; color: var(--text-color); font-weight: 600; line-height: 24px; }
+.editodo_leave .subtitle {margin-top: 10px; color: #666; font-size: 13px; line-height: 17px; }
+
+.editodo_leave .list_reason {margin-bottom: 40px; }
+.editodo_leave .list_reason li {margin-top: 10px; }

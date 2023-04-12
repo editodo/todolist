@@ -1,6 +1,4 @@
 @charset "utf-8";
-
-
 /* ============================================
     onboarding 
 ============================================ */
@@ -71,7 +69,12 @@
 
 .section_choose .layout_sample {margin-top: 20px; }
 .section_choose .layout_sample .caption {margin-bottom: 5px; font-size: 12px; color: var(--sub-text-color); font-weight: 400; }
-.section_choose .layout_sample .sample_preview .todolist_table {width: 100%; height: 212px; padding: 20px 20px; box-sizing: border-box; border-radius: var(--style); background-color: var(--base); overflow: hidden; }
+.section_choose .layout_sample .sample_preview .todolist_table {width: 100%; height: 212px; padding: 20px 20px; box-sizing: border-box; border-radius: var(--style); background-color: var(--base, #F5F5F5); overflow: hidden; }
+
+/* 테마 선택시 기본값 컬러 변경을 위해 추가 */
+.darkmode .section_choose .layout_sample .sample_preview .todolist_table {background-color: var(--base, #333333); }
+.darkmode .section_choose .checkbox02 label {color: var(--checkbox-label, #DADADA); }
+.darkmode .section_choose .checkbox02 .on {border: 1px solid var(--dominant, #666666); background-color: var(--dominant, #666666);}
 
 
 
@@ -89,25 +92,6 @@
 .section_choose .layout_option.color .btn_option {padding: 0; }
 .section_choose .layout_option.color .btn_option:after {content: ''; clear: both; display: block; height: 0; visibility: hidden; }
 .section_choose .layout_option.color .btn_option > span {float: left; width: 50%; height: 100%; text-indent: -9999px; }
-
-
-
-/* checkbox 
-============================================= */
-.checkbox02 {position: relative; display: block; padding-left: 26px; cursor: pointer;  -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
-.checkbox02 label {display: inline-block; width: calc(100% - 18px); font-size: 13px; font-weight: 400; color: var(--checkbox-label); }
-.checkbox02 input[type="checkbox"] {display: none; } 
-
-/* 선택되지 않은 체크박스 스타일 꾸미기 */
-.checkbox02 .on {position: absolute; top: 4px; left: 0; width: 18px; height: 18px; box-sizing: border-box; border-width: 1px; border-style: solid; border-color: var(--dominant, #d9d9d9); border-radius: var(--style); background-color: var(--dominant, #d9d9d9);}
-.checkbox02 .on:after {content: ''; display: none; position: absolute; top: 3px; left: 3px; width: 8px; height: 4px; border-width: 1px; border-style: solid; border-top: 0; border-right: 0; transform: rotate(-45deg);}
-
-
-/* 선택된 체크박스 스타일 꾸미기 */
-.checkbox02 input[type="checkbox"]:checked + .on {border-color: var(--accent); background-color: var(--accent); }
-.checkbox02 input[type="checkbox"]:checked + .on:after {display: block; border-color: var(--base-color); }
-.checkbox02:has(:checked) label {text-decoration: line-through; color: var(--checkbox-checked-label); }
-
 
 
 

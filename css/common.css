@@ -1,5 +1,4 @@
 @charset "utf-8";
-
 /* ============================================
     common
 ============================================ */
@@ -14,10 +13,8 @@
 
 
 
-
-
 /* =========================================
-    input reset
+    form reset
 =========================================== */
 input::placeholder {color: var(--guide-text-color) !important; opacity: 1;}
 input::-webkit-input-placeholder, input:-ms-input-placeholder,
@@ -27,6 +24,29 @@ input:read-only, input.readonly,
 input:disabled, input.disabled {background-color: #eee !important; color: #aaa !important; outline: none;}
 
 input:placeholder-shown {text-overflow: ellipsis; }
+
+
+/* textarea */
+textarea::placeholder {color: #888 !important; opacity: 1;}
+textarea::-webkit-input-placeholder, input:-ms-input-placeholder,
+textarea:-mos-input-placeholder {color: #888;}
+
+textarea {width: 100%; box-sizing: border-box; border: none; overflow-y: auto; overflow-x: hidden; line-height: 19px; outline: none; resize: none; }
+pre {width: 100%; box-sizing: border-box; border: none; overflow-y: auto; overflow-x: hidden; line-height: 19px; outline: none; resize: none; white-space: pre-wrap; word-wrap: break-word;}
+
+
+
+
+
+/* =========================================
+    textarea , pre , select
+=========================================== */
+.form_textarea {width: 100%; padding: 0 16px;  box-sizing: border-box; border-radius: 5px; border: 1px solid var(--border-color); background-color: var(--body-color); font-size: 14px; color: var(--text-color); line-height: 38px; outline: none; }
+
+/* select  */
+.form_select {width: 100%; height: 40px; padding: 0 16px;  box-sizing: border-box; border-radius: 5px; border: 1px solid var(--border-color); background-color: var(--body-color); font-size: 14px; color: var(--text-color); line-height: 38px; outline: none; }
+
+
 
 /* =========================================
     form
@@ -49,7 +69,7 @@ input:placeholder-shown {text-overflow: ellipsis; }
 
 
 
-/* checkbox 
+/* checkbox  (default)
 ============================================= */
 .checkbox {position: relative; display: block; padding-left: 26px; cursor: pointer;  -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
 .checkbox label {font-size: 13px; color: #666; font-weight: 500; }
@@ -59,17 +79,33 @@ input:placeholder-shown {text-overflow: ellipsis; }
 .checkbox .on {position: absolute; top: 2px; left: 0; width: 18px; height: 18px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 100%; background: #fff;  }
 .checkbox .on:after {content: ''; position: absolute; top: 4px; left: 3px; width: 8px; height: 4px; border: 1px solid #ccc; border-top: 0; border-right: 0; transform: rotate(-45deg);}
 
-
 /* 선택된 체크박스 스타일 꾸미기 */
 .checkbox input[type="checkbox"]:checked + .on {border-color: var(--main-color); background: var(--main-color); }
 .checkbox input[type="checkbox"]:checked + .on:after {border-color: #fff; }
 
 
 
-/* checkbox 
+/* checkbox02  (change color)
+============================================= */
+.checkbox02 {position: relative; display: block; padding-left: 26px; cursor: pointer;  -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+.checkbox02 label {display: inline-block; width: calc(100% - 18px); font-size: 13px; font-weight: 400; color: var(--checkbox-label); }
+.checkbox02 input[type="checkbox"] {display: none; } 
+
+/* 선택되지 않은 체크박스 스타일 꾸미기 */
+.checkbox02 .on {position: absolute; top: 4px; left: 0; width: 18px; height: 18px; box-sizing: border-box; border: 1px solid var(--dominant, #D9D9D9); border-radius: var(--style); background-color: var(--dominant, #D9D9D9);}
+.checkbox02 .on:after {content: ''; display: none; position: absolute; top: 3px; left: 3px; width: 8px; height: 4px; border-width: 1px; border-style: solid; border-top: 0; border-right: 0; transform: rotate(-45deg);}
+
+/* 선택된 체크박스 스타일 꾸미기 */
+.checkbox02 input[type="checkbox"]:checked + .on {border-color: var(--accent); background-color: var(--accent); }
+.checkbox02 input[type="checkbox"]:checked + .on:after {display: block; border-color: var(--base-color); }
+.checkbox02:has(:checked) label {text-decoration: line-through; color: var(--checkbox-checked-label); }
+
+
+
+/* radiobox (default)
 ============================================= */
 .radiobox {position: relative; display: inline-block; margin-right: 10px; padding-left: 25px; cursor: pointer; font-size: 14px; color: var(--text-color); -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
-
+.radiobox label {color: #666; font-weight: 500; font-size: 14px; }
 /* 기본 라디오 버튼 숨기기 */
 .radiobox input[type="radio"] {display: none; }
 
@@ -83,10 +119,6 @@ input:placeholder-shown {text-overflow: ellipsis; }
 .radiobox .on:after {position: absolute; left: 5px; top: 5px; width: 8px; height: 8px; border-radius: 50%; background: #FFFFFF; }
 
 
-
-/* select 
-============================================= */
-.form_select {width: 100%; height: 40px; padding: 0 16px;  box-sizing: border-box; border-radius: 5px; border: 1px solid var(--border-color); background-color: var(--body-color); font-size: 14px; color: var(--text-color); line-height: 38px; outline: none; }
 
 
 
@@ -110,18 +142,3 @@ button.disabled {opacity: 0.6; cursor: not-allowed; }
 .bottom_btn_group.horzion .btn_prev {border-color: var(--lightgray-color); background-color: var(--lightgray-color); color: var(--guide-text-color); }
 
 .bottom_btn_group .btn.full {width: 100%; }
-
-
-
-
-/* =========================================
-    select, textarea , pre 
-=========================================== */
-textarea::placeholder {color: #888 !important; opacity: 1;}
-textarea::-webkit-input-placeholder, input:-ms-input-placeholder,
-textarea:-mos-input-placeholder {color: #888;}
-
-
-textarea {width: 100%; box-sizing: border-box; border: none; overflow-y: auto; overflow-x: hidden; line-height: 19px; outline: none; resize: none; }
-pre {width: 100%; box-sizing: border-box; border: none; overflow-y: auto; overflow-x: hidden; line-height: 19px; outline: none; resize: none; white-space: pre-wrap; word-wrap: break-word;}
-.form_textarea {width: 100%; padding: 0 16px;  box-sizing: border-box; border-radius: 5px; border: 1px solid var(--border-color); background-color: var(--body-color); font-size: 14px; color: var(--text-color); line-height: 38px; outline: none; }

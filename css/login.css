@@ -1,5 +1,4 @@
 @charset "utf-8"; 
-
 /* =========================================
     login
 =========================================== */
@@ -17,7 +16,8 @@
 
 /* =========================================
     join
-=========================================== */.editodo_join .form_dl + .save_id {margin-top: 40px; }
+=========================================== */
+.editodo_join .form_dl + .save_id {margin-top: 40px; }
 .editodo_join .underline {text-decoration: underline;}
 
 

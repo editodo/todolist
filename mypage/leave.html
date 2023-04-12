@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+  @import url("../css/style.css");
+  </style>
+  <link type="text/css" rel="stylesheet" href="../css/slick.css"/>
+
+  <script type="text/javascript" src="../JS/jquery-3.6.4.min.js"></script>
+  <script type="text/javascript" src="../JS/slick.min.js"></script>
+  <script type="text/javascript" src="../JS/common.js"></script>
+  <script type="text/javascript" src="https://www.w3schools.com/lib/w3.js"></script>
+  <title>마이페이지</title>
+</head>
+<body>
+  <div id="wrap" class="editodo_wrap">
+    <header class="header side_pd">
+      <div class="hd_util">
+        <button type="button" class="hd_back arrow02" onclick="window.history.go(-1)"><span class="visuallyhidden">뒤로가기</span></button>
+      </div>
+      <h3 class="hd_tit">회원탈퇴</h3>
+    </header>
+
+    <div class="container editodo_leave">
+      <div class="editodo_inner side_pd">
+        <h3 class="title">
+          정말 떠나시는 건가요?<br>
+          한 번 더 생각해 보지 않으시겠어요?
+        </h3>
+        <p class="subtitle">
+          계정을 삭제하시려는 이유를 말씀해주세요.
+          서비스 이용에 중요한 자료로 활용하겠습니다.
+        </p>
+        <div class="form_wrap">
+          <form action="">
+            <ul class="list_reason">
+              <li>
+                <div class="radiobox">
+                  <label for="leave01">
+                    <input type="radio" name="leave" id="leave01">
+                    <span class="on"></span>
+                    기록 삭제 목적
+                  </label>
+                </div>
+              </li>
+              <li>
+                <div class="radiobox">
+                  <label for="leave02">
+                    <input type="radio" name="leave" id="leave02">
+                    <span class="on"></span>
+                    이용이 불편하고 장애가 많아서
+                  </label>
+                </div>
+              </li>
+              <li>
+                <div class="radiobox">
+                  <label for="leave03">
+                    <input type="radio" name="leave" id="leave03">
+                    <span class="on"></span>
+                    다른 앱이 좋아서
+                  </label>
+                </div>
+              </li>
+              <li>
+                <div class="radiobox">
+                  <label for="leave04">
+                    <input type="radio" name="leave" id="leave04">
+                    <span class="on"></span>
+                    사용빈도가 낮아서
+                  </label>
+                </div>
+              </li>
+              <li>
+                <div class="radiobox">
+                  <label for="leave05">
+                    <input type="radio" name="leave" id="leave05">
+                    <span class="on"></span>
+                    콘텐츠 불만
+                  </label>
+                </div>
+              </li>
+              <li>
+                <div class="radiobox">
+                  <label for="leave06">
+                    <input type="radio" name="leave" id="leave06">
+                    <span class="on"></span>
+                    기타
+                  </label>
+                </div>
+              </li>
+            </ul>
+            <dl class="form_dl">
+              <dt><label for="userPw" class="form_label">비밀번호 확인</label></dt>
+              <dd><input type="password" id="userPw" class="form_input" placeholder="8-16자리 영문,숫자 조합"></dd>
+            </dl>
+          </form>
+        </div>
+
+        <div class="bottom_btn_group">
+          <button type="button" class="btn btn_main full">탈퇴하기</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
+
+  </div>
+</body>
+</html>
+
+<script>
+  w3.includeHTML();
+</script>
