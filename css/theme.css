@@ -16,9 +16,9 @@
         transform: rotate(1,1);
     }
 }
-.editodo_onboarding .onboarding .tit {display: block; margin: 40px auto 10px; font-size: 22px; color: var(--text-color); font-weight: 600;}
+.editodo_onboarding .onboarding .tit {display: block; margin: 40px auto 10px; font-size: 22px; color: var(--text-color); font-weight: 700;}
 .editodo_onboarding .onboarding .txt {font-size: 14px; color: #666; font-weight: 400;}
-.editodo_onboarding .onboarding .txt > strong {font-weight: 600; }
+.editodo_onboarding .onboarding .txt > strong {font-weight: 500; }
 .editodo_onboarding .onboarding .txt > .font_main {color: var(--main-color); }
 
 
