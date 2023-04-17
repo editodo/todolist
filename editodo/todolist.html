@@ -37,7 +37,7 @@
     </div>
 
     <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
-    <div w3-include-html="../include/layer_drop.html"></div>
+    <div class="layer_todo" w3-include-html="../include/layer_drop.html"></div>
   </div>
 
 </body>
@@ -80,13 +80,12 @@ function writeTodo() {
     } 
   }
 
-  var i = 0;
 
+  var i = 0;
   function addTodo() {
     i+=1;
 
     var inputTodoText = $('.input-todo').val();
-
     var addTodoItem = "";
     
     addTodoItem += "<li>";
@@ -102,10 +101,9 @@ function writeTodo() {
     
     if (inputTodoText =='') {
       return false;
-      alert('빔');
     } else {
       $('.todolist_tbody').append(addTodoItem);
-      $('.todo-write').remove();      
+      $('.todo-write').remove();
     }
 
 
@@ -119,26 +117,30 @@ function writeTodo() {
 
   $(document).ready(function(){
 
-    //포커스 아웃
-    // $(document).on('focusout', '.input-todo', function(){
-    //   addTodo();
-    // });
-
     //엔터키
     $(document).on('keydown', '.input-todo', function(key){
         if(key.keyCode==13) {
-          addTodo();
-        }
+          key.target.remove();
+        } 
     });
 
+    //포커스 아웃
+    $(document).on('focusout', '.input-todo', function(){
+      addTodo();
+    });
 
-  })
+    //레이어팝업 노출
+    $(document).on('click', '.item_more', function(){
+      $('.layer_drop').show();
+      $('.layer_drop .layer_content').addClass('active');
+    });
 
+    $(document).on('click', '.layer_drop .dim', function(){
+      $('.layer_drop').hide();
+      $('.layer_drop .layer_content').removeClass('active');
+    });
 
-
-
-
-
+  });
 
 
 

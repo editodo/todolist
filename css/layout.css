@@ -30,7 +30,7 @@ html, body {position: relative; width: 100%; height: 100%; font-size: 14px; line
 /* ============================================
     editodo_wrap
 ============================================ */
-.container {height: 100%; align-self: stretch; padding-bottom: 100px; background-color: var(--body-color); }
+.container {max-height: 100vh; align-self: stretch; padding-bottom: 100px; background-color: var(--body-color); }
 
 
 
@@ -60,7 +60,8 @@ html, body {position: relative; width: 100%; height: 100%; font-size: 14px; line
 ============================================ */
 .layer {display: none; position: fixed; top: 0; left: 0; z-index: 50;  width: 100%; height: 100%; }
 .layer .dim {position: absolute; top: 0; left: 0; z-index: 60; width: 100%; height: 100%; background-color: var(--dim); }
-.layer .layer_content {position: absolute; bottom: 0; left: 0; z-index: 70;}
+.layer .layer_content {position: absolute; bottom: -100%; left: 0; z-index: 70; transition: all 0.3s; }
+.layer .layer_content.active {bottom: 0; }
 
 .layer_drop .layer_content {width: 100%; min-height: 180px; background-color: var(--body-color); box-sizing: border-box; border-radius: 20px 20px 0 0; box-shadow: 0px -3px 14px rgba(34, 34, 34, 0.1);}
 .layer_drop .drop_header {position: relative; min-height: 80px; padding: 30px 15px;  box-sizing: border-box; border-bottom: 1px solid var(--border-color); }
