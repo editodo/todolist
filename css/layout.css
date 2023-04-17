@@ -48,7 +48,7 @@ html, body {position: relative; width: 100%; height: 100%; font-size: 14px; line
 .editodo_fnb .fnb_list .btn_fnb.active .fnb_tit {color: var(--fnb-active);} 
 .editodo_fnb .fnb_list .fnb_todolist {-webkit-mask-image: url("../images/common/fnb_todolist.svg"); mask-image: url("../images/common/fnb_todolist.svg"); -webkit-mask-size: 20px 16px; mask-size: 20px 16px;}
 .editodo_fnb .fnb_list .fnb_calendar {-webkit-mask-image: url("../images/common/fnb_calendar.svg"); mask-image: url("../images/common/fnb_calendar.svg"); -webkit-mask-size: 16px 18px; mask-size: 16px 18px;}
-.editodo_fnb .fnb_list .fnb_daily {-webkit-mask-image: url("../images/common/fnb_todolist.svg"); mask-image: url("../images/common/fnb_todolist.svg"); -webkit-mask-size: 20px 16px; mask-size: 20px 16px;}
+.editodo_fnb .fnb_list .fnb_daily {-webkit-mask-image: url("../images/common/fnb_daily.svg"); mask-image: url("../images/common/fnb_daily.svg"); -webkit-mask-size: 20px 16px; mask-size: auto 18px;}
 .editodo_fnb .fnb_list .fnb_mypage {-webkit-mask-image: url("../images/common/fnb_mypage.svg"); mask-image: url("../images/common/fnb_mypage.svg"); -webkit-mask-size: 16px 18px; mask-size: 16px 18px;}
 
 
