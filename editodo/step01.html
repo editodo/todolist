@@ -8,9 +8,11 @@
   @import url("../css/style.css");
   </style>
   <link type="text/css" rel="stylesheet" href="../css/slick.css"/>
+  <link type="text/css" rel="stylesheet" href="../css/swiper.css"/>
 
   <script type="text/javascript" src="../JS/jquery-3.6.4.min.js"></script>
   <script type="text/javascript" src="../JS/slick.min.js"></script>
+  <script type="text/javascript" src="../JS/swiper.js"></script>
   <script type="text/javascript" src="../JS/common.js"></script>
   <script type="text/javascript" src="https://www.w3schools.com/lib/w3.js"></script>
   <title>테마선택</title>
@@ -41,11 +43,13 @@
             나중에 마이페이지에서 수정할 수 있어요.<br>
             더 많은 테마는 E-T에서 열심히 준비 중이에요!
           </p>
-          <ul class="slick_list layout_option mode">
-            <li><button type="button" class="btn_option lightmode">라이트</button></li>
-            <li><button type="button" class="btn_option darkmode">다크</button></li>
-            <li><button type="button" class="btn_option">시스템 모드</button></li>
-          </ul>
+          <div class="swiper-container option">
+            <ul class="swiper-wrapper layout_option mode">
+              <li class="swiper-slide"><button type="button" class="btn_option lightmode">라이트</button></li>
+              <li class="swiper-slide"><button type="button" class="btn_option darkmode">다크</button></li>
+              <li class="swiper-slide"><button type="button" class="btn_option system">시스템 모드</button></li>
+            </ul>
+          </div>
         </section>
 
         <div class="bottom_btn_group">
@@ -79,7 +83,6 @@ $(function(){
     $('.slick-slide').removeClass('on');
     editodoWrap.classList.remove(target);
   });
-
 
 
 });

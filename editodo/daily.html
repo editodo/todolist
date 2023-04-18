@@ -8,9 +8,11 @@
   @import url("../css/style.css");
   </style>
   <link type="text/css" rel="stylesheet" href="../css/slick.css"/>
+  <link type="text/css" rel="stylesheet" href="../css/swiper.css"/>
 
   <script type="text/javascript" src="../JS/jquery-3.6.4.min.js"></script>
   <script type="text/javascript" src="../JS/slick.min.js"></script>
+  <script type="text/javascript" src="../JS/swiper.js"></script>
   <script type="text/javascript" src="../JS/common.js"></script>
   <script type="text/javascript" src="https://www.w3schools.com/lib/w3.js"></script>
   <title>하루일기</title>
@@ -48,9 +50,13 @@ textarea 입니다
         </pre>
         <div class="record_sammary">
           <p class="txt">오늘 하루 요약 스티커</p>
-          <ul class="sticker_emoji">
-              <li style="background-image: url('../images/emoji/emoji_face1.svg')"></li>
-          </ul>
+          <div class="swiper-container emoji">
+            <ul class="swiper-wrapper sticker_emoji">
+              <li class="swiper-slide" style="background-image: url('../images/emoji/emoji_face1.svg')"></li>
+            </ul>
+          </div>
+
+
         </div>
         <div class="bottom_btn_group">
           <button type="buttton" class="btn btn_main full" onclick="location.href='daily_write.html'">기록 수정</button>

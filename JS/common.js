@@ -4,30 +4,49 @@ $(function(){
   const color = sessionStorage.getItem('color');
   const mode = sessionStorage.getItem('mode');
 
-  //옵션 선택
-  $('.slick_list').slick({
-    slide: 'li',
-    arrows: false,
-    variableWidth: true,
-    infinite: false,
-    focusOnSelect: true,
-    swipeToSlide: true
-  });
+
+  var mySwiper = new Swiper('.swiper-container.option', {
+    slidesPerView: 'auto',
+    freeMode: true,
+    loop: false,
+    roundLengths: true,
+  })
+  
+
+  $(document).on('click', '.swiper-container button', function(){
+    const optionli = $(this).parents('li');
+    
+    if(optionli.hasClass('on')){
+      return false;
+    } else {
+      optionli.addClass('on');
+      optionli.siblings().removeClass('on');
+
+    }
+  })
+
+  var mySwiper = new Swiper('.swiper-container.emoji', {
+    slidesPerView: 'auto',
+    freeMode: true,
+    loop: false,
+    roundLengths: true,
+  })
+
 
   //하루일기 이모지 
-  $('.sticker_emoji').slick({
-    slide: 'li',
-    arrows: false,
-    variableWidth: true,
-    infinite: false,
-    focusOnSelect: true,
-    swipeToSlide: true,
-  });
+  // $('.sticker_emoji').slick({
+  //   slide: 'li',
+  //   arrows: false,
+  //   variableWidth: true,
+  //   infinite: false,
+  //   focusOnSelect: true,
+  //   swipeToSlide: true,
+  // });
 
-  $('.sticker_emoji').on('afterChange', function(){
-    $('.slick-slide').removeClass('on');
-    $(this).find('.slick-current').addClass('on');
-  });
+  // $('.sticker_emoji').on('afterChange', function(){
+  //   $('.slick-slide').removeClass('on');
+  //   $(this).find('.slick-current').addClass('on');
+  // });
 
   //옵션 & 테마 적용 
   editodoWrap.classList.add('palette_simple', 'lightmode'); // 디폴트 컬러 적용

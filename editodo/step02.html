@@ -8,9 +8,11 @@
   @import url("../css/style.css");
   </style>
   <link type="text/css" rel="stylesheet" href="../css/slick.css"/>
+  <link type="text/css" rel="stylesheet" href="../css/swiper.css"/>
 
   <script type="text/javascript" src="../JS/jquery-3.6.4.min.js"></script>
   <script type="text/javascript" src="../JS/slick.min.js"></script>
+  <script type="text/javascript" src="../JS/swiper.js"></script>
   <script type="text/javascript" src="../JS/common.js"></script>
   <script type="text/javascript" src="https://www.w3schools.com/lib/w3.js"></script>
   <title>테마선택</title>
@@ -42,12 +44,14 @@
             더 많은 테마는 E-T에서 열심히 준비 중이에요!
           </p>
 
-          <ul class="slick_list layout_option theme">
-            <li><button type="button" class="btn_option style_simple">심플</button></li>
-            <li><button type="button" class="btn_option style_round">라운드</button></li>
-            <li><button type="button" class="btn_option style_skitch">스케치</button></li>
-            <li><button type="button" class="btn_option style_kitsch">키치</button></li>
-          </ul>
+          <div class="swiper-container option">
+            <ul class="swiper-wrapper layout_option theme">
+              <li class="swiper-slide"><button type="button" class="btn_option style_simple">심플</button></li>
+              <li class="swiper-slide"><button type="button" class="btn_option style_round">라운드</button></li>
+              <li class="swiper-slide"><button type="button" class="btn_option style_skitch">스케치</button></li>
+              <li class="swiper-slide"><button type="button" class="btn_option style_kitsch">키치</button></li>
+            </ul>
+          </div>
 
           <div class="layout_sample">
             <p class="caption">테마 미리보기</p>
