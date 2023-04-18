@@ -209,18 +209,17 @@
   });
 
   $(function(){
-  //addEventListener 안먹혀서 jquery 사용. 
 
-  //더보기 
-  $('.item_more').on('click', function(){
-    console.log('ddsss');
-    $('.layer').css('display', 'block');
-  });
+  //레이어팝업 노출
+  $(document).on('click', '.item_more', function(){
+      $('.layer_drop').show();
+      $('.layer_drop .layer_content').addClass('active');
+    });
 
-  $('.dim').on('click', function(){
-    console.log('dd');
-    $('.layer').css('display', 'none');
-  });
+    $(document).on('click', '.layer_drop .dim', function(){
+      $('.layer_drop').hide();
+      $('.layer_drop .layer_content').removeClass('active');
+    });
 
 
 }); //End
