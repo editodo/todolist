@@ -63,7 +63,7 @@
 
         <div class="bottom_btn_group horzion">
           <button type="buttton" onclick="location.href='step01.html'" class="btn btn_prev">이전</button>
-          <button type="buttton" onclick="location.href='step03.html'" class="btn btn_main">다음</button>
+          <button type="buttton" class="btn btn_main">다음</button>
         </div>
       </div>
     </div>
@@ -73,30 +73,29 @@
 </html>
 
 <script>
-$(function(){
-  const editodoWrap = document.querySelector('.editodo_wrap');
-
-  // 옵션 - 슬라이드 이동 후 이벤트 시작
-  $('.layout_option').on('afterChange', function(){
-    const current = document.querySelector('.slick-current').children;
-    let target = current[0].classList[1];
-
-    $(this).find('.slick-current').addClass('on');
-    editodoWrap.classList.add(target); 
-    sessionStorage.setItem('theme' ,target);
-  });
-
-  //옵션  - 슬라이드 이동 전 이벤트 시작
-  $('.layout_option').on('beforeChange', function(){
-    const current = document.querySelector('.slick-current').children;
-    let target = current[0].classList[1];
-    $('.slick-slide').removeClass('on');
-    editodoWrap.classList.remove(target);
-  });
-
-
-
+$('.btn_main').on('click', function(){
+  if($('.swiper-slide').hasClass('on')){
+    location.href='step03.html'
+  } else {
+    alert('테마를 골라주세요.');
+  }
 });
+$(document).on('click', '.swiper-container button', function(){
+  const editodoWrap = document.querySelector('.editodo_wrap');
+  const optionli = $(this).parents('li');
+  const defaultTheme = editodoWrap.classList[3];
+  
+  optionli.addClass('on');
+  optionli.siblings().removeClass('on');
+
+  if(optionli.hasClass('on')){
+    let themebtn = this.classList[1];
+    editodoWrap.classList.replace(defaultTheme, themebtn);
+    sessionStorage.setItem('theme' , themebtn);
+  } else {
+    return false;
+  }
+})
 
 w3.includeHTML();
 </script>

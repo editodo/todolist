@@ -5,26 +5,14 @@ $(function(){
   const mode = sessionStorage.getItem('mode');
 
 
+  // 옵션 선택 
   var mySwiper = new Swiper('.swiper-container.option', {
     slidesPerView: 'auto',
     freeMode: true,
     loop: false,
-    roundLengths: true,
+    roundLengths: true
   })
-  
-
-  $(document).on('click', '.swiper-container button', function(){
-    const optionli = $(this).parents('li');
-    
-    if(optionli.hasClass('on')){
-      return false;
-    } else {
-      optionli.addClass('on');
-      optionli.siblings().removeClass('on');
-
-    }
-  })
-
+  //하루일기 - 스티커 
   var mySwiper = new Swiper('.swiper-container.emoji', {
     slidesPerView: 'auto',
     freeMode: true,
@@ -33,23 +21,8 @@ $(function(){
   })
 
 
-  //하루일기 이모지 
-  // $('.sticker_emoji').slick({
-  //   slide: 'li',
-  //   arrows: false,
-  //   variableWidth: true,
-  //   infinite: false,
-  //   focusOnSelect: true,
-  //   swipeToSlide: true,
-  // });
-
-  // $('.sticker_emoji').on('afterChange', function(){
-  //   $('.slick-slide').removeClass('on');
-  //   $(this).find('.slick-current').addClass('on');
-  // });
-
   //옵션 & 테마 적용 
-  editodoWrap.classList.add('palette_simple', 'lightmode'); // 디폴트 컬러 적용
+  editodoWrap.classList.add('lightmode', 'style_simple', 'palette_simple'); // 디폴트 컬러 적용
   editodoWrap.classList.add(mode, theme, color); // 선택된 옵션 적용
 
   //날짜 출력

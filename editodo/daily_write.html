@@ -54,14 +54,19 @@
 <script>
 const emojiList = document.querySelector('.sticker_emoji')
 
-$('.slick-current').addClass('on');
+
 for(let i = 1; i <= 10; i++){ //이모지 저장된 갯수만큼 li 노출
   const li = document.createElement('li');
   emojiList.append(li);
   
   li.classList.add('swiper-slide');
   li.style= `background-image:url(../images/emoji/emoji_face${i}.svg)` 
-}
+} 
+
+$(document).on('click', '.swiper-container .swiper-slide', function(e){
+  $(this).addClass('on');
+  $(this).siblings().removeClass('on');
+})
 
 w3.includeHTML();
     
