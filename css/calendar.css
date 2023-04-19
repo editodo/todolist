@@ -38,10 +38,10 @@
     calendar 
 ============================================ */
 .calendar_table > table {width: 100%; margin: 0 auto;}
-.calendar_table .calendar_head th {width: 50px; height: 50px; font-size: 14px; color: #aaa; font-weight: 600; }
-.calendar_table .calendar_body td {position: relative; width: 50px; height: 50px; padding: 5px 0; box-sizing: border-box; color: #222; font-size: 13px; font-weight: 500; text-align: center;  vertical-align: top; cursor: pointer; }
+.calendar_table .calendar_head th {width: 50px; height: 50px; font-size: 14px; color: var(--fnb-text); font-weight: 600; }
+.calendar_table .calendar_body td {position: relative; width: 50px; height: 50px; padding: 5px 0; box-sizing: border-box; color: var(--text-color); font-size: 13px; font-weight: 500; text-align: center;  vertical-align: top; cursor: pointer; }
 
-.calendar_table .calendar_body .daily_face {position: absolute; bottom: 5px; left: 50%; width: 20px; height: 20px; box-sizing: border-box; border-radius: 100%; background-color: #eee; background-repeat: no-repeat; background-size: contain; transform: translateX(-50%); }
+.calendar_table .calendar_body .daily_face {position: absolute; bottom: 5px; left: 50%; width: 20px; height: 20px; box-sizing: border-box; border-radius: 100%; background-color: var(--border-color); background-repeat: no-repeat; background-size: contain; transform: translateX(-50%); }
 .calendar_table .calendar_body .daily_face.not {border: 1px dashed #aaa; background-color: transparent;}
 .calendar_table .calendar_body .daily_face.not:after {content: ''; position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background-color: #aaa; -webkit-mask-image: url("../images/common/x_small.svg"); mask-image: url("../images/common/x_small.svg"); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center center; mask-position: center center; -webkit-mask-size: 8px 8px; mask-size: 8px 8px; transform: translate(-50%, -50%);}
 
