@@ -1,8 +1,8 @@
 $(function(){
   const editodoWrap = document.querySelector('.editodo_wrap');
-  const theme = sessionStorage.getItem('theme');
-  const color = sessionStorage.getItem('color');
-  const mode = sessionStorage.getItem('mode');
+  const theme = sessionStorage.getItem('theme') ? sessionStorage.getItem('theme') : 'style_simple';
+  const color = sessionStorage.getItem('color') ? sessionStorage.getItem('color') : 'palette_simple';
+  const mode = sessionStorage.getItem('mode') ? sessionStorage.getItem('mode') : 'lightmode';
 
 
   // 옵션 선택 
@@ -77,7 +77,7 @@ $(function(){
 
 
   //옵션 & 테마 적용 디폴트 적용
-  editodoWrap.classList.add('lightmode', 'style_simple', 'palette_simple');
+  // editodoWrap.classList.add('lightmode', 'style_simple', 'palette_simple');
   editodoWrap.classList.add(mode, theme, color);
 
   //날짜 출력
