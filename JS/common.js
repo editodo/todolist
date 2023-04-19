@@ -35,9 +35,11 @@ $(function(){
       sessionStorage.setItem('mode' , modebtn);
       if(modebtn == 'system') { //시스템 모드 따라가기
         if(window.matchMedia('(prefers-color-scheme: dark)').matches){
-          editodoWrap.classList.replace('system', 'darkmode')
+          editodoWrap.classList.replace('system', 'darkmode');
+          sessionStorage.setItem('mode' , 'darkmode');
         } else {
-          editodoWrap.classList.replace('system', 'lightmode')
+          editodoWrap.classList.replace('system', 'lightmode');
+          sessionStorage.setItem('mode' , 'lightmode');
         }
       }
     }
