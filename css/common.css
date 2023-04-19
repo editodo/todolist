@@ -93,7 +93,7 @@ pre {width: 100%; box-sizing: border-box; border: none; overflow-y: auto; overfl
 .checkbox02 input[type="checkbox"] {display: none; } 
 
 /* 선택되지 않은 체크박스 스타일 꾸미기 */
-.checkbox02 .on {position: absolute; top: 2px; left: 0; width: 18px; height: 18px; box-sizing: border-box; border: 1px solid var(--dominant, #D9D9D9); border-radius: var(--style); background-color: var(--dominant, #D9D9D9);}
+.checkbox02 .on {position: absolute; top: 2px; left: 0; width: 18px; height: 18px; box-sizing: border-box; border: 1px solid var(--dominant); border-radius: var(--style); background-color: var(--dominant);}
 .checkbox02 .on:after {content: ''; display: none; position: absolute; top: 3px; left: 3px; width: 8px; height: 4px; border-width: 1px; border-style: solid; border-top: 0; border-right: 0; transform: rotate(-45deg);}
 
 /* 선택된 체크박스 스타일 꾸미기 */
