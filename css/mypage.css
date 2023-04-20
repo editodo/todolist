@@ -7,7 +7,7 @@
 .editodo_mypage .editodo_inner {position: relative; }
 .editodo_mypage .mypage_info {height: 60px; padding: 0 16px; box-sizing: border-box; border-bottom: 1px solid var(--border-color); background-color: var(--body-color);}
 .editodo_mypage .mypage_info .btn_info {position: relative; height: 60px; font-size: 20px; color: var(--text-color); font-weight: 600; letter-spacing: -0.33px;}
-.editodo_mypage .mypage_info .mypage_arrow {position: absolute; top: 24px; right: -16px; width: 12px; height: 12px; background-color: #222; -webkit-mask-image: url("../images/common/direction.svg"); mask-image: url("../images/common/direction.svg"); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center center; mask-position: center center; -webkit-mask-size: 12px 12px; mask-size: 12px 12px;}
+.editodo_mypage .mypage_info .mypage_arrow {position: absolute; top: 24px; right: -16px; width: 12px; height: 12px; background-color: var(--text-color); -webkit-mask-image: url("../images/common/direction.svg"); mask-image: url("../images/common/direction.svg"); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center center; mask-position: center center; -webkit-mask-size: 12px 12px; mask-size: 12px 12px;}
 
 .editodo_mypage .category {margin-top: 10px; border-bottom: 1px solid var(--border-color); }
 .editodo_mypage .category li {position: relative; height: 45px; padding: 0 20px; background-color: var(--body-color); line-height: 45px; font-size: 14px; color: var(--sub-text-color);}
