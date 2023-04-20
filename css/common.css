@@ -106,6 +106,9 @@ select {background-image: url('/images/common/direction_down.svg'); background-p
 .checkbox02:has(:checked) label {text-decoration: line-through; color: var(--checkbox-checked-label); }
 
 
+/* round check 위치 재설정 */
+.style_round .checkbox02 .on:after {top: 4px; left: 4px; }
+
 
 /* radiobox (default)
 ============================================= */

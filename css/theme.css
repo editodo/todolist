@@ -102,7 +102,7 @@
 .editodo_daily .record_sammary {margin-top: 60px; padding-bottom: 10px;}
 .editodo_daily .record_sammary .txt { font-size: 13px; color: #666; font-weight: 500;}
 .editodo_daily .sticker_emoji {display: flex; margin-right: -18px; }
-.editodo_daily .sticker_emoji li {position: relative; width: 40px; height: 40px; margin-top: 10px; margin-right: 8px; box-sizing: border-box; border-radius: 100%; background-color: #eee; background-size: contain; background-position: center;}
+.editodo_daily .sticker_emoji li {position: relative; width: 40px; height: 40px; margin-top: 10px; margin-right: 8px; box-sizing: border-box; border-radius: 100%; background-color: #eee; background-size: 40px 40px; background-position: center;}
 .editodo_daily .sticker_emoji li.on {border: 2px solid var(--main-color); }
 .editodo_daily .sticker_emoji li.on:after {content: ''; position: absolute; top: -9px; left: 0; width: 18px; height: 18px; box-sizing: border-box; border-radius: 100%; background-color: var(--main-color); } 
 .editodo_daily .sticker_emoji li.on:before {content: ''; position: absolute; top: -5px; left: 4px; z-index: 1; width: 8px; height: 4px; border: 2px solid #FFFFFF; border-top: 0; border-right: 0; transform: rotate(-45deg);}
