@@ -83,6 +83,31 @@
 .section_choose .layout_option.theme .btn_option {padding: 0 5px; }
 
 
+/* 스케치 */
+.style_skitch .checkbox02 .on {border: 0;-webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; background-color: var(--accent); -webkit-mask-image: url("../images/common/check_skitch.svg"); mask-image: url("../images/common/check_skitch.svg"); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-position: center; mask-position: center; }
+
+.style_skitch .checkbox02 input[type="checkbox"]:checked + .on {background-color: var(--accent); -webkit-mask-image: url("../images/common/checked_skitch.svg"); mask-image: url("../images/common/checked_skitch.svg"); }
+.style_skitch .checkbox02 input[type="checkbox"]:checked + .on:after {display: none; }
+
+.style_skitch .checkbox02 label:after {content:""; position: absolute; left: 26px; bottom: -5px; width: calc(100% - 50px); height: 2px; background-color: var(--accent);  -webkit-mask-image: url("../images/common/line_skitch.svg"); mask-image: url("../images/common/line_skitch.svg"); -webkit-mask-position: left bottom; mask-position: left bottom; -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x; }
+
+
+
+/* 키치 */
+.style_kitsch .checkbox02 .on {width: 20px; height: 20px; border: 0; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; background-color: var(--accent); -webkit-mask-image: url("../images/common/check_kitsch.svg"); mask-image: url("../images/common/check_kitsch.svg"); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-position: center; mask-position: center; }
+
+.style_kitsch .checkbox02 input[type="checkbox"]:checked + .on {background-color: var(--accent); -webkit-mask-image: url("../images/common/checked_kitsch.svg"); mask-image: url("../images/common/checked_kitsch.svg"); }
+.style_kitsch .checkbox02 input[type="checkbox"]:checked + .on:after {display: none; }
+
+.style_kitsch .checkbox02 label:after {content:""; position: absolute; left: 26px; bottom: -6px; width: calc(100% - 50px); height: 4px; background-color: var(--accent);  -webkit-mask-image: url("../images/common/line_kitsch.svg"); mask-image: url("../images/common/line_kitsch.svg"); -webkit-mask-position: left bottom; mask-position: left bottom; -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x; }
+
+
+.style_kitsch.editodo_todolist .todolist_table {border-radius: 20px; }
+.style_kitsch .section_choose .layout_sample .sample_preview .todolist_table {border-radius: 15px; }
+
+
+
+
 
 /*  
     색상 
@@ -107,3 +132,7 @@
 .editodo_daily .sticker_emoji li.on:after {content: ''; position: absolute; top: -9px; left: 0; width: 18px; height: 18px; box-sizing: border-box; border-radius: 100%; background-color: var(--main-color); } 
 .editodo_daily .sticker_emoji li.on:before {content: ''; position: absolute; top: -5px; left: 4px; z-index: 1; width: 8px; height: 4px; border: 2px solid #FFFFFF; border-top: 0; border-right: 0; transform: rotate(-45deg);}
 /*.editodo_daily .sticker_emoji li.on:after {content: ''; position: absolute; top: -9px; left: 0;  width: 8px; height: 4px; border: 1px solid #fff; border-top: 0; border-right: 0; transform: rotate(-45deg);} */
+
+
+
+
