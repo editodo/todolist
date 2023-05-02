@@ -84,7 +84,7 @@
 
 
 /* 스케치 */
-.style_skitch .checkbox02 .on {border: 0;-webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; background-color: var(--accent); -webkit-mask-image: url("../images/common/check_skitch.svg"); mask-image: url("../images/common/check_skitch.svg"); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-position: center; mask-position: center; }
+.style_skitch .checkbox02 .on {border: 0;-webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; background-color: var(--accent); -webkit-mask-image: url("../images/common/check_skitch.svg"); mask-image: url("../images/common/check_skitch.svg"); -webkit-mask-size: 18px 18px; mask-size: 18px 18px; -webkit-mask-position: center; mask-position: center; }
 
 .style_skitch .checkbox02 input[type="checkbox"]:checked + .on {background-color: var(--accent); -webkit-mask-image: url("../images/common/checked_skitch.svg"); mask-image: url("../images/common/checked_skitch.svg"); }
 .style_skitch .checkbox02 input[type="checkbox"]:checked + .on:after {display: none; }
