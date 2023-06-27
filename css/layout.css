@@ -2,8 +2,8 @@
 /* ============================================
     layout
 ============================================ */
-html, body {position: relative; width: 100%; height: 100%; font-size: 14px; line-height: 1.43; }
-#wrap {width: 100%; height: 100%; display: flex; justify-content: center; flex-direction: row; margin: 0 auto; background-color: #f7f8f9; }
+html, body {position: relative; width: 100%; height: 100%; background-color: #f7f8f9; font-size: 14px; line-height: 1.43;} 
+#wrap {width: 100%; height: 100%; display: flex; justify-content: center; flex-direction: row; margin: 0 auto; }
 
 #aside {width: 350px; background: red; }
 #main {width: 100%; height: 100%; display: flex; flex-wrap: nowrap; flex-direction: column;  background-color: #f7f8f9; box-shadow: rgba(0, 0, 0, 0.16) 0px 0px 8px; font-family: 'NotoSansKR', sans-serif; font-weight: 400;}
@@ -81,7 +81,6 @@ html, body {position: relative; width: 100%; height: 100%; font-size: 14px; line
 .layer_popup .layer_header .layer_colse {position: absolute; top: 10px; right: 18px; width: 30px; height: 30px; background-color: var(--text-color); -webkit-mask-image: url("../images/common/popup_close.svg"); mask-image: url("../images/common/popup_close.svg");  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: right center; mask-position: right center;  -webkit-mask-size: 16px 16px; mask-size: 16px 16px;}
 
 .layer_body {padding: 0 18px; }
-
 
 
 
