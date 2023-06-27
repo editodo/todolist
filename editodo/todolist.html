@@ -19,25 +19,27 @@
 </head>
 <body>
   <div id="wrap" class="editodo_wrap editodo_todolist">
+    <main id="main">
+      <div class="container">
+        <!-- S: edito_inner -->
+        <div class="editodo_inner side_pd">
+          <div class="date_header">
+            <button type="button" class="btn_arrow prev"><span class="visuallyhidden">이전</span></button>
+            <p class="date_now"><span class="year"></span>.<span class="month"></span>(<span class="week"></span>)</p>
+            <button type="button" class="btn_arrow next"><span class="visuallyhidden">다음</span></button>
+          </div>
 
-    <div class="container">
-      <!-- S: edito_inner -->
-      <div class="editodo_inner side_pd">
-        <div class="date_header">
-          <button type="button" class="btn_arrow prev"><span class="visuallyhidden">이전</span></button>
-          <p class="date_now"><span class="year"></span>.<span class="month"></span>(<span class="week"></span>)</p>
-          <button type="button" class="btn_arrow next"><span class="visuallyhidden">다음</span></button>
+          <div class="todolist_table" w3-include-html="../include/todolist_skin.html"></div> 
+
+          <div class="bottom_btn_group">
+            <button type="buttton" class="btn full btn_newtodo" onclick="writeTodo();" >+ New toodo</button>
+          </div>
         </div>
-
-        <div class="todolist_table" w3-include-html="../include/todolist_skin.html"></div> 
-
-        <div class="bottom_btn_group">
-          <button type="buttton" class="btn full btn_newtodo" onclick="writeTodo();" >+ New toodo</button>
-        </div>
+        <!-- E: editodo_inner -->
       </div>
-      <!-- E: editodo_inner -->
-    </div>
 
+    </main>
+      
     <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
     <div class="layer_todo" w3-include-html="../include/layer_drop.html"></div>
   </div>

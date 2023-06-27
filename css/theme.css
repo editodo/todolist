@@ -2,7 +2,7 @@
 /* ============================================
     onboarding 
 ============================================ */
-.editodo_onboarding .onboarding {position: absolute; top: 50%; left: 50%; max-width: 720px; width: 100%; padding: 0 18px; box-sizing: border-box; transform: translate(-50%, -50%); text-align: center; }
+.editodo_onboarding .onboarding {position: absolute; top: 50%; left: 50%; max-width: 440px; width: 100%; padding: 0 18px; box-sizing: border-box; transform: translate(-50%, -50%); text-align: center; }
 .editodo_onboarding .onboarding .pic {position: relative; display: inline-block; }
 .editodo_onboarding .onboarding .pic:after {content:''; display: block; position: absolute; top: 15px; right: 0; width: 58px; height: 52px; background: url('../images/common/et_check.svg') no-repeat left center; background-size: contain; animation: fadeInUp ease-out .5s;}
 @keyframes fadeInUp {

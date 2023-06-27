@@ -17,32 +17,33 @@
 </head>
 <body>
   <div id="wrap" class="editodo_wrap editodo_daily">
-    
-    <div class="container">
-      <!-- S: edito_inner -->
-      <div class="editodo_inner side_pd">
-        <div class="date_header">
-          <button type="button" class="btn_arrow prev"><span class="visuallyhidden">이전</span></button>
-          <p class="date_now"><span class="year"></span>.<span class="month"></span>(<span class="week"></span>)</p>
-          <button type="button" class="btn_arrow next"><span class="visuallyhidden">다음</span></button>
-        </div>
+    <main id="main">
+      <div class="container">
+        <!-- S: edito_inner -->
+        <div class="editodo_inner side_pd">
+          <div class="date_header">
+            <button type="button" class="btn_arrow prev"><span class="visuallyhidden">이전</span></button>
+            <p class="date_now"><span class="year"></span>.<span class="month"></span>(<span class="week"></span>)</p>
+            <button type="button" class="btn_arrow next"><span class="visuallyhidden">다음</span></button>
+          </div>
 
-        <h2 class="tit">오늘 하루를 기록해요.</h2>
-        <textarea class="record_area" placeholder="투두리스트는 잘 지켜졌는지, 기분은 어떤지 적어봐요."></textarea>
-        <div class="record_sammary">
-          <p class="txt">오늘 하루 요약 스티커</p>
-          <div class="swiper-container emoji">
-            <ul class="swiper-wrapper sticker_emoji">
-              <!-- <li class="swiper-slide" style="background-image: url('../images/emoji/emoji_face1.svg')"></li> -->
-            </ul>
+          <h2 class="tit">오늘 하루를 기록해요.</h2>
+          <textarea class="record_area" placeholder="투두리스트는 잘 지켜졌는지, 기분은 어떤지 적어봐요."></textarea>
+          <div class="record_sammary">
+            <p class="txt">오늘 하루 요약 스티커</p>
+            <div class="swiper-container emoji">
+              <ul class="swiper-wrapper sticker_emoji">
+                <!-- <li class="swiper-slide" style="background-image: url('../images/emoji/emoji_face1.svg')"></li> -->
+              </ul>
+            </div>
+          </div>
+          <div class="bottom_btn_group">
+            <button type="buttton" class="btn btn_main full" onclick="location.href='daily.html'">기록 완료</button>
           </div>
         </div>
-        <div class="bottom_btn_group">
-          <button type="buttton" class="btn btn_main full" onclick="location.href='daily.html'">기록 완료</button>
-        </div>
+        <!-- E: editodo_inner -->
       </div>
-      <!-- E: editodo_inner -->
-    </div>
+    </main>
 
     <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
   </div>

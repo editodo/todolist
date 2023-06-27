@@ -19,59 +19,60 @@
 </head>
 <body>
   <div id="wrap" class="editodo_wrap editodo_join">
-    <div w3-include-html="../include/header.html"></div>
+    <main id="main">
 
-    <div class="container">
-      <!-- S: edito_inner -->
-      <div class="editodo_inner">
-        <div class="tab_group">
-          <ul class="tab_list">
-            <li class="active">
-              <button type="button" class="btn_tab tab_id" onclick="location.href='find_id.html'">아이디 찾기</button>
-            </li>
-            <li>
-              <button type="button" class="btn_tab tab_pw" onclick="location.href='find_pw.html'">비밀번호 찾기</button>
-            </li>
-          </ul>
-        </div>
-
-        <div class="side_pd">
-          <!-- form_wrap -->
-          <div class="form_wrap">
-            <form>
-              <dl class="form_dl">
-                <dt><label for="userId" class="form_label">아이디</label></dt>
-                <dd><input type="text" id="userId" class="form_input" placeholder="8-16 자리 영문, 숫자 조합"></dd>
-              </dl>
-              <dl class="form_dl">
-                <dt><label for="userCall" class="form_label">휴대폰번호</label></dt>
-                <dd><input type="text" id="userCall" class="form_input" placeholder="휴대폰 번호 '-' 없이 입력"></dd>
-              </dl>
-            </form>
-            <div class="bottom_btn_group">
-              <button type="buttton" id="refer" class="btn btn_main full">조회하기</button>
-            </div>
-          </div>
-
-          <!-- form_wrap //조회 결과 -->
-          <div class="result">
-            <p>조회하신 가입 내역입니다.</p>
-            <ul class="list-dot">
-              <li>mine@email.com</li>
-              <li>mine@naver.com</li>
+      <div w3-include-html="../include/header.html"></div>
+      <div class="container">
+        <!-- S: edito_inner -->
+        <div class="editodo_inner">
+          <div class="tab_group">
+            <ul class="tab_list">
+              <li class="active">
+                <button type="button" class="btn_tab tab_id" onclick="location.href='find_id.html'">아이디 찾기</button>
+              </li>
+              <li>
+                <button type="button" class="btn_tab tab_pw" onclick="location.href='find_pw.html'">비밀번호 찾기</button>
+              </li>
             </ul>
+          </div>
 
-            <div class="bottom_btn_group">
-              <button type="buttton" class="btn btn_main full" onclick="location.href='login.html'">로그인</button>
-              <button type="buttton" class="btn btn_sub full" onclick="location.href='find_pw.html'">비밀번호 찾기</button>
+          <div class="side_pd">
+            <!-- form_wrap -->
+            <div class="form_wrap">
+              <form>
+                <dl class="form_dl">
+                  <dt><label for="userId" class="form_label">아이디</label></dt>
+                  <dd><input type="text" id="userId" class="form_input" placeholder="8-16 자리 영문, 숫자 조합"></dd>
+                </dl>
+                <dl class="form_dl">
+                  <dt><label for="userCall" class="form_label">휴대폰번호</label></dt>
+                  <dd><input type="text" id="userCall" class="form_input" placeholder="휴대폰 번호 '-' 없이 입력"></dd>
+                </dl>
+              </form>
+              <div class="bottom_btn_group">
+                <button type="buttton" id="refer" class="btn btn_main full">조회하기</button>
+              </div>
+            </div>
+
+            <!-- form_wrap //조회 결과 -->
+            <div class="result">
+              <p>조회하신 가입 내역입니다.</p>
+              <ul class="list-dot">
+                <li>mine@email.com</li>
+                <li>mine@naver.com</li>
+              </ul>
+
+              <div class="bottom_btn_group">
+                <button type="buttton" class="btn btn_main full" onclick="location.href='login.html'">로그인</button>
+                <button type="buttton" class="btn btn_sub full" onclick="location.href='find_pw.html'">비밀번호 찾기</button>
+              </div>
             </div>
           </div>
         </div>
+        <!-- E: editodo_inner -->
+
       </div>
-      <!-- E: editodo_inner -->
-
-    </div>
-
+    </main>
   </div>
 </body>
 </html>

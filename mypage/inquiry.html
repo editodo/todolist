@@ -19,41 +19,43 @@
 </head>
 <body>
   <div id="wrap" class="editodo_wrap editodo_inquiry">
-    <div w3-include-html="../include/header.html"></div>
+    <main id="main">
+      <div w3-include-html="../include/header.html"></div>
 
-    <div class="container">
-      <div class="editodo_inner side_pd">
-        <div class="form_wrap">
-          <form action="">
-            <dl class="form_dl">
-              <dt><label for="userEmail" class="form_label">답변 받으실 이메일</label></dt>
-              <dd><input type="text" id="userEmail" class="form_input" value="mine5959@email.com"></dd>
-            </dl>
-            <dl class="form_dl">
-              <dt><label for="type" class="form_label">문의유형</label></dt>
-              <dd>
-                <select name="" id="type" class="form_select">
-                  <option value="" disabled selected>카테고리 선택</option>
-                  <option value="">이용 문의</option>
-                  <option value="">오류 신고</option>
-                  <option value="">서비스 제안</option>
-                  <option value="">기타</option>
-                </select>
-              </dd>
-            </dl>
-            <dl class="form_dl">
-              <dt><label for="area" class="form_label">문의 내용</label></dt>
-              <dd><textarea name="" id="area" class="form_textarea" placeholder="내용을 입력하세요."></textarea></dd>
-            </dl>
-          </form>
+      <div class="container">
+        <div class="editodo_inner side_pd">
+          <div class="form_wrap">
+            <form action="">
+              <dl class="form_dl">
+                <dt><label for="userEmail" class="form_label">답변 받으실 이메일</label></dt>
+                <dd><input type="text" id="userEmail" class="form_input" value="mine5959@email.com"></dd>
+              </dl>
+              <dl class="form_dl">
+                <dt><label for="type" class="form_label">문의유형</label></dt>
+                <dd>
+                  <select name="" id="type" class="form_select">
+                    <option value="" disabled selected>카테고리 선택</option>
+                    <option value="">이용 문의</option>
+                    <option value="">오류 신고</option>
+                    <option value="">서비스 제안</option>
+                    <option value="">기타</option>
+                  </select>
+                </dd>
+              </dl>
+              <dl class="form_dl">
+                <dt><label for="area" class="form_label">문의 내용</label></dt>
+                <dd><textarea name="" id="area" class="form_textarea" placeholder="내용을 입력하세요."></textarea></dd>
+              </dl>
+            </form>
+          </div>
+
+          <div class="bottom_btn_group">
+            <button type="button" class="btn btn_main full">저장</button>
+          </div>
+
         </div>
-
-        <div class="bottom_btn_group">
-          <button type="button" class="btn btn_main full">저장</button>
-        </div>
-
       </div>
-    </div>
+    </main>
 
     <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
 

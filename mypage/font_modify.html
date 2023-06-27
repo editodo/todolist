@@ -19,83 +19,85 @@
 </head>
 <body>
   <div id="wrap" class="editodo_wrap editodo_font_modify">
-    <div w3-include-html="../include/header.html"></div>
+    <main id="main">
+      <div w3-include-html="../include/header.html"></div>
 
-    <div class="container">
-      <div class="editodo_inner side_pd">
-        <section class="layout_sample">
-          <h3 class="visuallyhidden">글꼴 미리보기</h3>
-          <div class="sample_preview">
-           <p class="font_view"> 
-            더 많은 테마는 E-T에서 열심히 준비 중이에요!
-            <br>123456789!@#%&*()_+-=
-          </p>
+      <div class="container">
+        <div class="editodo_inner side_pd">
+          <section class="layout_sample">
+            <h3 class="visuallyhidden">글꼴 미리보기</h3>
+            <div class="sample_preview">
+            <p class="font_view"> 
+              더 많은 테마는 E-T에서 열심히 준비 중이에요!
+              <br>123456789!@#%&*()_+-=
+            </p>
+            </div>
+          </section>
+            
+          <ul class="font_list">
+            <li>
+              <div class="radiobox">
+                <label for="font01">
+                  <input type="radio" name="font" id="font01" checked>
+                  <span class="on"></span>
+                  기본 글씨체
+                </label>
+              </div>
+            </li>
+            <li>
+              <div class="radiobox">
+                <label for="font02">
+                  <input type="radio" name="font" id="font02">
+                  <span class="on"></span>
+                  미녜 주인체
+                </label>
+              </div>
+            </li>
+            <li>
+              <div class="radiobox">
+                <label for="font03">
+                  <input type="radio" name="font" id="font03">
+                  <span class="on"></span>
+                  요한 요정체
+                </label>
+              </div>
+            </li>
+            <li>
+              <div class="radiobox">
+                <label for="font04">
+                  <input type="radio" name="font" id="font04">
+                  <span class="on"></span>
+                  석모 튼튼체
+                </label>
+              </div>
+            </li>
+            <li>
+              <div class="radiobox">
+                <label for="font05">
+                  <input type="radio" name="font" id="font05">
+                  <span class="on"></span>
+                  조희 낮잠체
+                </label>
+              </div>
+            </li>
+            <li>
+              <div class="radiobox">
+                <label for="font06">
+                  <input type="radio" name="font" id="font06">
+                  <span class="on"></span>
+                  지금 퇴사체
+                </label>
+              </div>
+            </li>
+          </ul>
+
+          <div class="bottom_btn_group">
+            <button type="button" class="btn btn_main full">적용하기</button>
           </div>
-        </section>
-          
-        <ul class="font_list">
-          <li>
-            <div class="radiobox">
-              <label for="font01">
-                <input type="radio" name="font" id="font01" checked>
-                <span class="on"></span>
-                기본 글씨체
-              </label>
-            </div>
-          </li>
-          <li>
-            <div class="radiobox">
-              <label for="font02">
-                <input type="radio" name="font" id="font02">
-                <span class="on"></span>
-                미녜 주인체
-              </label>
-            </div>
-          </li>
-          <li>
-            <div class="radiobox">
-              <label for="font03">
-                <input type="radio" name="font" id="font03">
-                <span class="on"></span>
-                요한 요정체
-              </label>
-            </div>
-          </li>
-          <li>
-            <div class="radiobox">
-              <label for="font04">
-                <input type="radio" name="font" id="font04">
-                <span class="on"></span>
-                석모 튼튼체
-              </label>
-            </div>
-          </li>
-          <li>
-            <div class="radiobox">
-              <label for="font05">
-                <input type="radio" name="font" id="font05">
-                <span class="on"></span>
-                조희 낮잠체
-              </label>
-            </div>
-          </li>
-          <li>
-            <div class="radiobox">
-              <label for="font06">
-                <input type="radio" name="font" id="font06">
-                <span class="on"></span>
-                지금 퇴사체
-              </label>
-            </div>
-          </li>
-        </ul>
 
-        <div class="bottom_btn_group">
-          <button type="button" class="btn btn_main full">적용하기</button>
         </div>
-
       </div>
-    </div>
+    </main>
 
     <div class="editodo_fnb" w3-include-html="../include/fnb.html"></div>
 
