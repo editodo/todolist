@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.editodo.mapper.NoticePermissionMapper">
+
+    <!-- 결과 매핑 -->
+    <resultMap id="NoticePermissionResultMap" type="com.editodo.entity.NoticePermission">
+        <id property="permissionId" column="PERMISSION_ID"/>
+        <result property="grantedAt" column="GRANTED_AT"/>
+        <association property="user" javaType="com.editodo.entity.User">
+            <id property="userId" column="USER_ID"/>
+            <result property="username" column="USERNAME"/>
+            <result property="email" column="EMAIL"/>
+            <result property="nickname" column="NICKNAME"/>
+            <result property="isAdmin" column="IS_ADMIN"/>
+        </association>
+        <association property="grantedBy" javaType="com.editodo.entity.User">
+            <id property="userId" column="GRANTED_BY_ID"/>
+            <result property="username" column="GRANTED_BY_USERNAME"/>
+            <result property="email" column="GRANTED_BY_EMAIL"/>
+            <result property="nickname" column="GRANTED_BY_NICKNAME"/>
+        </association>
+    </resultMap>
+
+    <!-- 권한 저장 -->
+    <insert id="save" parameterType="com.editodo.entity.NoticePermission">
+        INSERT INTO NOTICE_PERMISSIONS (
+            USER_ID, GRANTED_BY, GRANTED_AT
+        ) VALUES (
+            #{user.userId}, #{grantedBy.userId}, SYSDATE
+        )
+    </insert>
+
+    <!-- 사용자별 권한 조회 -->
+    <select id="findByUserId" resultMap="NoticePermissionResultMap">
+        SELECT 
+            np.PERMISSION_ID, np.GRANTED_AT,
+            u.USER_ID, u.USERNAME, u.EMAIL, u.NICKNAME, u.IS_ADMIN,
+            gb.USER_ID as GRANTED_BY_ID, gb.USERNAME as GRANTED_BY_USERNAME,
+            gb.EMAIL as GRANTED_BY_EMAIL, gb.NICKNAME as GRANTED_BY_NICKNAME
+        FROM NOTICE_PERMISSIONS np
+        JOIN USERS u ON np.USER_ID = u.USER_ID
+        JOIN USERS gb ON np.GRANTED_BY = gb.USER_ID
+        WHERE np.USER_ID = #{userId}
+    </select>
+
+    <!-- 모든 권한 조회 -->
+    <select id="findAll" resultMap="NoticePermissionResultMap">
+        SELECT 
+            np.PERMISSION_ID, np.GRANTED_AT,
+            u.USER_ID, u.USERNAME, u.EMAIL, u.NICKNAME, u.IS_ADMIN,
+            gb.USER_ID as GRANTED_BY_ID, gb.USERNAME as GRANTED_BY_USERNAME,
+            gb.EMAIL as GRANTED_BY_EMAIL, gb.NICKNAME as GRANTED_BY_NICKNAME
+        FROM NOTICE_PERMISSIONS np
+        JOIN USERS u ON np.USER_ID = u.USER_ID
+        JOIN USERS gb ON np.GRANTED_BY = gb.USER_ID
+        ORDER BY np.GRANTED_AT DESC
+    </select>
+
+    <!-- 사용자 권한 삭제 -->
+    <delete id="deleteByUserId">
+        DELETE FROM NOTICE_PERMISSIONS WHERE USER_ID = #{userId}
+    </delete>
+
+</mapper>

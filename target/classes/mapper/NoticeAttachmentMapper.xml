@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.editodo.mapper.NoticeAttachmentMapper">
+
+    <!-- 결과 매핑 -->
+    <resultMap id="NoticeAttachmentResultMap" type="com.editodo.entity.NoticeAttachment">
+        <id property="attachmentId" column="ATTACHMENT_ID"/>
+        <result property="originalFilename" column="ORIGINAL_FILENAME"/>
+        <result property="storedFilename" column="STORED_FILENAME"/>
+        <result property="filePath" column="FILE_PATH"/>
+        <result property="fileSize" column="FILE_SIZE"/>
+        <result property="mimeType" column="MIME_TYPE"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <association property="notice" javaType="com.editodo.entity.Notice">
+            <id property="noticeId" column="NOTICE_ID"/>
+        </association>
+    </resultMap>
+
+    <!-- 첨부파일 저장 -->
+    <insert id="save" parameterType="com.editodo.entity.NoticeAttachment">
+        INSERT INTO NOTICE_ATTACHMENTS (
+            NOTICE_ID, ORIGINAL_FILENAME, STORED_FILENAME, FILE_PATH, FILE_SIZE, MIME_TYPE, CREATED_AT
+        ) VALUES (
+            #{notice.noticeId}, #{originalFilename}, #{storedFilename}, #{filePath}, #{fileSize}, #{mimeType}, SYSDATE
+        )
+    </insert>
+
+    <!-- 첨부파일 조회 -->
+    <select id="findById" resultMap="NoticeAttachmentResultMap">
+        SELECT 
+            ATTACHMENT_ID, NOTICE_ID, ORIGINAL_FILENAME, STORED_FILENAME,
+            FILE_PATH, FILE_SIZE, MIME_TYPE, CREATED_AT
+        FROM NOTICE_ATTACHMENTS
+        WHERE ATTACHMENT_ID = #{attachmentId}
+    </select>
+
+    <!-- 공지사항별 첨부파일 조회 -->
+    <select id="findByNoticeId" resultMap="NoticeAttachmentResultMap">
+        SELECT 
+            ATTACHMENT_ID, NOTICE_ID, ORIGINAL_FILENAME, STORED_FILENAME,
+            FILE_PATH, FILE_SIZE, MIME_TYPE, CREATED_AT
+        FROM NOTICE_ATTACHMENTS
+        WHERE NOTICE_ID = #{noticeId}
+        ORDER BY CREATED_AT ASC
+    </select>
+
+    <!-- 첨부파일 삭제 -->
+    <delete id="deleteById">
+        DELETE FROM NOTICE_ATTACHMENTS WHERE ATTACHMENT_ID = #{attachmentId}
+    </delete>
+
+    <!-- 공지사항별 첨부파일 삭제 -->
+    <delete id="deleteByNoticeId">
+        DELETE FROM NOTICE_ATTACHMENTS WHERE NOTICE_ID = #{noticeId}
+    </delete>
+
+</mapper>

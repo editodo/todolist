@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.editodo.mapper.TodoMapper">
+
+    <!-- 결과 매핑 -->
+    <resultMap id="TodoResultMap" type="com.editodo.entity.Todo">
+        <id property="todoId" column="TODO_ID"/>
+        <result property="title" column="TITLE"/>
+        <result property="description" column="DESCRIPTION"/>
+        <result property="isCompleted" column="IS_COMPLETED"/>
+        <result property="priority" column="PRIORITY"/>
+        <result property="dueDate" column="DUE_DATE"/>
+        <result property="completedAt" column="COMPLETED_AT"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="updatedAt" column="UPDATED_AT"/>
+        <association property="user" javaType="com.editodo.entity.User">
+            <id property="userId" column="USER_ID"/>
+            <result property="username" column="USERNAME"/>
+            <result property="email" column="EMAIL"/>
+            <result property="nickname" column="NICKNAME"/>
+        </association>
+    </resultMap>
+
+    <!-- Todo 저장 -->
+    <insert id="save" parameterType="com.editodo.entity.Todo">
+        INSERT INTO TODOS (
+            USER_ID, TITLE, DESCRIPTION, IS_COMPLETED, PRIORITY,
+            DUE_DATE, COMPLETED_AT, CREATED_AT, UPDATED_AT
+        ) VALUES (
+            #{user.userId}, #{title}, #{description}, #{isCompleted}, #{priority},
+            #{dueDate}, #{completedAt}, SYSDATE, SYSDATE
+        )
+    </insert>
+
+    <!-- 투두 조회 -->
+    <select id="findById" resultMap="TodoResultMap">
+        SELECT 
+            t.TODO_ID, t.TITLE, t.DESCRIPTION, t.IS_COMPLETED, t.PRIORITY, t.DUE_DATE,
+            t.COMPLETED_AT, t.CREATED_AT, t.UPDATED_AT,
+            u.USER_ID, u.USERNAME, u.EMAIL, u.NICKNAME
+        FROM TODOS t
+        JOIN USERS u ON t.USER_ID = u.USER_ID
+        WHERE t.TODO_ID = #{todoId}
+    </select>
+
+    <!-- 사용자별 투두 목록 조회 (생성일 내림차순) -->
+    <select id="findByUserIdOrderByCreatedAtDesc" resultMap="TodoResultMap">
+        SELECT 
+            t.TODO_ID, t.TITLE, t.DESCRIPTION, t.IS_COMPLETED, t.PRIORITY, t.DUE_DATE,
+            t.COMPLETED_AT, t.CREATED_AT, t.UPDATED_AT,
+            u.USER_ID, u.USERNAME, u.EMAIL, u.NICKNAME
+        FROM TODOS t
+        JOIN USERS u ON t.USER_ID = u.USER_ID
+        WHERE t.USER_ID = #{userId}
+        ORDER BY t.CREATED_AT DESC
+    </select>
+
+    <!-- 사용자별 특정 날짜 투두 목록 조회 (우선순위 내림차순, 생성일 오름차순) -->
+    <select id="findByUserIdAndDueDateOrderByPriorityDescCreatedAtAsc" resultMap="TodoResultMap">
+        SELECT 
+            t.TODO_ID, t.TITLE, t.DESCRIPTION, t.IS_COMPLETED, t.PRIORITY, t.DUE_DATE,
+            t.COMPLETED_AT, t.CREATED_AT, t.UPDATED_AT,
+            u.USER_ID, u.USERNAME, u.EMAIL, u.NICKNAME
+        FROM TODOS t
+        JOIN USERS u ON t.USER_ID = u.USER_ID
+        WHERE t.USER_ID = #{userId} AND t.DUE_DATE = #{dueDate}
+        ORDER BY t.PRIORITY DESC, t.CREATED_AT ASC
+    </select>
+
+    <!-- 투두 수정 -->
+    <update id="update" parameterType="com.editodo.entity.Todo">
+        UPDATE TODOS SET
+            TITLE = #{title},
+            DESCRIPTION = #{description},
+            IS_COMPLETED = #{isCompleted},
+            PRIORITY = #{priority},
+            DUE_DATE = #{dueDate},
+            COMPLETED_AT = #{completedAt},
+            UPDATED_AT = SYSDATE
+        WHERE TODO_ID = #{todoId}
+    </update>
+
+    <!-- 투두 삭제 -->
+    <delete id="deleteById">
+        DELETE FROM TODOS WHERE TODO_ID = #{todoId}
+    </delete>
+
+</mapper>

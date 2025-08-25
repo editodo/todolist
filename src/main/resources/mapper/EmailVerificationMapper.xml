@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.editodo.mapper.EmailVerificationMapper">
+
+    <!-- 결과 매핑 -->
+    <resultMap id="EmailVerificationResultMap" type="com.editodo.entity.EmailVerification">
+        <id property="verificationId" column="VERIFICATION_ID"/>
+        <result property="email" column="EMAIL"/>
+        <result property="verificationCode" column="VERIFICATION_CODE"/>
+        <result property="isVerified" column="IS_VERIFIED"/>
+        <result property="expiresAt" column="EXPIRES_AT"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <association property="user" javaType="com.editodo.entity.User">
+            <id property="userId" column="USER_ID"/>
+            <result property="username" column="USERNAME"/>
+            <result property="email" column="USER_EMAIL"/>
+        </association>
+    </resultMap>
+
+    <!-- 이메일 인증 정보 저장 -->
+    <insert id="save" parameterType="com.editodo.entity.EmailVerification">
+        INSERT INTO EMAIL_VERIFICATIONS (
+            USER_ID, EMAIL, VERIFICATION_CODE, IS_VERIFIED, EXPIRES_AT, CREATED_AT
+        ) VALUES (
+            #{user.userId}, #{email}, #{verificationCode}, #{isVerified}, #{expiresAt}, SYSDATE
+        )
+    </insert>
+
+    <!-- 이메일과 인증 코드로 조회 (미인증 상태) -->
+    <select id="findByEmailAndVerificationCodeAndIsVerifiedFalse" resultMap="EmailVerificationResultMap">
+        SELECT 
+            ev.VERIFICATION_ID, ev.EMAIL, ev.VERIFICATION_CODE, ev.IS_VERIFIED, 
+            ev.EXPIRES_AT, ev.CREATED_AT,
+            u.USER_ID, u.USERNAME, u.EMAIL as USER_EMAIL
+        FROM EMAIL_VERIFICATIONS ev
+        LEFT JOIN USERS u ON ev.USER_ID = u.USER_ID
+        WHERE ev.EMAIL = #{email} 
+        AND ev.VERIFICATION_CODE = #{verificationCode}
+        AND ev.IS_VERIFIED = 0
+    </select>
+
+    <!-- 이메일로 미인증 코드 삭제 -->
+    <delete id="deleteByEmailAndIsVerifiedFalse">
+        DELETE FROM EMAIL_VERIFICATIONS 
+        WHERE EMAIL = #{email} AND IS_VERIFIED = 0
+    </delete>
+
+    <!-- 이메일 인증 정보 수정 -->
+    <update id="update" parameterType="com.editodo.entity.EmailVerification">
+        UPDATE EMAIL_VERIFICATIONS SET
+            EMAIL = #{email},
+            VERIFICATION_CODE = #{verificationCode},
+            IS_VERIFIED = #{isVerified},
+            EXPIRES_AT = #{expiresAt}
+        WHERE VERIFICATION_ID = #{verificationId}
+    </update>
+
+    <!-- 이메일 인증 정보 삭제 -->
+    <delete id="deleteById">
+        DELETE FROM EMAIL_VERIFICATIONS WHERE VERIFICATION_ID = #{verificationId}
+    </delete>
+
+</mapper>

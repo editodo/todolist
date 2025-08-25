@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,viewport-fit=cover">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title>Editodo - 할 일 관리 앱</title>
+    
+    <!-- PWA 관련 메타 태그 -->
+    <meta name="theme-color" content="#409eff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Editodo">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#409eff">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- PWA 매니페스트 -->
+    <link rel="manifest" href="<%= BASE_URL %>manifest.json">
+    
+    <!-- iOS 아이콘 -->
+    <link rel="apple-touch-icon" href="<%= BASE_URL %>icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="<%= BASE_URL %>icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="<%= BASE_URL %>icons/icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="<%= BASE_URL %>icons/icon-167x167.png">
+    
+    <!-- 스플래시 스크린 -->
+    <link rel="apple-touch-startup-image" href="<%= BASE_URL %>splash/apple-splash-2048-2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="<%= BASE_URL %>splash/apple-splash-1668-2388.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="<%= BASE_URL %>splash/apple-splash-1536-2048.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="<%= BASE_URL %>splash/apple-splash-1125-2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="<%= BASE_URL %>splash/apple-splash-1242-2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="<%= BASE_URL %>splash/apple-splash-750-1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="<%= BASE_URL %>splash/apple-splash-640-1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)">
+    
+    <!-- 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- 모바일 최적화 -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-config" content="none">
+    
+    <!-- 보안 -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com;">
+  </head>
+  <body>
+    <noscript>
+      <strong>죄송합니다. Editodo는 JavaScript가 활성화되어야 정상적으로 작동합니다.</strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

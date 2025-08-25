@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.editodo.mapper.UserMapper">
+
+    <!-- 결과 매핑 -->
+    <resultMap id="UserResultMap" type="com.editodo.entity.User">
+        <id property="userId" column="USER_ID"/>
+        <result property="username" column="USERNAME"/>
+        <result property="email" column="EMAIL"/>
+        <result property="passwordHash" column="PASSWORD_HASH"/>
+        <result property="nickname" column="NICKNAME"/>
+        <result property="profileImage" column="PROFILE_IMAGE"/>
+        <result property="themePreference" column="THEME_PREFERENCE"/>
+        <result property="colorPreference" column="COLOR_PREFERENCE"/>
+        <result property="fontPreference" column="FONT_PREFERENCE"/>
+        <result property="modePreference" column="MODE_PREFERENCE"/>
+        <result property="isAdmin" column="IS_ADMIN"/>
+        <result property="isActive" column="IS_ACTIVE"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="updatedAt" column="UPDATED_AT"/>
+    </resultMap>
+
+    <!-- 사용자 저장 -->
+    <insert id="save" parameterType="com.editodo.entity.User">
+        INSERT INTO USERS (
+            USERNAME, EMAIL, PASSWORD_HASH, NICKNAME, PROFILE_IMAGE,
+            THEME_PREFERENCE, COLOR_PREFERENCE, FONT_PREFERENCE, MODE_PREFERENCE,
+            IS_ADMIN, IS_ACTIVE, CREATED_AT, UPDATED_AT
+        ) VALUES (
+            #{username}, #{email}, #{passwordHash}, #{nickname}, #{profileImage},
+            #{themePreference}, #{colorPreference}, #{fontPreference}, #{modePreference},
+            #{isAdmin}, #{isActive}, SYSDATE, SYSDATE
+        )
+    </insert>
+
+    <!-- ID로 사용자 조회 -->
+    <select id="findById" resultMap="UserResultMap">
+        SELECT 
+            USER_ID, USERNAME, EMAIL, PASSWORD_HASH, NICKNAME, PROFILE_IMAGE,
+            THEME_PREFERENCE, COLOR_PREFERENCE, FONT_PREFERENCE, MODE_PREFERENCE,
+            IS_ADMIN, IS_ACTIVE, CREATED_AT, UPDATED_AT
+        FROM USERS
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <!-- 사용자명으로 사용자 조회 -->
+    <select id="findByUsername" resultMap="UserResultMap">
+        SELECT 
+            USER_ID, USERNAME, EMAIL, PASSWORD_HASH, NICKNAME, PROFILE_IMAGE,
+            THEME_PREFERENCE, COLOR_PREFERENCE, FONT_PREFERENCE, MODE_PREFERENCE,
+            IS_ADMIN, IS_ACTIVE, CREATED_AT, UPDATED_AT
+        FROM USERS
+        WHERE USERNAME = #{username}
+    </select>
+
+    <!-- 이메일로 사용자 조회 -->
+    <select id="findByEmail" resultMap="UserResultMap">
+        SELECT 
+            USER_ID, USERNAME, EMAIL, PASSWORD_HASH, NICKNAME, PROFILE_IMAGE,
+            THEME_PREFERENCE, COLOR_PREFERENCE, FONT_PREFERENCE, MODE_PREFERENCE,
+            IS_ADMIN, IS_ACTIVE, CREATED_AT, UPDATED_AT
+        FROM USERS
+        WHERE EMAIL = #{email}
+    </select>
+
+    <!-- 사용자 수정 -->
+    <update id="update" parameterType="com.editodo.entity.User">
+        UPDATE USERS SET
+            USERNAME = #{username},
+            EMAIL = #{email},
+            PASSWORD_HASH = #{passwordHash},
+            NICKNAME = #{nickname},
+            PROFILE_IMAGE = #{profileImage},
+            THEME_PREFERENCE = #{themePreference},
+            COLOR_PREFERENCE = #{colorPreference},
+            FONT_PREFERENCE = #{fontPreference},
+            MODE_PREFERENCE = #{modePreference},
+            IS_ADMIN = #{isAdmin},
+            IS_ACTIVE = #{isActive},
+            UPDATED_AT = SYSDATE
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <!-- 사용자 삭제 -->
+    <delete id="deleteById">
+        DELETE FROM USERS WHERE USER_ID = #{userId}
+    </delete>
+
+    <!-- 모든 사용자 조회 -->
+    <select id="findAll" resultMap="UserResultMap">
+        SELECT 
+            USER_ID, USERNAME, EMAIL, PASSWORD_HASH, NICKNAME, PROFILE_IMAGE,
+            THEME_PREFERENCE, COLOR_PREFERENCE, FONT_PREFERENCE, MODE_PREFERENCE,
+            IS_ADMIN, IS_ACTIVE, CREATED_AT, UPDATED_AT
+        FROM USERS
+        ORDER BY CREATED_AT DESC
+    </select>
+
+</mapper>

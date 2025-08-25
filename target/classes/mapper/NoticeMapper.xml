@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.editodo.mapper.NoticeMapper">
+
+    <!-- 결과 매핑 -->
+    <resultMap id="NoticeResultMap" type="com.editodo.entity.Notice">
+        <id property="noticeId" column="NOTICE_ID"/>
+        <result property="title" column="TITLE"/>
+        <result property="content" column="CONTENT"/>
+        <result property="isNotice" column="IS_NOTICE"/>
+        <result property="viewCount" column="VIEW_COUNT"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="updatedAt" column="UPDATED_AT"/>
+        <association property="user" javaType="com.editodo.entity.User">
+            <id property="userId" column="USER_ID"/>
+            <result property="username" column="USERNAME"/>
+            <result property="email" column="EMAIL"/>
+            <result property="nickname" column="NICKNAME"/>
+            <result property="isAdmin" column="IS_ADMIN"/>
+        </association>
+    </resultMap>
+
+    <!-- 공지사항 저장 -->
+    <insert id="save" parameterType="com.editodo.entity.Notice">
+        INSERT INTO NOTICES (
+            USER_ID, TITLE, CONTENT, IS_NOTICE, VIEW_COUNT, CREATED_AT, UPDATED_AT
+        ) VALUES (
+            #{user.userId}, #{title}, #{content}, #{isNotice}, #{viewCount}, SYSDATE, SYSDATE
+        )
+    </insert>
+
+    <!-- 공지사항 조회 -->
+    <select id="findById" resultMap="NoticeResultMap">
+        SELECT 
+            n.NOTICE_ID, n.TITLE, n.CONTENT, n.IS_NOTICE, n.VIEW_COUNT,
+            n.CREATED_AT, n.UPDATED_AT,
+            u.USER_ID, u.USERNAME, u.EMAIL, u.NICKNAME, u.IS_ADMIN
+        FROM NOTICES n
+        JOIN USERS u ON n.USER_ID = u.USER_ID
+        WHERE n.NOTICE_ID = #{noticeId}
+    </select>
+
+    <!-- 모든 공지사항 조회 (공지사항 우선, 생성일 내림차순) -->
+    <select id="findAllOrderByNoticeAndCreatedAtDesc" resultMap="NoticeResultMap">
+        SELECT 
+            n.NOTICE_ID, n.TITLE, n.CONTENT, n.IS_NOTICE, n.VIEW_COUNT,
+            n.CREATED_AT, n.UPDATED_AT,
+            u.USER_ID, u.USERNAME, u.EMAIL, u.NICKNAME, u.IS_ADMIN
+        FROM NOTICES n
+        JOIN USERS u ON n.USER_ID = u.USER_ID
+        ORDER BY n.IS_NOTICE DESC, n.CREATED_AT DESC
+    </select>
+
+    <!-- 사용자별 공지사항 조회 -->
+    <select id="findByUserIdOrderByCreatedAtDesc" resultMap="NoticeResultMap">
+        SELECT 
+            n.NOTICE_ID, n.TITLE, n.CONTENT, n.IS_NOTICE, n.VIEW_COUNT,
+            n.CREATED_AT, n.UPDATED_AT,
+            u.USER_ID, u.USERNAME, u.EMAIL, u.NICKNAME, u.IS_ADMIN
+        FROM NOTICES n
+        JOIN USERS u ON n.USER_ID = u.USER_ID
+        WHERE n.USER_ID = #{userId}
+        ORDER BY n.CREATED_AT DESC
+    </select>
+
+    <!-- 공지사항 수정 -->
+    <update id="update" parameterType="com.editodo.entity.Notice">
+        UPDATE NOTICES SET
+            TITLE = #{title},
+            CONTENT = #{content},
+            IS_NOTICE = #{isNotice},
+            UPDATED_AT = SYSDATE
+        WHERE NOTICE_ID = #{noticeId}
+    </update>
+
+    <!-- 공지사항 삭제 -->
+    <delete id="deleteById">
+        DELETE FROM NOTICES WHERE NOTICE_ID = #{noticeId}
+    </delete>
+
+    <!-- 조회수 증가 -->
+    <update id="incrementViewCount">
+        UPDATE NOTICES SET VIEW_COUNT = VIEW_COUNT + 1 WHERE NOTICE_ID = #{noticeId}
+    </update>
+
+</mapper>
