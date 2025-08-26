@@ -67,16 +67,21 @@ spring:
 
   # 이메일 설정
   mail:
-    host: smtp.gmail.com
+    host: smtp.naver.com
     port: 587
-    username: ${MAIL_USERNAME:your-email@gmail.com}
-    password: ${MAIL_PASSWORD:your-app-password}
+    username: editodo
+    password: V5CZUQZ6NSZJ
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+          ssl:
+            enable: true
+            trust: smtp.naver.com
+
+       
 
 # MyBatis 설정
 mybatis:
