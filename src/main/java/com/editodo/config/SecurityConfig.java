@@ -40,6 +40,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/calendar/**").permitAll()
                 .requestMatchers("/email/**").permitAll()
                 .requestMatchers("/font/**").permitAll()
                 .requestMatchers("/api/notices").permitAll() // 공지사항 목록 조회는 모든 사용자 허용

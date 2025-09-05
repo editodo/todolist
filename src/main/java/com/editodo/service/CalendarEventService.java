@@ -25,6 +25,7 @@ public class CalendarEventService {
     
     @Transactional
     public CalendarEventDto.Response createEvent(Long userId, CalendarEventDto.CreateRequest request) {
+        log.info("[CalendarService] createEvent userId={}, req={}", userId, request);
         User user = userMapper.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         
@@ -38,10 +39,12 @@ public class CalendarEventService {
                 .build();
         
         calendarEventMapper.save(event);
+        log.debug("[CalendarService] saved event with id={}", event.getEventId());
         return convertToResponse(event);
     }
     
     public List<CalendarEventDto.Response> getEventsByUser(Long userId) {
+        log.info("[CalendarService] getEventsByUser userId={}", userId);
         List<CalendarEvent> events = calendarEventMapper.findByUserIdOrderByEventDateAsc(userId);
         return events.stream()
                 .map(this::convertToResponse)
@@ -49,6 +52,7 @@ public class CalendarEventService {
     }
     
     public List<CalendarEventDto.Response> getEventsByDate(Long userId, LocalDate date) {
+        log.info("[CalendarService] getEventsByDate userId={}, date={}", userId, date);
         List<CalendarEvent> events = calendarEventMapper.findByUserIdAndEventDateOrderByStartTimeAsc(userId, date);
         return events.stream()
                 .map(this::convertToResponse)
@@ -56,6 +60,7 @@ public class CalendarEventService {
     }
     
     public List<CalendarEventDto.Response> getEventsByDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
+        log.info("[CalendarService] getEventsByDateRange userId={}, {}~{}", userId, startDate, endDate);
         List<CalendarEvent> events = calendarEventMapper.findByUserIdAndEventDateBetween(userId, startDate, endDate);
         return events.stream()
                 .map(this::convertToResponse)
@@ -63,6 +68,7 @@ public class CalendarEventService {
     }
     
     public CalendarEventDto.Response getEventById(Long userId, Long eventId) {
+        log.info("[CalendarService] getEventById userId={}, eventId={}", userId, eventId);
         CalendarEvent event = calendarEventMapper.findById(eventId)
                 .orElseThrow(() -> new RuntimeException("이벤트를 찾을 수 없습니다."));
         
@@ -76,6 +82,7 @@ public class CalendarEventService {
     
     @Transactional
     public CalendarEventDto.Response updateEvent(Long userId, Long eventId, CalendarEventDto.UpdateRequest request) {
+        log.info("[CalendarService] updateEvent userId={}, eventId={}, req={}", userId, eventId, request);
         CalendarEvent event = calendarEventMapper.findById(eventId)
                 .orElseThrow(() -> new RuntimeException("이벤트를 찾을 수 없습니다."));
         
@@ -91,11 +98,13 @@ public class CalendarEventService {
         event.setEndTime(request.getEndTime());
         
         calendarEventMapper.update(event);
+        log.debug("[CalendarService] updated event id={}", event.getEventId());
         return convertToResponse(event);
     }
     
     @Transactional
     public void deleteEvent(Long userId, Long eventId) {
+        log.info("[CalendarService] deleteEvent userId={}, eventId={}", userId, eventId);
         CalendarEvent event = calendarEventMapper.findById(eventId)
                 .orElseThrow(() -> new RuntimeException("이벤트를 찾을 수 없습니다."));
         
@@ -105,6 +114,7 @@ public class CalendarEventService {
         }
         
         calendarEventMapper.deleteById(eventId);
+        log.debug("[CalendarService] deleted event id={}", eventId);
     }
     
     private CalendarEventDto.Response convertToResponse(CalendarEvent event) {
