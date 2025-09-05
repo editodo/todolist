@@ -1,0 +1,4 @@
+/* 기본 스타일 통합 파일 */
+@import './variables.css';
+@import './reset.css';
+@import './base.css';

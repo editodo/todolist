@@ -104,35 +104,6 @@ export default {
   color: var(--el-text-color-regular);
 }
 
-.font_main {
-  color: var(--el-color-primary);
-  font-weight: bold;
-}
-
-.bottom_btn_group {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.btn {
-  width: 100%;
-  height: 50px;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.btn_main {
-  background: var(--el-color-primary);
-  border-color: var(--el-color-primary);
-}
-
-.btn_sub {
-  background: transparent;
-  border-color: var(--el-color-primary);
-  color: var(--el-color-primary);
-}
-
 @media (max-width: 768px) {
   .home {
     padding: 15px;

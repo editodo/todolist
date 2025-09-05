@@ -64,16 +64,7 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: 'Noto Sans KR', Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  min-height: 100vh;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-}
-
+/* App.vue 특별 스타일만 유지 */
 .app-content {
   flex: 1;
   padding-bottom: 80px; /* 하단 네비게이션 높이만큼 패딩 */

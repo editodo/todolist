@@ -1,0 +1,143 @@
+/* 기본 레이아웃 스타일 */
+
+/* 앱 컨테이너 */
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-normal);
+}
+
+.app-content {
+  flex: 1;
+  padding-bottom: 80px; /* 하단 네비게이션 높이만큼 패딩 */
+}
+
+/* 컨테이너 */
+.container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.editodo_inner {
+  padding: 20px;
+}
+
+.side_pd {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* 래퍼 */
+.editodo_wrap {
+  min-height: 100vh;
+  background-color: var(--body-color);
+  color: var(--text-color);
+  font-family: var(--font-family);
+  transition: all var(--transition-normal);
+}
+
+#main {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 타이포그래피 */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+  line-height: 1.2;
+  margin-bottom: var(--spacing-md);
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+}
+
+h4 {
+  font-size: 1.125rem;
+}
+
+h5 {
+  font-size: 1rem;
+}
+
+h6 {
+  font-size: 0.875rem;
+}
+
+p {
+  margin-bottom: var(--spacing-md);
+  line-height: 1.6;
+}
+
+/* 유틸리티 클래스 */
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.font-main {
+  color: var(--main-color);
+  font-weight: bold;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .editodo_inner {
+    padding: 10px;
+  }
+  
+  .side_pd {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .app-content {
+    padding: 10px;
+    padding-bottom: 80px;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* 하이브리드 앱 스타일 */
+@media (display-mode: standalone) {
+  .app-content {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+}
+
+/* iOS Safari 대응 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .app-content {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+}

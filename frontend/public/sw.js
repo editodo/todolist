@@ -1,9 +1,9 @@
 const CACHE_NAME = 'editodo-v1.0.0';
 const urlsToCache = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/manifest.json'
+  '/manifest.json',
+  '/icons/icon-192x192.svg',
+  '/icons/icon-512x512.svg'
 ];
 
 // Service Worker 설치
@@ -86,8 +86,8 @@ function doBackgroundSync() {
 self.addEventListener('push', event => {
   const options = {
     body: event.data ? event.data.text() : '새로운 알림이 있습니다.',
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-72x72.png',
+    icon: '/icons/icon-192x192.svg',
+    badge: '/icons/icon-72x72.svg',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -97,12 +97,12 @@ self.addEventListener('push', event => {
       {
         action: 'explore',
         title: '확인하기',
-        icon: '/icons/icon-72x72.png'
+        icon: '/icons/icon-72x72.svg'
       },
       {
         action: 'close',
         title: '닫기',
-        icon: '/icons/icon-72x72.png'
+        icon: '/icons/icon-72x72.svg'
       }
     ]
   };

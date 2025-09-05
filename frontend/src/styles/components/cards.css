@@ -1,0 +1,232 @@
+/* 카드 컴포넌트 스타일 */
+
+/* 기본 카드 */
+.card {
+  background: var(--body-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* 카드 헤더 */
+.card-header {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--dominant);
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* 카드 바디 */
+.card-body {
+  padding: var(--spacing-lg);
+}
+
+/* 카드 푸터 */
+.card-footer {
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+  background: var(--dominant);
+}
+
+/* 통계 카드 */
+.stat-card {
+  text-align: center;
+  background: var(--body-color);
+  border-radius: 8px;
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-normal);
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--sub-text-color);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.stat-value.completed {
+  color: var(--el-color-success);
+}
+
+.stat-value.pending {
+  color: var(--el-color-warning);
+}
+
+.stat-value.overdue {
+  color: var(--el-color-danger);
+}
+
+/* 투두 아이템 카드 */
+.todo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border-color);
+  transition: all var(--transition-fast);
+}
+
+.todo-item:last-child {
+  border-bottom: none;
+}
+
+.todo-item:hover {
+  background: rgba(64, 158, 255, 0.02);
+  border-radius: 4px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.todo-item.completed .todo-title {
+  text-decoration: line-through;
+  color: var(--sub-text-color);
+}
+
+.todo-item.overdue {
+  border-left: 3px solid var(--el-color-danger);
+  padding-left: 15px;
+  background: rgba(245, 108, 108, 0.05);
+}
+
+.todo-content {
+  flex: 1;
+}
+
+.todo-title {
+  margin: 0 0 5px 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.todo-description {
+  margin: 0 0 10px 0;
+  color: var(--sub-text-color);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.todo-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.due-date {
+  font-size: 0.8rem;
+  color: var(--sub-text-color);
+  background: var(--dominant);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.todo-actions {
+  display: flex;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.todo-item:hover .todo-actions {
+  opacity: 1;
+}
+
+.delete-btn {
+  color: var(--el-color-danger);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .card-header,
+  .card-body,
+  .card-footer {
+    padding: var(--spacing-md);
+  }
+  
+  .stat-card {
+    padding: var(--spacing-md);
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
+  }
+  
+  .todo-item {
+    padding: 12px 0;
+    gap: 12px;
+  }
+  
+  .todo-item:hover {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  
+  .todo-actions {
+    opacity: 1; /* 모바일에서는 항상 표시 */
+  }
+  
+  .todo-meta {
+    gap: 8px;
+  }
+}
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) and (pointer: coarse) {
+  .card:hover,
+  .stat-card:hover,
+  .todo-item:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .todo-item:active {
+    background: rgba(64, 158, 255, 0.05);
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .stat-card,
+  .todo-item {
+    transition: none;
+  }
+  
+  .card:hover,
+  .stat-card:hover,
+  .todo-item:hover {
+    transform: none;
+  }
+}

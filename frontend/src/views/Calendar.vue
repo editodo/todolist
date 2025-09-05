@@ -29,7 +29,7 @@
             <el-empty v-if="!getEventsForDate(currentDate).length" description="일정이 없습니다" />
             <el-card 
               v-for="event in getEventsForDate(currentDate)" 
-              :key="event.id" 
+              :key="event.eventId" 
               class="event-card"
               shadow="hover"
             >
@@ -44,7 +44,7 @@
                   <el-button size="small" type="primary" @click="editEvent(event)">
                     수정
                   </el-button>
-                  <el-button size="small" type="danger" @click="deleteEvent(event.id)">
+                  <el-button size="small" type="danger" @click="deleteEvent(event.eventId)">
                     삭제
                   </el-button>
                 </div>
@@ -73,9 +73,9 @@
             placeholder="일정 설명을 입력하세요" 
           />
         </el-form-item>
-        <el-form-item label="날짜" prop="date">
+        <el-form-item label="날짜" prop="eventDate">
           <el-date-picker
-            v-model="eventForm.date"
+            v-model="eventForm.eventDate"
             type="date"
             placeholder="날짜를 선택하세요"
             format="YYYY-MM-DD"
@@ -113,6 +113,7 @@
 
 <script>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useStore } from 'vuex'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Clock } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
@@ -124,17 +125,17 @@ export default {
     Clock
   },
   setup() {
+    const store = useStore()
     const currentDate = ref(new Date())
-    const events = ref([])
     const eventDialogVisible = ref(false)
     const isEditing = ref(false)
     const eventFormRef = ref()
     
     const eventForm = reactive({
-      id: null,
+      eventId: null,
       title: '',
       description: '',
-      date: '',
+      eventDate: '',
       startTime: '',
       endTime: ''
     })
@@ -143,7 +144,7 @@ export default {
       title: [
         { required: true, message: '제목을 입력해주세요', trigger: 'blur' }
       ],
-      date: [
+      eventDate: [
         { required: true, message: '날짜를 선택해주세요', trigger: 'change' }
       ],
       startTime: [
@@ -154,6 +155,10 @@ export default {
       ]
     }
     
+    // Vuex store에서 상태 가져오기
+    const events = computed(() => store.state.calendar.events)
+    const loading = computed(() => store.state.calendar.loading)
+    
     const formatDate = (date) => {
       return dayjs(date).format('YYYY년 MM월 DD일')
     }
@@ -163,28 +168,28 @@ export default {
     }
     
     const hasEvents = (date) => {
-      return events.value.some(event => event.date === date)
+      return events.value.some(event => event.eventDate === date)
     }
     
     const getEventsForDate = (date) => {
       const dateStr = dayjs(date).format('YYYY-MM-DD')
-      return events.value.filter(event => event.date === dateStr)
+      return events.value.filter(event => event.eventDate === dateStr)
     }
     
     const addEvent = () => {
       isEditing.value = false
       resetEventForm()
-      eventForm.date = dayjs(currentDate.value).format('YYYY-MM-DD')
+      eventForm.eventDate = dayjs(currentDate.value).format('YYYY-MM-DD')
       eventDialogVisible.value = true
     }
     
     const editEvent = (event) => {
       isEditing.value = true
       Object.assign(eventForm, {
-        id: event.id,
+        eventId: event.eventId,
         title: event.title,
         description: event.description,
-        date: event.date,
+        eventDate: event.eventDate,
         startTime: event.startTime,
         endTime: event.endTime
       })
@@ -195,17 +200,21 @@ export default {
       try {
         await eventFormRef.value.validate()
         
+        const eventData = {
+          title: eventForm.title,
+          description: eventForm.description,
+          eventDate: eventForm.eventDate,
+          startTime: eventForm.startTime,
+          endTime: eventForm.endTime
+        }
+        
         if (isEditing.value) {
-          const index = events.value.findIndex(e => e.id === eventForm.id)
-          if (index !== -1) {
-            events.value[index] = { ...eventForm }
-          }
+          await store.dispatch('calendar/updateEvent', {
+            eventId: eventForm.eventId,
+            eventData
+          })
         } else {
-          const newEvent = {
-            ...eventForm,
-            id: Date.now()
-          }
-          events.value.push(newEvent)
+          await store.dispatch('calendar/createEvent', eventData)
         }
         
         eventDialogVisible.value = false
@@ -213,6 +222,7 @@ export default {
         resetEventForm()
       } catch (error) {
         console.error('일정 저장 실패:', error)
+        ElMessage.error('일정 저장에 실패했습니다.')
       }
     }
     
@@ -224,7 +234,7 @@ export default {
           type: 'warning'
         })
         
-        events.value = events.value.filter(e => e.id !== eventId)
+        await store.dispatch('calendar/deleteEvent', eventId)
         ElMessage.success('일정이 삭제되었습니다')
       } catch (error) {
         if (error !== 'cancel') {
@@ -235,40 +245,31 @@ export default {
     
     const resetEventForm = () => {
       Object.assign(eventForm, {
-        id: null,
+        eventId: null,
         title: '',
         description: '',
-        date: '',
+        eventDate: '',
         startTime: '',
         endTime: ''
       })
     }
     
+    const loadEvents = async () => {
+      try {
+        await store.dispatch('calendar/fetchEvents')
+      } catch (error) {
+        console.error('이벤트 로드 실패:', error)
+      }
+    }
+    
     onMounted(() => {
-      // 샘플 데이터 로드
-      events.value = [
-        {
-          id: 1,
-          title: '팀 미팅',
-          description: '주간 프로젝트 진행상황 공유',
-          date: '2025-01-15',
-          startTime: '10:00',
-          endTime: '11:00'
-        },
-        {
-          id: 2,
-          title: '점심 약속',
-          description: '고객과의 비즈니스 런치',
-          date: '2025-01-15',
-          startTime: '12:00',
-          endTime: '13:30'
-        }
-      ]
+      loadEvents()
     })
     
     return {
       currentDate,
       events,
+      loading,
       eventDialogVisible,
       isEditing,
       eventForm,

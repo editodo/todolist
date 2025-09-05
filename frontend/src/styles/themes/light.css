@@ -1,0 +1,73 @@
+/* 라이트 테마 스타일 */
+
+.lightmode {
+  /* 배경색 */
+  --body-color: #ffffff;
+  --base: #ffffff;
+  --base-color: #ffffff;
+  --dominant: #f5f5f5;
+  
+  /* 텍스트 색상 */
+  --text-color: #303133;
+  --sub-text-color: #606266;
+  --guide-text-color: #909399;
+  
+  /* 테두리 색상 */
+  --border-color: #DCDFE6;
+  
+  /* 네비게이션 색상 */
+  --fnb: #666666;
+  --fnb-text: #666666;
+  
+  /* 캘린더 색상 */
+  --calendar-colr: #666666;
+  
+  /* 체크박스 색상 */
+  --checkbox-label: #666666;
+  --checkbox-checked-label: #999999;
+  
+  /* 그림자 */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* 라이트 테마 특별 스타일 */
+.lightmode .card {
+  background: #ffffff;
+  border: 1px solid #DCDFE6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.lightmode .card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lightmode .stat-card {
+  background: #ffffff;
+  border: 1px solid #DCDFE6;
+}
+
+.lightmode .todo-item {
+  border-bottom-color: #DCDFE6;
+}
+
+.lightmode .todo-item:hover {
+  background: rgba(64, 158, 255, 0.02);
+}
+
+.lightmode .bottom-navigation {
+  background: #ffffff;
+  border-top-color: #DCDFE6;
+}
+
+.lightmode .form_input {
+  background-color: #ffffff;
+  border-color: #DCDFE6;
+  color: #303133;
+}
+
+.lightmode .form_input:focus {
+  border-color: #409EFF;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+}

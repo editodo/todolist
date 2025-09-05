@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.editodo.mapper.CalendarEventMapper">
+
+    <resultMap id="CalendarEventResultMap" type="com.editodo.entity.CalendarEvent">
+        <id property="eventId" column="event_id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="eventDate" column="event_date"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <association property="user" javaType="com.editodo.entity.User">
+            <id property="userId" column="user_id"/>
+        </association>
+    </resultMap>
+
+    <insert id="save" parameterType="com.editodo.entity.CalendarEvent" useGeneratedKeys="true" keyProperty="eventId">
+        INSERT INTO calendar_events (user_id, title, description, event_date, start_time, end_time, created_at, updated_at)
+        VALUES (#{user.userId}, #{title}, #{description}, #{eventDate}, #{startTime}, #{endTime}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    </insert>
+
+    <select id="findById" parameterType="long" resultMap="CalendarEventResultMap">
+        SELECT event_id, user_id, title, description, event_date, start_time, end_time, created_at, updated_at
+        FROM calendar_events
+        WHERE event_id = #{eventId}
+    </select>
+
+    <select id="findByUserIdOrderByEventDateAsc" parameterType="long" resultMap="CalendarEventResultMap">
+        SELECT event_id, user_id, title, description, event_date, start_time, end_time, created_at, updated_at
+        FROM calendar_events
+        WHERE user_id = #{userId}
+        ORDER BY event_date ASC, start_time ASC
+    </select>
+
+    <select id="findByUserIdAndEventDateOrderByStartTimeAsc" resultMap="CalendarEventResultMap">
+        SELECT event_id, user_id, title, description, event_date, start_time, end_time, created_at, updated_at
+        FROM calendar_events
+        WHERE user_id = #{userId} AND event_date = #{eventDate}
+        ORDER BY start_time ASC
+    </select>
+
+    <select id="findByUserIdAndEventDateBetween" resultMap="CalendarEventResultMap">
+        SELECT event_id, user_id, title, description, event_date, start_time, end_time, created_at, updated_at
+        FROM calendar_events
+        WHERE user_id = #{userId} 
+        AND event_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY event_date ASC, start_time ASC
+    </select>
+
+    <update id="update" parameterType="com.editodo.entity.CalendarEvent">
+        UPDATE calendar_events
+        SET title = #{title},
+            description = #{description},
+            event_date = #{eventDate},
+            start_time = #{startTime},
+            end_time = #{endTime},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE event_id = #{eventId}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM calendar_events WHERE event_id = #{eventId}
+    </delete>
+
+    <delete id="deleteByUserId" parameterType="long">
+        DELETE FROM calendar_events WHERE user_id = #{userId}
+    </delete>
+
+</mapper>

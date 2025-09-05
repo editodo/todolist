@@ -82,6 +82,16 @@ const routes = [
     name: 'NoticeEdit',
     component: () => import('../views/NoticeEdit.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/find-id',
+    name: 'FindId',
+    component: () => import('../views/FindId.vue')
+  },
+  {
+    path: '/find-pw',
+    name: 'FindPw',
+    component: () => import('../views/FindPw.vue')
   }
 ]
 

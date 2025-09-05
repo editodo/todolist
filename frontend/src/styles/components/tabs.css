@@ -1,0 +1,132 @@
+/* 탭 컴포넌트 스타일 */
+
+/* 탭 그룹 */
+.tab_group {
+  margin-bottom: 20px;
+}
+
+/* 탭 리스트 */
+.tab_list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--body-color);
+}
+
+.tab_list li {
+  flex: 1;
+  text-align: center;
+}
+
+/* 탭 버튼 */
+.btn_tab {
+  width: 100%;
+  padding: 15px 20px;
+  border: none;
+  background: transparent;
+  color: var(--sub-text-color);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition-fast);
+  position: relative;
+  outline: none;
+}
+
+.btn_tab:hover {
+  color: var(--main-color);
+  background: rgba(64, 158, 255, 0.05);
+}
+
+.btn_tab:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: -2px;
+}
+
+/* 활성 탭 */
+.btn_tab.active,
+.tab_list li.active .btn_tab {
+  color: var(--main-color);
+  border-bottom-color: var(--main-color);
+  background: rgba(64, 158, 255, 0.1);
+}
+
+/* 탭 내용 */
+.tab_content {
+  padding: 20px 0;
+}
+
+.tab_panel {
+  display: none;
+}
+
+.tab_panel.active {
+  display: block;
+}
+
+/* 탭 애니메이션 */
+.tab_panel {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .btn_tab {
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+  
+  .tab_content {
+    padding: 15px 0;
+  }
+}
+
+/* 다크모드 대응 */
+.darkmode .tab_list {
+  border-bottom-color: var(--border-color);
+}
+
+.darkmode .btn_tab:hover {
+  background: rgba(64, 158, 255, 0.1);
+}
+
+.darkmode .btn_tab.active,
+.darkmode .tab_list li.active .btn_tab {
+  background: rgba(64, 158, 255, 0.15);
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  .tab_panel {
+    animation: none;
+  }
+  
+  .btn_tab {
+    transition: none;
+  }
+}
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) and (pointer: coarse) {
+  .btn_tab:hover {
+    background: transparent;
+  }
+  
+  .btn_tab:active {
+    background: rgba(64, 158, 255, 0.1);
+  }
+}

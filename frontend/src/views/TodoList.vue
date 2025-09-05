@@ -344,6 +344,7 @@ export default {
 </script>
 
 <style scoped>
+/* TodoList 페이지 특별 스타일만 유지 */
 .todo-list {
   max-width: 800px;
   margin: 0 auto;
@@ -368,103 +369,11 @@ export default {
   margin: 0;
 }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-}
-
-.stat-card {
-  text-align: center;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  color: var(--el-text-color-secondary);
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.stat-value.completed {
-  color: var(--el-color-success);
-}
-
-.stat-value.pending {
-  color: var(--el-color-warning);
-}
-
 .todo-container {
   background: var(--el-bg-color);
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
-
-.todo-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 15px;
-  padding: 15px 0;
-  border-bottom: 1px solid var(--el-border-color-lighter);
-}
-
-.todo-item:last-child {
-  border-bottom: none;
-}
-
-.todo-item.completed .todo-title {
-  text-decoration: line-through;
-  color: var(--el-text-color-placeholder);
-}
-
-.todo-item.overdue {
-  border-left: 3px solid var(--el-color-danger);
-  padding-left: 15px;
-}
-
-.todo-content {
-  flex: 1;
-}
-
-.todo-title {
-  margin: 0 0 5px 0;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.todo-description {
-  margin: 0 0 10px 0;
-  color: var(--el-text-color-regular);
-  font-size: 0.9rem;
-}
-
-.todo-meta {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.due-date {
-  font-size: 0.8rem;
-  color: var(--el-text-color-secondary);
-}
-
-.todo-actions {
-  display: flex;
-  gap: 5px;
-}
-
-.delete-btn {
-  color: var(--el-color-danger);
 }
 
 .add-todo {
@@ -476,10 +385,6 @@ export default {
 @media (max-width: 768px) {
   .todo-list {
     padding: 15px;
-  }
-  
-  .stats {
-    grid-template-columns: 1fr;
   }
   
   .date-header {

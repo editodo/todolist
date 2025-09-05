@@ -6,6 +6,9 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
+// 커스텀 스타일 import
+import '@/styles/index.css'
+
 const app = createApp(App)
 
 // Element Plus 아이콘 등록

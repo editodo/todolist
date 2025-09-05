@@ -1,0 +1,157 @@
+/* 메인 CSS 파일 - 모든 스타일 통합 */
+
+/* 기본 스타일 */
+@import './base/index.css';
+
+/* 컴포넌트 스타일 */
+@import './components/index.css';
+
+/* 테마 스타일 */
+@import './themes/index.css';
+
+/* 유틸리티 스타일 */
+@import './utils/index.css';
+
+/* 전역 스타일 */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family);
+  color: var(--text-color);
+  background-color: var(--body-color);
+  transition: all var(--transition-normal);
+  margin: 0;
+  padding: 0;
+}
+
+/* 앱 루트 스타일 */
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-normal);
+}
+
+/* 전역 링크 스타일 */
+a {
+  color: var(--main-color);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--main-color-hover);
+}
+
+/* 전역 버튼 스타일 */
+button {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+/* 전역 입력 필드 스타일 */
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+/* 전역 리스트 스타일 */
+ul, ol {
+  list-style: none;
+}
+
+/* 전역 이미지 스타일 */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 전역 테이블 스타일 */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* 전역 포커스 스타일 */
+:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 2px;
+}
+
+/* 전역 스크롤바 스타일 (웹킷 브라우저) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dominant);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sub-text-color);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+  
+  body {
+    font-size: 14px;
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 고대비 모드 */
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: #000000;
+    --text-color: #000000;
+    --body-color: #ffffff;
+  }
+  
+  .darkmode {
+    --border-color: #ffffff;
+    --text-color: #ffffff;
+    --body-color: #000000;
+  }
+}

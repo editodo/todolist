@@ -1,0 +1,186 @@
+/* 버튼 컴포넌트 스타일 */
+
+/* 기본 버튼 스타일 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border: 1px solid var(--main-color);
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  user-select: none;
+  white-space: nowrap;
+  min-height: 44px; /* 터치 친화적 */
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 2px;
+}
+
+/* 버튼 크기 */
+.btn.small {
+  padding: 8px 16px;
+  font-size: 14px;
+  min-height: 36px;
+}
+
+.btn.large {
+  padding: 16px 32px;
+  font-size: 18px;
+  min-height: 52px;
+}
+
+.btn.full {
+  width: 100%;
+}
+
+/* 메인 버튼 */
+.btn_main {
+  background-color: var(--main-color);
+  color: #fff;
+  border-color: var(--main-color);
+}
+
+.btn_main:hover:not(:disabled) {
+  background-color: var(--main-color-hover);
+  border-color: var(--main-color-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn_main:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 서브 버튼 */
+.btn_sub {
+  background-color: var(--body-color);
+  color: var(--main-color);
+  border-color: var(--main-color);
+}
+
+.btn_sub:hover:not(:disabled) {
+  background-color: var(--main-color);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn_sub:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 텍스트 버튼 */
+.btn_text {
+  background: transparent;
+  color: var(--main-color);
+  border: none;
+  padding: 8px 12px;
+  min-height: auto;
+}
+
+.btn_text:hover:not(:disabled) {
+  background-color: rgba(64, 158, 255, 0.1);
+}
+
+/* 위험 버튼 */
+.btn_danger {
+  background-color: #f56c6c;
+  color: #fff;
+  border-color: #f56c6c;
+}
+
+.btn_danger:hover:not(:disabled) {
+  background-color: #f78989;
+  border-color: #f78989;
+}
+
+/* 버튼 그룹 */
+.bottom_btn_group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.bottom_btn_group .btn + .btn {
+  margin-top: 0;
+}
+
+.bottom_btn_group.horizontal {
+  flex-direction: row;
+  gap: 10px;
+}
+
+.bottom_btn_group.horizontal .btn {
+  flex: 1;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+  
+  .btn.small {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-height: 32px;
+  }
+  
+  .btn.large {
+    padding: 14px 28px;
+    font-size: 16px;
+    min-height: 48px;
+  }
+  
+  .bottom_btn_group {
+    gap: 12px;
+  }
+  
+  .bottom_btn_group.horizontal {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) and (pointer: coarse) {
+  .btn:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .btn:active {
+    transform: scale(0.98);
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+  
+  .btn:hover {
+    transform: none;
+  }
+}

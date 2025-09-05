@@ -175,10 +175,25 @@ CREATE TABLE user_fonts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 캘린더 이벤트 테이블
+CREATE TABLE calendar_events (
+    event_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id NUMBER REFERENCES users(user_id),
+    title VARCHAR2(200) NOT NULL,
+    description CLOB,
+    event_date DATE NOT NULL,
+    start_time VARCHAR2(5), -- HH:MM 형식
+    end_time VARCHAR2(5),   -- HH:MM 형식
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 인덱스 추가
 CREATE INDEX idx_email_verifications_user ON email_verifications(user_id);
 CREATE INDEX idx_email_verifications_code ON email_verifications(verification_code);
 CREATE INDEX idx_user_fonts_user ON user_fonts(user_id);
+CREATE INDEX idx_calendar_events_user ON calendar_events(user_id);
+CREATE INDEX idx_calendar_events_date ON calendar_events(event_date);
 
 -- 관리자 계정에 게시글 작성 권한 부여
 INSERT INTO notice_permissions (user_id, granted_by) 
