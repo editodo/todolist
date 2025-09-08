@@ -14,7 +14,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/notices")
+@RequestMapping("/notices")
 @RequiredArgsConstructor
 @Slf4j
 public class NoticeController {

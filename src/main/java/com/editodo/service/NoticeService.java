@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -220,9 +221,13 @@ public class NoticeService {
     
     // DTO 변환 메서드들
     private NoticeDto.Response convertToResponse(Notice notice) {
-        List<NoticeDto.AttachmentResponse> attachmentResponses = notice.getAttachments().stream()
+        
+        List<NoticeDto.AttachmentResponse> attachmentResponses =  notice.getAttachments() != null
+            ? notice.getAttachments().stream()
                 .map(this::convertToAttachmentResponse)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())
+            : Collections.emptyList();
+
         
         return NoticeDto.Response.builder()
                 .noticeId(notice.getNoticeId())

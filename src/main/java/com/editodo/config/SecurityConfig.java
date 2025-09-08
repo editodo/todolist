@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/calendar/**").permitAll()
                 .requestMatchers("/email/**").permitAll()
                 .requestMatchers("/font/**").permitAll()
+                .requestMatchers("/notices").permitAll()
                 .requestMatchers("/api/notices").permitAll() // 공지사항 목록 조회는 모든 사용자 허용
                 .requestMatchers("/api/notices/{noticeId}").permitAll() // 공지사항 상세 조회는 모든 사용자 허용
                 .requestMatchers("/api/files/download/**").permitAll() // 파일 다운로드는 모든 사용자 허용

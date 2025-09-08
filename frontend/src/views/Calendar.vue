@@ -168,6 +168,7 @@ export default {
     }
     
     const hasEvents = (date) => {
+      console.log("hasEvents", date)
       return events.value.some(event => event.eventDate === date)
     }
     
@@ -177,6 +178,7 @@ export default {
     }
     
     const addEvent = () => {
+      console.log("addEvent")
       isEditing.value = false
       resetEventForm()
       eventForm.eventDate = dayjs(currentDate.value).format('YYYY-MM-DD')
@@ -197,6 +199,7 @@ export default {
     }
     
     const saveEvent = async () => {
+      console.log("saveEvent", eventForm)
       try {
         await eventFormRef.value.validate()
         
@@ -209,11 +212,13 @@ export default {
         }
         
         if (isEditing.value) {
+          console.log("update", eventData)
           await store.dispatch('calendar/updateEvent', {
             eventId: eventForm.eventId,
             eventData
           })
         } else {
+          console.log("create", eventData)
           await store.dispatch('calendar/createEvent', eventData)
         }
         
