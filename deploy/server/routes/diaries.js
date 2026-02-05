@@ -1,0 +1,66 @@
+
+const express = require('express');
+const router = express.Router();
+const db = require('../db');
+
+// GET Diaries for a specific user and month (YYYY-MM) or specific date (YYYY-MM-DD)
+router.get('/', async (req, res) => {
+    try {
+        const { user_id, date, month } = req.query; // date: '2024-01-01', month: '2024-01'
+
+        if (!user_id) return res.status(400).json({ error: 'User ID required' });
+
+        if (date) {
+            const [rows] = await db.query('SELECT * FROM diaries WHERE user_id = ? AND date = ?', [user_id, date]);
+            return res.json(rows[0] || null);
+        }
+
+        if (month) {
+            // Needed for calendar view (dots/emotions)
+            const [rows] = await db.query(
+                'SELECT date, emotion, content FROM diaries WHERE user_id = ? AND DATE_FORMAT(date, "%Y-%m") = ?',
+                [user_id, month]
+            );
+            return res.json(rows);
+        }
+
+        res.status(400).json({ error: 'Date or Month required' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server Error' });
+    }
+});
+
+// POST/PUT Upsert Diary
+router.post('/', async (req, res) => {
+    try {
+        const { user_id, date, content, emotion } = req.body;
+        // Upsert syntax for MySQL
+        const query = `
+            INSERT INTO diaries (user_id, date, content, emotion)
+            VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE content = VALUES(content), emotion = VALUES(emotion)
+        `;
+        await db.query(query, [user_id, date, content, emotion]);
+        res.json({ success: true });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server Error' });
+    }
+});
+
+// DELETE Diary
+router.delete('/', async (req, res) => {
+    try {
+        const { user_id, date } = req.query;
+        if (!user_id || !date) return res.status(400).json({ error: 'User ID and Date required' });
+
+        await db.query('DELETE FROM diaries WHERE user_id = ? AND date = ?', [user_id, date]);
+        res.json({ success: true });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server Error' });
+    }
+});
+
+module.exports = router;

@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Expo
+.expo/
+client/.expo/
+dist/
+client/dist/
+
+# Env & Secrets
+.env
+server/.env
+*.local
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build files
+*.aab
+*.apk
+client/web-build/
