@@ -3,12 +3,16 @@ const mysql = require('mysql2');
 require('dotenv').config();
 
 // Create the real pool
+// Create the real pool - using environment variables
+// Local '.env' will drive Dev, 'ecosystem.config.js' will drive Prod
+console.log(`🔌 DB Connection Config: Host=${process.env.DB_HOST || 'localhost'}, User=${process.env.DB_USER || 'root'}, Db=${process.env.DB_NAME || 'editodo'}`);
+
 const pool = mysql.createPool({
-    host: '222.239.250.229', //'127.0.0.1',     // Hardcoded for certainty
-    user: 'editodo',          // Hardcoded
-    password: 'dbEdit0d0!@',// Hardcoded
-    database: 'editodo',   // Hardcoded
-    port: 3306,
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD, // Can be undefined/empty for local
+    database: process.env.DB_NAME || 'editodo',
+    port: process.env.DB_PORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0

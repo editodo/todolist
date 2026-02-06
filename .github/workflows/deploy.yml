@@ -38,7 +38,7 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         password: ${{ secrets.SERVER_PASSWORD }}
         script: |
-          cd /var/www/editodo/deploy/server
+          cd /var/www/editodo/server
           npm install --production
           pm2 reload ecosystem.config.js --env production || pm2 start ecosystem.config.js --env production
           pm2 save

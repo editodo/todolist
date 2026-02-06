@@ -39,7 +39,13 @@ router.get('/:user_id', async (req, res) => {
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({ error: '설정 정보를 찾을 수 없습니다.' });
+            // Return defaults instead of 404 to allow guest/new users to function
+            return res.status(200).json({
+                user_id: req.params.user_id,
+                mode: 'light',
+                theme: 'basic',
+                color_theme: 'blue'
+            });
         }
 
         res.status(200).json(rows[0]);

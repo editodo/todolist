@@ -1,2 +1,0 @@
-
-ALTER TABLE users CHANGE COLUMN password password_hash VARCHAR(255);
