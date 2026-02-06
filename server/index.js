@@ -12,6 +12,10 @@ app.use(bodyParser.json());
 
 // Database Check
 const db = require('./db');
+const setupAdmin = require('./admin');
+
+// Setup Admin Dashboard
+setupAdmin(app);
 
 // Routes
 // Routes
