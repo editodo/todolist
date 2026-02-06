@@ -18,9 +18,12 @@ const db = require('./db');
 const authRoutes = require('./routes/auth');
 const todoRoutes = require('./routes/todos');
 const diaryRoutes = require('./routes/diaries');
+const preferenceRoutes = require('./routes/preferences');
+
 app.use('/api/auth', authRoutes);
 app.use('/api/todos', todoRoutes);
 app.use('/api/diaries', diaryRoutes);
+app.use('/api/preferences', preferenceRoutes);
 
 app.get('/', (req, res) => {
   res.send('EditoTodo API Service is running.');
@@ -28,5 +31,6 @@ app.get('/', (req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 });

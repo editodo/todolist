@@ -14,9 +14,9 @@ module.exports = {
             env_production: {
                 NODE_ENV: 'production',
                 PORT: 8080,
-                DB_HOST: 'localhost', // Or the internal IP if DB is separate
+                DB_HOST: '222.239.250.229', //'127.0.0.1', // Use IP to force TCP connection
                 DB_USER: 'editodo',
-                DB_PASS: 'dbEdit0d0!@',
+                DB_PASSWORD: 'dbEdit0d0!@',
                 DB_NAME: 'editodo'
             }
         }

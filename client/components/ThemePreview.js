@@ -40,6 +40,7 @@ export default function ThemePreview({ theme }) {
                         <Image
                             source={item.completed ? (isSkitch ? assets.skitch.on : assets.kitsch.on) : (isSkitch ? assets.skitch.off : assets.kitsch.off)}
                             style={isKitsch ? styles.kitschIcon : styles.skitchIcon}
+                            resizeMode="contain"
                             tintColor={theme.colors.accent}
                         />
                     ) : (
@@ -61,7 +62,7 @@ export default function ThemePreview({ theme }) {
                             {item.text}
                         </Text>
 
-                        {(isSkitch || isKitsch) && item.completed && (
+                        {(isSkitch || isKitsch) && !item.completed && (
                             <Image
                                 source={isSkitch ? assets.skitch.line : assets.kitsch.line}
                                 style={styles.underlineImage}
@@ -137,7 +138,7 @@ const getStyles = (theme) => {
             bottom: -4,
             left: 0,
             width: '100%',
-            height: 4,
+            height: 3,
             zIndex: -1,
         }
     });

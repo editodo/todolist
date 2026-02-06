@@ -11,14 +11,15 @@ router.get('/', async (req, res) => {
         if (!user_id) return res.status(400).json({ error: 'User ID required' });
 
         if (date) {
-            const [rows] = await db.query('SELECT * FROM diaries WHERE user_id = ? AND date = ?', [user_id, date]);
+            // Updated to return formatted date string
+            const [rows] = await db.query('SELECT user_id, DATE_FORMAT(date, "%Y-%m-%d") as date, content, emotion FROM diaries WHERE user_id = ? AND date = ?', [user_id, date]);
             return res.json(rows[0] || null);
         }
 
         if (month) {
-            // Needed for calendar view (dots/emotions)
+            // Updated to return formatted date string
             const [rows] = await db.query(
-                'SELECT date, emotion, content FROM diaries WHERE user_id = ? AND DATE_FORMAT(date, "%Y-%m") = ?',
+                'SELECT DATE_FORMAT(date, "%Y-%m-%d") as date, emotion, content FROM diaries WHERE user_id = ? AND DATE_FORMAT(date, "%Y-%m") = ?',
                 [user_id, month]
             );
             return res.json(rows);
@@ -26,7 +27,7 @@ router.get('/', async (req, res) => {
 
         res.status(400).json({ error: 'Date or Month required' });
     } catch (error) {
-        console.error(error);
+        console.error('Get Diaries Error:', error);
         res.status(500).json({ error: 'Server Error' });
     }
 });
@@ -35,6 +36,12 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const { user_id, date, content, emotion } = req.body;
+        console.log('Saving Diary:', { user_id, date, content, emotion });
+
+        if (!user_id || !date || !content || !emotion) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
         // Upsert syntax for MySQL
         const query = `
             INSERT INTO diaries (user_id, date, content, emotion)
@@ -44,8 +51,8 @@ router.post('/', async (req, res) => {
         await db.query(query, [user_id, date, content, emotion]);
         res.json({ success: true });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Server Error' });
+        console.error('Save Diary Error:', error);
+        res.status(500).json({ error: 'Server Error', details: error.message });
     }
 });
 
@@ -58,7 +65,7 @@ router.delete('/', async (req, res) => {
         await db.query('DELETE FROM diaries WHERE user_id = ? AND date = ?', [user_id, date]);
         res.json({ success: true });
     } catch (error) {
-        console.error(error);
+        console.error('Delete Diary Error:', error);
         res.status(500).json({ error: 'Server Error' });
     }
 });

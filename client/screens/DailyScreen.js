@@ -5,7 +5,6 @@ import { layout } from '../theme';
 import Header from '../components/Header';
 import DiaryModal from '../components/DiaryModal';
 import { useAuth } from '../context/AuthContext';
-import { useDate } from '../context/DateContext';
 import { useTheme } from '../context/ThemeContext';
 import { API_URL } from '../config';
 import { Ionicons } from '@expo/vector-icons';
@@ -53,18 +52,15 @@ export default function DailyScreen({ navigation }) {
             const now = new Date();
             let url = `${API_URL}/api/diaries?user_id=${user.id}`;
 
-            if (viewMode === 'month') {
-                const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                url += `&month=${monthStr}`;
-            } else {
-                const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                url += `&month=${monthStr}`;
-            }
+            // Just fetching for current month for simplicity in both views for now
+            const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            url += `&month=${monthStr}`;
 
             const response = await fetch(url);
             if (response.ok) {
                 let data = await response.json();
-                data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                // Sort by date string descending
+                data.sort((a, b) => b.date.localeCompare(a.date));
 
                 if (viewMode === 'week') {
                     setDiaries(data.slice(0, 7));
@@ -84,9 +80,35 @@ export default function DailyScreen({ navigation }) {
         setIsModalVisible(true);
     };
 
+    const handleWriteToday = () => {
+        setSelectedDiary(null); // Clear selection implies "New" (or Today)
+        setIsModalVisible(true);
+    };
+
+    // Calculate generic date for modal: Selected or Today (Local Time)
+    const getTodayStr = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const modalDate = selectedDiary?.date
+        ? selectedDiary.date.split('T')[0]
+        : getTodayStr();
+
     return (
         <SafeAreaView style={styles.container}>
-            <Header title="하루일기" showMenu={true} />
+            <Header
+                title="하루일기"
+                showMenu={true}
+                rightButton={
+                    <TouchableOpacity onPress={handleWriteToday} style={{ padding: 4 }}>
+                        <Ionicons name="create-outline" size={24} color={colors.text} />
+                    </TouchableOpacity>
+                }
+            />
 
             {/* View Toggle */}
             <View style={styles.toggleContainer}>
@@ -115,12 +137,14 @@ export default function DailyScreen({ navigation }) {
                             onPress={() => handleDiaryClick(item)}
                         >
                             <View style={styles.cardHeader}>
-                                <Text style={styles.cardDate}>{item.date.split('T')[0]}</Text>
-                                {EMOJI_MAP[item.emotion] ? (
-                                    <Image source={EMOJI_MAP[item.emotion]} style={styles.cardEmoji} />
-                                ) : (
-                                    <Text style={styles.cardEmojiText}>{item.emotion}</Text>
-                                )}
+                                <Text style={styles.cardDate}>{item.date}</Text>
+                                <View style={styles.emojiWrapper}>
+                                    {EMOJI_MAP[item.emotion] ? (
+                                        <Image source={EMOJI_MAP[item.emotion]} style={styles.cardEmoji} />
+                                    ) : (
+                                        <Text style={styles.cardEmojiText}>{item.emotion}</Text>
+                                    )}
+                                </View>
                             </View>
                             <Text style={styles.cardSnippet} numberOfLines={2}>
                                 {item.content}
@@ -132,14 +156,17 @@ export default function DailyScreen({ navigation }) {
                     <View style={styles.emptyContainer}>
                         <Ionicons name="document-text-outline" size={60} color={colors.border} />
                         <Text style={styles.emptyText}>기록된 일기가 없어요.</Text>
-                        <Text style={styles.emptySubText}>달력에서 오늘을 기록해보세요!</Text>
+                        <Text style={styles.emptySubText}>오늘의 이야기를 기록해보세요!</Text>
+                        <TouchableOpacity style={styles.writeFloatBtn} onPress={handleWriteToday}>
+                            <Text style={styles.writeFloatText}>일기 쓰기</Text>
+                        </TouchableOpacity>
                     </View>
                 )}
             </ScrollView>
 
             <DiaryModal
                 visible={isModalVisible}
-                date={selectedDiary?.date.split('T')[0]}
+                date={modalDate}
                 initialData={selectedDiary ? { content: selectedDiary.content, emotion: selectedDiary.emotion } : null}
                 onClose={() => setIsModalVisible(false)}
                 onSaved={fetchDiaries}
@@ -244,5 +271,16 @@ const getStyles = (theme) => StyleSheet.create({
         color: theme.colors.guideText,
         opacity: 0.8,
         marginTop: 8
+    },
+    writeFloatBtn: {
+        marginTop: 20,
+        backgroundColor: theme.colors.main,
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 20,
+    },
+    writeFloatText: {
+        color: '#fff',
+        fontWeight: 'bold'
     }
 });

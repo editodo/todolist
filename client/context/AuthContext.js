@@ -18,11 +18,17 @@ export const AuthProvider = ({ children }) => {
         try {
             const savedUser = await AsyncStorage.getItem('user');
             if (savedUser) {
-                setUser(JSON.parse(savedUser));
-            } else {
-                // If no user, we'll wait for the guest trigger in Onboarding
-                // or we could auto-generate one here.
-                // User said: "Returning guest skips onboarding", so we MUST check guestId.
+                const parsedUser = JSON.parse(savedUser);
+
+                // Check Expiration
+                if (parsedUser.expires_at) {
+                    const expiryDate = new Date(parsedUser.expires_at);
+                    if (new Date() > expiryDate) {
+                        parsedUser.isExpired = true; // Mark as expired
+                    }
+                }
+
+                setUser(parsedUser);
             }
         } catch (e) {
             console.error('Failed to load user', e);
@@ -59,13 +65,64 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const convertAccount = async (conversionData) => {
+        try {
+            const response = await fetch(`${API_URL}/api/auth/convert`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...conversionData, user_id: user.id }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Conversion failed');
+            }
+
+            // Update local user state to REGULAR
+            const updatedUser = {
+                ...user,
+                ...conversionData,
+                user_type: 'REGULAR',
+                expires_at: null,
+                isExpired: false
+            };
+            await login(updatedUser);
+            return { success: true };
+        } catch (e) {
+            console.error(e);
+            return { success: false, error: e.message };
+        }
+    };
+
+    const updateProfile = async (profileData) => {
+        try {
+            const response = await fetch(`${API_URL}/api/auth/user/${user.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(profileData),
+            });
+
+            if (!response.ok) throw new Error('Profile update failed');
+
+            const updatedUser = { ...user, ...profileData };
+            await login(updatedUser);
+            return { success: true };
+        } catch (e) {
+            return { success: false, error: e.message };
+        }
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
             login,
             logout,
             startGuestMode,
+            convertAccount,
+            updateProfile,
             isLoggedIn: !!user,
+            isGuest: user?.user_type === 'GUEST',
+            isExpired: user?.isExpired,
             isLoading: loading
         }}>
             {children}

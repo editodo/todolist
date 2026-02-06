@@ -14,6 +14,10 @@ export default function DiaryModal({ visible, date, onClose, onSaved, initialDat
     const [emotion, setEmotion] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // New: Completed Todos
+    const [completedTodos, setCompletedTodos] = useState([]);
+
     const textInputRef = useRef(null);
     const scrollRef = useRef(null);
 
@@ -41,8 +45,28 @@ export default function DiaryModal({ visible, date, onClose, onSaved, initialDat
         if (visible) {
             setContent(initialData?.content || '');
             setEmotion(initialData?.emotion || '');
+
+            // Fetch Todos if userId and date exist
+            if (userId && date) {
+                fetchCompletedTodos();
+            } else {
+                setCompletedTodos([]);
+            }
         }
-    }, [visible, initialData]);
+    }, [visible, initialData, date, userId]);
+
+    const fetchCompletedTodos = async () => {
+        try {
+            const response = await fetch(`${apiUrl}/api/todos/${userId}?date=${date}`);
+            if (response.ok) {
+                const todos = await response.json();
+                const done = todos.filter(t => t.is_completed);
+                setCompletedTodos(done);
+            }
+        } catch (e) {
+            console.error('Failed to fetch todos:', e);
+        }
+    };
 
     const handleSave = async () => {
         if (!content.trim()) return Alert.alert('알림', '오늘의 이야기를 들려주세요!');
@@ -213,6 +237,20 @@ export default function DiaryModal({ visible, date, onClose, onSaved, initialDat
                             placeholderTextColor={colors.guideText}
                         />
 
+                        {/* Completed Todos Section - NEW */}
+                        {completedTodos.length > 0 && (
+                            <View style={styles.todosSection}>
+                                <Text style={styles.todosLabel}>오늘 완료한 일</Text>
+                                <ScrollView style={{ maxHeight: 80 }} nestedScrollEnabled>
+                                    {completedTodos.map((todo, idx) => (
+                                        <Text key={idx} style={styles.todoItem}>
+                                            • {todo.text}
+                                        </Text>
+                                    ))}
+                                </ScrollView>
+                            </View>
+                        )}
+
                         {/* Action Buttons */}
                         <View style={styles.actions}>
                             {initialData?.content ? (
@@ -342,14 +380,36 @@ const getStyles = (theme) => StyleSheet.create({
         backgroundColor: theme.colors.base,
         borderRadius: 16,
         padding: 16,
-        height: 150,
+        height: 120, // Reduced height slightly to fit todos
         textAlignVertical: 'top',
         fontSize: 15,
         color: theme.colors.text,
-        marginBottom: 20,
+        marginBottom: 15, // Reduced margin
         borderWidth: 1,
         borderColor: theme.colors.border
     },
+
+    todosSection: {
+        marginBottom: 20,
+        padding: 10,
+        backgroundColor: theme.colors.base,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+    },
+    todosLabel: {
+        fontSize: 12,
+        color: theme.colors.subText,
+        marginBottom: 5,
+        fontWeight: 'bold'
+    },
+    todoItem: {
+        fontSize: 13,
+        color: theme.colors.text,
+        marginBottom: 4,
+        paddingLeft: 4
+    },
+
     actions: {
         flexDirection: 'row',
         gap: 12

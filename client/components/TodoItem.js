@@ -32,6 +32,7 @@ export default function TodoItem({ id, text, isCompleted, onToggle, onMore }) {
                 <Image
                     source={isCompleted ? currentAssets.on : currentAssets.off}
                     style={isKitsch ? styles.kitschIcon : styles.skitchIcon}
+                    resizeMode="contain"
                     tintColor={colors.accent}
                 />
             );
@@ -71,7 +72,7 @@ export default function TodoItem({ id, text, isCompleted, onToggle, onMore }) {
                     </Text>
 
                     {/* Skitch/Kitsch Underline */}
-                    {(isSkitch || isKitsch) && isCompleted && (
+                    {(isSkitch || isKitsch) && !isCompleted && (
                         <Image
                             source={isSkitch ? assets.skitch.line : assets.kitsch.line}
                             style={styles.underlineImage}
@@ -97,7 +98,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 12,
         paddingHorizontal: 15,
-        borderBottomWidth: 1,
     },
     checkboxContainer: {
         flex: 1,
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
         bottom: -5,
         left: 0,
         width: '100%',
-        height: 4,
+        height: 3,
         zIndex: 0,
     },
     moreBtn: {

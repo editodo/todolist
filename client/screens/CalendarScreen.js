@@ -95,10 +95,10 @@ export default function CalendarScreen({ navigation }) {
                 // Convert array to object map: { '2024-02-01': { emotion: 'XXX', content: '...' } }
                 const map = {};
                 data.forEach(item => {
-                    const day = new Date(item.date).getDate();
+                    const day = parseInt(item.date.split('-')[2]); // Safe parsing for formatted string
                     map[day] = {
                         mood: item.emotion || '✅',
-                        content: item.content // Capture content
+                        content: item.content
                     };
                 });
                 setMonthData(map);

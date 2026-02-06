@@ -7,7 +7,7 @@ import { API_URL } from '../config';
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
 
     // Mode: 'light', 'dark', 'system'
     const [mode, setMode] = useState('light'); // Default to light for consistent preview
@@ -26,6 +26,13 @@ export const ThemeProvider = ({ children }) => {
     const fetchSettings = async (userId) => {
         try {
             const response = await fetch(`${API_URL}/api/preferences/${userId}`);
+
+            if (response.status === 404) {
+                console.warn('User preferences not found (404). Logging out invalid user.');
+                logout();
+                return;
+            }
+
             if (response.ok) {
                 const data = await response.json();
                 if (data.mode) setMode(data.mode);
