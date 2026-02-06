@@ -19,7 +19,7 @@ jobs:
       run: |
         cd client
         npm install
-        # npm run build:web # 웹 빌드 명령어가 있다면 주석 해제
+        npm run build:web
 
     - name: Copy files via SCP
       uses: appleboy/scp-action@master
