@@ -37,7 +37,7 @@ Write-Host "Database Setup Attempted (Check output for errors)" -ForegroundColor
 
 # 4. Install Dependencies & Start Backend
 Write-Host "`n[3/4] Starting Backend Server... (Password required)" -ForegroundColor Yellow
-$BackendCmd = "cd $RemotePath/server && npm install --production && pm2 start $RemotePath/ecosystem.config.js --env production && pm2 save"
+$BackendCmd = "cd $RemotePath/server && npm install --production && pm2 reload ecosystem.config.js --env production || pm2 start $RemotePath/ecosystem.config.js --env production && pm2 save"
 ssh ${User}@${ServerIP} $BackendCmd
 Write-Host "Backend Started!" -ForegroundColor Green
 
