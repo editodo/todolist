@@ -42,4 +42,5 @@ jobs:
           npm install --production
           pm2 reload ecosystem.config.js --env production || pm2 start ecosystem.config.js --env production
           pm2 save
+          sudo cp /var/www/editodo/nginx.conf /etc/nginx/conf.d/00-editodo.conf
           sudo systemctl restart nginx
