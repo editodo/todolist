@@ -7,22 +7,28 @@ const setupAdmin = async (app) => {
     const AdminJSExpress = await import('@adminjs/express');
     const { Database, Resource } = await import('@adminjs/sql');
 
+    // Import Knex dynamically or require it if likely CJS (Knex is usually CJS compatible, but let's dynamic import to be safe or just require if permitted. Standard require is safer for Knex usually)
+    const { default: knex } = await import('knex');
+
     // Register the adapter
     if (!AdminJS.UserComponents) {
         AdminJS.registerAdapter({ Database, Resource });
     }
 
-    // Create a connection for AdminJS
-    const connection = await mysql.createConnection({
-        host: process.env.DB_HOST || 'localhost',
-        user: process.env.DB_USER || 'root',
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME || 'editodo',
-        port: process.env.DB_PORT || 3306,
+    // Create a connection for AdminJS using Knex
+    const db = knex({
+        client: 'mysql2',
+        connection: {
+            host: process.env.DB_HOST || 'localhost',
+            user: process.env.DB_USER || 'root',
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME || 'editodo',
+            port: process.env.DB_PORT || 3306,
+        }
     });
 
     const adminOptions = {
-        databases: [connection],
+        databases: [db],
         rootPath: '/admin',
         branding: {
             companyName: 'Editodo Admin',
