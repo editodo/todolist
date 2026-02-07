@@ -1,13 +1,17 @@
-const AdminJS = require('adminjs');
-const AdminJSExpress = require('@adminjs/express');
-const { Database, Resource } = require('@adminjs/sql');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 
-// Register the adapter
-AdminJS.registerAdapter({ Database, Resource });
-
 const setupAdmin = async (app) => {
+    // Dynamic Import for ESM modules
+    const { default: AdminJS } = await import('adminjs');
+    const AdminJSExpress = await import('@adminjs/express');
+    const { Database, Resource } = await import('@adminjs/sql');
+
+    // Register the adapter
+    if (!AdminJS.UserComponents) {
+        AdminJS.registerAdapter({ Database, Resource });
+    }
+
     // Create a connection for AdminJS
     const connection = await mysql.createConnection({
         host: process.env.DB_HOST || 'localhost',
