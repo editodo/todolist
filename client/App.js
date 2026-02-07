@@ -31,6 +31,7 @@ import NoticeScreen from './screens/NoticeScreen';
 import InquiryScreen from './screens/InquiryScreen';
 import AdminLoginScreen from './screens/AdminLoginScreen';
 import AdminDashboardScreen from './screens/AdminDashboardScreen';
+import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
 
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
@@ -204,6 +205,7 @@ function AuthWrapper() {
       screens: {
         AdminLogin: 'admin',
         AdminDashboard: 'admin/dashboard',
+        PrivacyPolicy: 'privacy',
         Login: 'login',
         Join: 'join',
         MainTabs: {
@@ -240,6 +242,7 @@ function AuthWrapper() {
         {/* Admin Screens */}
         <Stack.Screen name="AdminLogin" component={AdminLoginScreen} />
         <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+        <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
