@@ -1,11 +1,11 @@
 const AdminJS = require('adminjs');
 const AdminJSExpress = require('@adminjs/express');
-const Adapter = require('@adminjs/mysql2');
+const { Database, Resource } = require('@adminjs/sql');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 
 // Register the adapter
-AdminJS.registerAdapter(Adapter);
+AdminJS.registerAdapter({ Database, Resource });
 
 const setupAdmin = async (app) => {
     // Create a connection for AdminJS
