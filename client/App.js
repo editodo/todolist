@@ -29,6 +29,8 @@ import Step03Screen from './screens/Step03Screen';
 import Step04Screen from './screens/Step04Screen';
 import NoticeScreen from './screens/NoticeScreen';
 import InquiryScreen from './screens/InquiryScreen';
+import AdminLoginScreen from './screens/AdminLoginScreen';
+import AdminDashboardScreen from './screens/AdminDashboardScreen';
 
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
@@ -196,8 +198,28 @@ function AuthWrapper() {
     );
   }
 
+  const linking = {
+    prefixes: ['https://editodo.com', 'editodo://'],
+    config: {
+      screens: {
+        AdminLogin: 'admin',
+        AdminDashboard: 'admin/dashboard',
+        Login: 'login',
+        Join: 'join',
+        MainTabs: {
+          screens: {
+            Todolist: 'todo',
+            Calendar: 'calendar',
+            Daily: 'daily',
+            MyPage: 'mypage',
+          }
+        }
+      },
+    },
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator
         initialRouteName={user ? "MainTabs" : "Onboarding"}
         screenOptions={{
@@ -215,6 +237,9 @@ function AuthWrapper() {
         <Stack.Screen name="MainTabs" component={DrawerNavigator} />
         <Stack.Screen name="Notice" component={NoticeScreen} />
         <Stack.Screen name="Inquiry" component={InquiryScreen} />
+        {/* Admin Screens */}
+        <Stack.Screen name="AdminLogin" component={AdminLoginScreen} />
+        <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
