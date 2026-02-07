@@ -2,7 +2,7 @@ module.exports = {
     apps: [
         {
             name: 'editodo-server',
-            script: './server/index.js',  // Path to backend entry point
+            script: './index.js',  // Path to backend entry point
             instances: 1,
             autorestart: true,
             watch: false,
