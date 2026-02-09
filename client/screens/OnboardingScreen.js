@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Alert, Animated } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Alert, Animated, TouchableOpacity } from 'react-native';
 import { colors, layout } from '../theme';
 import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
@@ -96,14 +96,16 @@ export default function OnboardingScreen({ navigation }) {
                         type="main"
                         onPress={handleStartGuest}
                     />
-                    <Button
-                        title="로그인/회원가입"
-                        type="sub"
+                    <TouchableOpacity
+                        style={styles.loginLink}
                         onPress={() => navigation.navigate('Login')}
-                    />
+                    >
+                        <Text style={styles.loginLinkText}>아이디가 있다면? <Text style={styles.loginLinkActive}>로그인하기</Text></Text>
+                    </TouchableOpacity>
+                    <Text style={styles.copyright}>Copyright © 2026 Codemodo. All rights reserved.</Text>
                 </View>
             </View>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
 
@@ -162,5 +164,25 @@ const styles = StyleSheet.create({
     },
     bottomBtnGroup: {
         width: '100%',
+        alignItems: 'center',
+    },
+    loginLink: {
+        marginTop: 15,
+        padding: 5,
+    },
+    loginLinkText: {
+        fontSize: 14,
+        color: colors.subText,
+    },
+    loginLinkActive: {
+        color: colors.main,
+        fontWeight: 'bold',
+        textDecorationLine: 'underline',
+    },
+    copyright: {
+        marginTop: 20,
+        textAlign: 'center',
+        color: '#ccc',
+        fontSize: 10,
     }
 });

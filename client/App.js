@@ -229,7 +229,7 @@ function AuthWrapper() {
           cardStyle: { backgroundColor: '#fff' }
         }}
       >
-        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ title: 'Editodo' }} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Join" component={JoinScreen} />
         <Stack.Screen name="Step01" component={Step01Screen} />

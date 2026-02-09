@@ -31,7 +31,7 @@ export default function Step02Screen({ navigation }) {
                     <Text style={styles.title}>내 마음에 드는{'\n'}테마를 골라볼까요?</Text>
                     <Text style={styles.subtitle}>
                         나중에 마이페이지에서 수정할 수 있어요.{'\n'}
-                        더 많은 테마는 E-T에서 열심히 준비 중이에요!
+                        더 많은 테마는 Editodo에서 열심히 준비 중이에요!
                     </Text>
 
                     <View style={styles.optionsRow}>

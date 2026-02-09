@@ -40,7 +40,7 @@ export default function MyPageScreen({ navigation }) {
     const handleLogout = () => {
         const logoutAction = async () => {
             await logout();
-            navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+            navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
         };
 
         if (Platform.OS === 'web') {
@@ -130,6 +130,7 @@ export default function MyPageScreen({ navigation }) {
                         <Text style={styles.infoLabel}>버전정보</Text>
                         <Text style={styles.infoValue}>1.0.0</Text>
                     </View>
+
                     <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
                         <Text style={styles.logoutText}>{isGuest ? '체험 종료 (로그아웃)' : '로그아웃'}</Text>
                     </TouchableOpacity>
