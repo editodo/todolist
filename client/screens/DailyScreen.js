@@ -6,7 +6,7 @@ import Header from '../components/Header';
 import DiaryModal from '../components/DiaryModal';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { API_URL } from '../config';
+import { API_URL, apiFetch } from '../config';
 import { Ionicons } from '@expo/vector-icons';
 
 // Emoji Map for Icons
@@ -56,7 +56,7 @@ export default function DailyScreen({ navigation }) {
             const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
             url += `&month=${monthStr}`;
 
-            const response = await fetch(url);
+            const response = await apiFetch(url);
             if (response.ok) {
                 let data = await response.json();
                 // Sort by date string descending

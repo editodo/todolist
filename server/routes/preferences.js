@@ -5,11 +5,9 @@ const db = require('../db');
 // ✅ 사용자 환경설정 저장/업데이트 (Save/Update User Preferences)
 // POST /api/preferences
 router.post('/', async (req, res) => {
-    const { user_id, mode, theme, color_theme } = req.body;
+    const { mode, theme, color_theme } = req.body;
+    const user_id = req.userId; // set by requireAuth
 
-    if (!user_id) {
-        return res.status(400).json({ error: 'user_id가 필요합니다.' });
-    }
 
     try {
         // ON DUPLICATE KEY UPDATE를 사용하여 존재하면 업데이트, 없으면 삽입
@@ -30,18 +28,18 @@ router.post('/', async (req, res) => {
 });
 
 // ✅ 사용자 환경설정 조회 (Get User Preferences)
-// GET /api/preferences/:user_id
+// GET /api/preferences/:user_id (param kept for older clients, the logged-in user is used)
 router.get('/:user_id', async (req, res) => {
     try {
         const [rows] = await db.query(
             'SELECT * FROM user_preferences WHERE user_id = ?',
-            [req.params.user_id]
+            [req.userId]
         );
 
         if (rows.length === 0) {
             // Return defaults instead of 404 to allow guest/new users to function
             return res.status(200).json({
-                user_id: req.params.user_id,
+                user_id: req.userId,
                 mode: 'light',
                 theme: 'basic',
                 color_theme: 'blue'

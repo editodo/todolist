@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 
 import { colors, themes } from '../theme';
 import { useAuth } from './AuthContext';
-import { API_URL } from '../config';
+import { API_URL, apiFetch } from '../config';
 
 const ThemeContext = createContext();
 
@@ -25,10 +25,10 @@ export const ThemeProvider = ({ children }) => {
 
     const fetchSettings = async (userId) => {
         try {
-            const response = await fetch(`${API_URL}/api/preferences/${userId}`);
+            const response = await apiFetch(`${API_URL}/api/preferences/${userId}`);
 
-            if (response.status === 404) {
-                console.warn('User preferences not found (404). Logging out invalid user.');
+            if (response.status === 404 || response.status === 401) {
+                console.warn(`Preferences request rejected (${response.status}). Logging out invalid session.`);
                 logout();
                 return;
             }

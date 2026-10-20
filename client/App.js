@@ -1,11 +1,13 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Platform, AppState } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { wrapApp } from './sentry';
+import { syncReminders, onReminderTap } from './notifications';
 
 // Contexts
 import { ThemeProvider, useTheme } from './context/ThemeContext';
@@ -32,6 +34,12 @@ import InquiryScreen from './screens/InquiryScreen';
 import AdminLoginScreen from './screens/AdminLoginScreen';
 import AdminDashboardScreen from './screens/AdminDashboardScreen';
 import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
+import TermsScreen from './screens/TermsScreen';
+import PasswordResetScreen from './screens/PasswordResetScreen';
+import NotificationSettingsScreen from './screens/NotificationSettingsScreen';
+
+// Admin dashboard is a web-only tool; it is not registered in the store apps
+const IS_WEB = Platform.OS === 'web';
 
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
@@ -176,7 +184,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default function App() {
+function App() {
   return (
     <AuthProvider>
       <DateProvider>
@@ -188,13 +196,33 @@ export default function App() {
   );
 }
 
+const navigationRef = createNavigationContainerRef();
+
 function AuthWrapper() {
   const { user, isLoading } = useAuth();
+  const pendingScreen = useRef(null); // reminder tapped before navigation was ready
+
+  // Keep reminders current: after login and whenever the user leaves the app (to-dos/diary may have changed)
+  useEffect(() => {
+    if (!user?.token) return;
+    syncReminders(user);
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'background') syncReminders(user);
+    });
+    return () => sub.remove();
+  }, [user?.token]);
+
+  const openTab = (screen) => navigationRef.navigate('MainTabs', { screen: 'Home', params: { screen } });
+
+  useEffect(() => onReminderTap((screen) => {
+    if (navigationRef.isReady()) openTab(screen);
+    else pendingScreen.current = screen;
+  }), []);
 
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Loading Editodo...</Text>
+        <ActivityIndicator size="large" color={colors.main} />
       </View>
     );
   }
@@ -203,9 +231,10 @@ function AuthWrapper() {
     prefixes: ['https://editodo.com', 'editodo://'],
     config: {
       screens: {
-        AdminLogin: 'admin',
-        AdminDashboard: 'admin/dashboard',
+        ...(IS_WEB ? { AdminLogin: 'admin', AdminDashboard: 'admin/dashboard' } : {}),
         PrivacyPolicy: 'privacy',
+        Terms: 'terms',
+        PasswordReset: 'reset-password',
         Login: 'login',
         Join: 'join',
         MainTabs: {
@@ -221,7 +250,14 @@ function AuthWrapper() {
   };
 
   return (
-    <NavigationContainer linking={linking}>
+    <NavigationContainer
+      ref={navigationRef}
+      linking={linking}
+      onReady={() => {
+        if (pendingScreen.current && user) openTab(pendingScreen.current);
+        pendingScreen.current = null;
+      }}
+    >
       <Stack.Navigator
         initialRouteName={user ? "MainTabs" : "Onboarding"}
         screenOptions={{
@@ -239,12 +275,17 @@ function AuthWrapper() {
         <Stack.Screen name="MainTabs" component={DrawerNavigator} />
         <Stack.Screen name="Notice" component={NoticeScreen} />
         <Stack.Screen name="Inquiry" component={InquiryScreen} />
-        {/* Admin Screens */}
-        <Stack.Screen name="AdminLogin" component={AdminLoginScreen} />
-        <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+        {/* Admin Screens (web only) */}
+        {IS_WEB && <Stack.Screen name="AdminLogin" component={AdminLoginScreen} />}
+        {IS_WEB && <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />}
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+        <Stack.Screen name="Terms" component={TermsScreen} />
+        <Stack.Screen name="PasswordReset" component={PasswordResetScreen} />
+        <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
   );
 }
+
+export default wrapApp(App);

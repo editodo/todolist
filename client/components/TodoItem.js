@@ -1,10 +1,29 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 
-export default function TodoItem({ id, text, isCompleted, onToggle, onMore }) {
+// Standard to-do row: checkbox toggles done, tapping the text edits it in place, ✕ deletes
+// (the screen shows an undo toast instead of a confirm dialog). No menus, modals or dimmed backdrops.
+export default function TodoItem({ id, text, isCompleted, onToggle, onEdit, onDelete }) {
     const { theme } = useTheme();
     const colors = theme.colors;
+    const [isEditing, setIsEditing] = useState(false);
+    const [draft, setDraft] = useState(text);
+    const editing = useRef(false); // Enter and blur both fire saveEdit; save once
+
+    const startEdit = () => {
+        setDraft(text);
+        editing.current = true;
+        setIsEditing(true);
+    };
+
+    const saveEdit = () => {
+        if (!editing.current) return;
+        editing.current = false;
+        setIsEditing(false);
+        const next = draft.trim();
+        if (next && next !== text) onEdit(id, next); // emptied → keep the original text
+    };
 
     // Determine Theme Styles
     const isRound = theme.themeName === 'round';
@@ -56,13 +75,30 @@ export default function TodoItem({ id, text, isCompleted, onToggle, onMore }) {
     return (
         <View style={[styles.container, { borderBottomColor: colors.border, backgroundColor: colors.base }]}>
             <TouchableOpacity
-                style={styles.checkboxContainer}
-                onPress={() => onToggle(id ? id : null)}
+                style={styles.checkboxHit}
+                onPress={() => onToggle(id)}
                 activeOpacity={0.8}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: isCompleted }}
+                accessibilityLabel={text}
             >
                 {renderCheckbox()}
+            </TouchableOpacity>
 
-                <View style={styles.textWrapper}>
+            {isEditing ? (
+                <TextInput
+                    style={[styles.editInput, { color: colors.text, borderColor: colors.accent }]}
+                    value={draft}
+                    onChangeText={setDraft}
+                    onSubmitEditing={saveEdit}
+                    onBlur={saveEdit}
+                    autoFocus
+                    returnKeyType="done"
+                    maxLength={500}
+                    accessibilityLabel="할 일 수정"
+                />
+            ) : (
+                <TouchableOpacity style={styles.textWrapper} onPress={startEdit} activeOpacity={0.6} accessibilityHint="눌러서 수정">
                     <Text style={[
                         styles.text,
                         { color: colors.text },
@@ -80,14 +116,14 @@ export default function TodoItem({ id, text, isCompleted, onToggle, onMore }) {
                             tintColor={colors.accent}
                         />
                     )}
-                </View>
-            </TouchableOpacity>
+                </TouchableOpacity>
+            )}
 
-            <TouchableOpacity style={styles.moreBtn} onPress={() => onMore(id)}>
-                <View style={[styles.moreDot, { backgroundColor: colors.guideText }]} />
-                <View style={[styles.moreDot, { backgroundColor: colors.guideText }]} />
-                <View style={[styles.moreDot, { backgroundColor: colors.guideText }]} />
-            </TouchableOpacity>
+            {!isEditing && (
+                <TouchableOpacity style={styles.deleteBtn} onPress={() => onDelete(id)} accessibilityRole="button" accessibilityLabel={`${text} 삭제`}>
+                    <Text style={[styles.deleteText, { color: colors.guideText }]}>✕</Text>
+                </TouchableOpacity>
+            )}
         </View>
     );
 }
@@ -99,10 +135,9 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 15,
     },
-    checkboxContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
+    checkboxHit: {
+        paddingVertical: 4,
+        paddingRight: 2,
     },
     checkbox: {
         width: 20,
@@ -143,16 +178,13 @@ const styles = StyleSheet.create({
         height: 3,
         zIndex: 0,
     },
-    moreBtn: {
-        width: 30,
-        height: 30,
+    deleteBtn: {
+        width: 32,
+        height: 32,
         justifyContent: 'center',
         alignItems: 'center',
-        flexDirection: 'row',
-        padding: 5,
-        gap: 2
+        marginLeft: 6,
     },
-    moreDot: {
-        width: 3, height: 3, borderRadius: 1.5,
-    }
+    deleteText: { fontSize: 14 },
+    editInput: { flex: 1, fontSize: 15, borderBottomWidth: 1, paddingVertical: 4, marginRight: 8 }
 });

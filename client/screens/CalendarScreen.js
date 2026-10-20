@@ -4,6 +4,7 @@ import { colors, layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import TodoItem from '../components/TodoItem'; // Reusing TodoItem
+import UndoToast, { useUndoDelete } from '../components/UndoToast';
 import DiaryModal from '../components/DiaryModal';
 import Header from '../components/Header';
 
@@ -32,7 +33,7 @@ const EMOJI_MAP = {
 // mood: '😀', '😐', '😭', etc. (If mood exists, it replaces the circle)
 import { useAuth } from '../context/AuthContext';
 import { useDate } from '../context/DateContext';
-import { API_URL } from '../config';
+import { API_URL, apiFetch } from '../config';
 
 function generateCalendar(year, month) {
     const firstDay = new Date(year, month, 1);
@@ -69,6 +70,16 @@ export default function CalendarScreen({ navigation }) {
     const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
     const [monthData, setMonthData] = useState({});
     const [selectedTodos, setSelectedTodos] = useState([]);
+    // Same delete-with-undo as the to-do tab
+    const { pending: pendingDelete, remove: removeTodo, undo: undoDelete, flush: flushDelete } = useUndoDelete(setSelectedTodos, async (item) => {
+        try {
+            const response = await apiFetch(`${API_URL}/api/todos/${item.id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('delete failed');
+        } catch (e) {
+            console.error('Delete failed', e);
+            fetchDateTodos();
+        }
+    });
     const [isDiaryModalVisible, setIsDiaryModalVisible] = useState(false);
     const [diaryInitialData, setDiaryInitialData] = useState(null);
 
@@ -83,13 +94,13 @@ export default function CalendarScreen({ navigation }) {
 
     // Fetch Selected Date Todos
     useEffect(() => {
-        if (user && selectedDate) fetchDateTodos();
+        if (user && selectedDate) flushDelete().then(fetchDateTodos);
     }, [user, selectedDate]);
 
     const fetchMonthData = async () => {
         try {
             const formattedMonth = `${year}-${String(month + 1).padStart(2, '0')}`;
-            const response = await fetch(`${API_URL}/api/diaries?user_id=${user.id}&month=${formattedMonth}`);
+            const response = await apiFetch(`${API_URL}/api/diaries?user_id=${user.id}&month=${formattedMonth}`);
             if (response.ok) {
                 const data = await response.json();
                 // Convert array to object map: { '2024-02-01': { emotion: 'XXX', content: '...' } }
@@ -110,7 +121,7 @@ export default function CalendarScreen({ navigation }) {
 
     const fetchDateTodos = async () => {
         try {
-            const response = await fetch(`${API_URL}/api/todos/${user.id}?date=${selectedDate}`);
+            const response = await apiFetch(`${API_URL}/api/todos/${user.id}?date=${selectedDate}`);
             if (response.ok) {
                 const data = await response.json();
                 setSelectedTodos(data.map(item => ({
@@ -149,7 +160,7 @@ export default function CalendarScreen({ navigation }) {
 
         // API Call to persist completion status
         try {
-            await fetch(`${API_URL}/api/todos/${id}`, {
+            await apiFetch(`${API_URL}/api/todos/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ is_completed: newStatus })
@@ -163,9 +174,23 @@ export default function CalendarScreen({ navigation }) {
         }
     };
 
-    const handleMore = () => {
-        Alert.alert('알림', '수정 및 삭제는 투두리스트 메뉴에서만 가능합니다.');
+    const handleEdit = async (id, text) => {
+        const before = selectedTodos.find(t => t.id === id)?.text;
+        setSelectedTodos(prev => prev.map(t => (t.id === id ? { ...t, text } : t)));
+        try {
+            const response = await apiFetch(`${API_URL}/api/todos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            if (!response.ok) throw new Error('edit failed');
+        } catch (e) {
+            console.error('Edit failed', e);
+            setSelectedTodos(prev => prev.map(t => (t.id === id ? { ...t, text: before } : t)));
+        }
     };
+
+    const handleDelete = (id) => removeTodo(selectedTodos, id);
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -261,7 +286,8 @@ export default function CalendarScreen({ navigation }) {
                                     text={todo.text}
                                     isCompleted={todo.isCompleted}
                                     onToggle={handleToggle}
-                                    onMore={handleMore} // Restricted action
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
                                     theme={theme}
                                 />
                             ))
@@ -303,6 +329,7 @@ export default function CalendarScreen({ navigation }) {
                 />
 
             </View>
+            <UndoToast visible={!!pendingDelete} message="할 일을 삭제했어요" onUndo={undoDelete} />
         </SafeAreaView>
     );
 }

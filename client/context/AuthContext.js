@@ -1,10 +1,18 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { Alert } from 'react-native';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_URL } from '../config';
+import * as SecureStore from 'expo-secure-store';
+import { API_URL, apiFetch, setAuthToken } from '../config';
+import { cancelAll as cancelReminders } from '../notifications';
 
 const AuthContext = createContext();
+
+// The saved user carries the login token: keep it in Keychain/Keystore on phones. SecureStore has no web support.
+const storage = Platform.OS === 'web'
+    ? { get: (k) => AsyncStorage.getItem(k), set: (k, v) => AsyncStorage.setItem(k, v), remove: (k) => AsyncStorage.removeItem(k) }
+    : { get: (k) => SecureStore.getItemAsync(k), set: (k, v) => SecureStore.setItemAsync(k, v), remove: (k) => SecureStore.deleteItemAsync(k) };
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null); // { id, username, user_type, ... }
@@ -16,9 +24,17 @@ export const AuthProvider = ({ children }) => {
 
     const loadUser = async () => {
         try {
-            const savedUser = await AsyncStorage.getItem('user');
+            if (Platform.OS !== 'web') await AsyncStorage.removeItem('user'); // drop pre-SecureStore session copy
+            const savedUser = await storage.get('user');
             if (savedUser) {
                 const parsedUser = JSON.parse(savedUser);
+
+                // Sessions saved before the server required tokens can't call the API; ask for a fresh login
+                if (!parsedUser.token) {
+                    await storage.remove('user');
+                    return;
+                }
+                setAuthToken(parsedUser.token);
 
                 // Check Expiration
                 if (parsedUser.expires_at) {
@@ -29,6 +45,7 @@ export const AuthProvider = ({ children }) => {
                 }
 
                 setUser(parsedUser);
+                refreshSession(parsedUser); // not awaited: the app opens right away, even offline
             }
         } catch (e) {
             console.error('Failed to load user', e);
@@ -37,19 +54,56 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // 로그인 유지: every app start trades the saved token for a fresh 90-day one and the latest profile,
+    // so people who keep using the app are never logged out. Only a rejected token (expired, account deleted) logs out.
+    const refreshSession = async (savedUser) => {
+        try {
+            const response = await apiFetch(`${API_URL}/api/auth/refresh`, { method: 'POST' });
+            if (response.status === 401) return logout();
+            if (!response.ok) return;
+            const data = await response.json();
+            const fresh = { ...savedUser, ...data.user, token: data.token };
+            fresh.isExpired = Boolean(fresh.expires_at && new Date() > new Date(fresh.expires_at));
+            await login(fresh);
+        } catch (e) {
+            // offline: keep the saved session
+        }
+    };
+
+    // Apple/Google sign-in. A logged-in guest's token rides along so the server can keep their data.
+    const socialLogin = async (provider, payload) => {
+        try {
+            const response = await apiFetch(`${API_URL}/api/auth/social/${provider}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.error || '로그인에 실패했습니다.');
+            await login({ ...data.user, token: data.token });
+            return { success: true, isNew: data.isNew };
+        } catch (e) {
+            return { success: false, error: e.message };
+        }
+    };
+
+    // userData must carry the server-issued token ({ ...data.user, token: data.token })
     const login = async (userData) => {
+        setAuthToken(userData.token);
         setUser(userData);
-        await AsyncStorage.setItem('user', JSON.stringify(userData));
+        await storage.set('user', JSON.stringify(userData));
     };
 
     const logout = async () => {
+        await cancelReminders();
+        setAuthToken(null);
         setUser(null);
-        await AsyncStorage.removeItem('user');
+        await storage.remove('user');
     };
 
     const startGuestMode = async () => {
         try {
-            const response = await fetch(`${API_URL}/api/auth/guest-login`, {
+            const response = await apiFetch(`${API_URL}/api/auth/guest-login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -57,7 +111,7 @@ export const AuthProvider = ({ children }) => {
             if (!response.ok) throw new Error('Guest login failed');
 
             const data = await response.json();
-            await login(data.user);
+            await login({ ...data.user, token: data.token });
             return { success: true, isNew: data.isNew };
         } catch (e) {
             console.error(e);
@@ -67,10 +121,10 @@ export const AuthProvider = ({ children }) => {
 
     const convertAccount = async (conversionData) => {
         try {
-            const response = await fetch(`${API_URL}/api/auth/convert`, {
+            const response = await apiFetch(`${API_URL}/api/auth/convert`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...conversionData, user_id: user.id }),
+                body: JSON.stringify(conversionData),
             });
 
             if (!response.ok) {
@@ -96,7 +150,7 @@ export const AuthProvider = ({ children }) => {
 
     const updateProfile = async (profileData) => {
         try {
-            const response = await fetch(`${API_URL}/api/auth/user/${user.id}`, {
+            const response = await apiFetch(`${API_URL}/api/auth/user/${user.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(profileData),
@@ -112,6 +166,21 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Permanently deletes the account and all its todos, diaries and settings on the server
+    const deleteAccount = async () => {
+        try {
+            const response = await apiFetch(`${API_URL}/api/auth/me`, { method: 'DELETE' });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || '회원 탈퇴에 실패했습니다.');
+            }
+            await logout();
+            return { success: true };
+        } catch (e) {
+            return { success: false, error: e.message };
+        }
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
@@ -120,6 +189,8 @@ export const AuthProvider = ({ children }) => {
             startGuestMode,
             convertAccount,
             updateProfile,
+            deleteAccount,
+            socialLogin,
             isLoggedIn: !!user,
             isGuest: user?.user_type === 'GUEST',
             isExpired: user?.isExpired,

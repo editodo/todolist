@@ -5,14 +5,14 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
+import SocialLoginButtons from '../components/SocialLoginButtons';
 
 export default function LoginScreen({ navigation }) {
-    const { login, user } = useAuth();
+    const { login } = useAuth();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
     const handleLogin = async () => {
-        // TODO: Connect to API
         try {
             const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
@@ -24,24 +24,7 @@ export default function LoginScreen({ navigation }) {
             if (response.ok) {
                 const loggedInUser = data.user;
 
-                // If the user was a guest, link their data
-                if (user?.isGuest) {
-                    try {
-                        await fetch(`${API_URL}/api/auth/link`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                guest_id: user.id,
-                                user_id: loggedInUser.id
-                            })
-                        });
-                        console.log('Guest data linked successfully');
-                    } catch (linkError) {
-                        console.error('Failed to link guest data:', linkError);
-                    }
-                }
-
-                login(loggedInUser); // Save user to context
+                await login({ ...loggedInUser, token: data.token }); // Save user + token to context
                 Alert.alert('로그인 성공', `환영합니다 ${loggedInUser.username}님!`);
                 navigation.navigate('MainTabs'); // Navigate to main app
             } else {
@@ -79,13 +62,9 @@ export default function LoginScreen({ navigation }) {
                         secureTextEntry
                     />
 
-                    {/* Utils: Save ID & Find ID/PW */}
-                    <View style={styles.loginUtil}>
-                        <TouchableOpacity style={styles.checkboxContainer}>
-                            <View style={styles.checkbox} />
-                            <Text style={styles.utilText}>아이디 저장</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity>
+                    {/* Find ID/PW by emailed code (login already persists on the device, so no 'save ID') */}
+                    <View style={[styles.loginUtil, { justifyContent: 'flex-end' }]}>
+                        <TouchableOpacity onPress={() => navigation.navigate('PasswordReset')}>
                             <Text style={styles.utilText}>아이디/비밀번호 찾기</Text>
                         </TouchableOpacity>
                     </View>
@@ -102,6 +81,10 @@ export default function LoginScreen({ navigation }) {
                         title="회원가입"
                         type="sub"
                         onPress={() => navigation.navigate('Join')}
+                    />
+                    {/* New SNS accounts go through theme setup (Step01) like new guests */}
+                    <SocialLoginButtons
+                        onDone={({ isNew }) => navigation.reset({ index: 0, routes: [{ name: isNew ? 'Step01' : 'MainTabs' }] })}
                     />
                 </View>
             </View>

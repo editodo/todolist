@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, TextInput, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, TextInput, Alert, ScrollView, Linking } from 'react-native';
 import { colors, layout } from '../theme';
 import Header from '../components/Header';
 import Button from '../components/Button';
-import Input from '../components/Input';
+import { SUPPORT_EMAIL } from '../config';
 
 export default function InquiryScreen({ navigation }) {
-    const [email, setEmail] = useState('mine5959@email.com');
     const [content, setContent] = useState('');
 
-    const handleSubmit = () => {
-        Alert.alert('접수 완료', '소중한 문의가 접수되었습니다. 빠르게 답변드리겠습니다.');
-        navigation.goBack();
+    // There is no inquiry backend: hand the message to the user's mail app so nothing is silently lost
+    const handleSubmit = async () => {
+        const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('[EdiTodo 문의]')}&body=${encodeURIComponent(content)}`;
+        try {
+            await Linking.openURL(url);
+        } catch (e) {
+            Alert.alert('메일 앱을 열 수 없습니다', `${SUPPORT_EMAIL} 로 직접 메일을 보내주세요.`);
+        }
     };
 
     return (
@@ -21,18 +25,9 @@ export default function InquiryScreen({ navigation }) {
                 leftButton={<TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.back}>{'<'}</Text></TouchableOpacity>}
             />
             <ScrollView style={styles.content}>
-                <Input
-                    label="답변 받으실 이메일"
-                    value={email}
-                    onChangeText={setEmail}
-                />
-
-                <View style={{ marginBottom: 16 }}>
-                    <Text style={styles.label}>문의유형</Text>
-                    <View style={styles.pickerBox}>
-                        <Text>이용 문의 (Select Box Placeholder)</Text>
-                    </View>
-                </View>
+                <Text style={styles.label}>문의 메일 주소</Text>
+                <Text selectable style={styles.email}>{SUPPORT_EMAIL}</Text>
+                <Text style={styles.guide}>아래 내용을 적고 버튼을 누르면 메일 앱이 열립니다. 답변은 보내신 메일 주소로 드립니다.</Text>
 
                 <View style={{ flex: 1 }}>
                     <Text style={styles.label}>문의 내용</Text>
@@ -47,7 +42,7 @@ export default function InquiryScreen({ navigation }) {
                 </View>
 
                 <View style={{ marginTop: 30 }}>
-                    <Button title="저장" onPress={handleSubmit} />
+                    <Button title="메일로 문의하기" onPress={handleSubmit} />
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -65,10 +60,8 @@ const styles = StyleSheet.create({
     back: { fontSize: 24, padding: 5, color: colors.text },
     content: { flex: 1, padding: 18 },
     label: { fontSize: 12, color: colors.subText, marginBottom: 5 },
-    pickerBox: {
-        height: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 5,
-        justifyContent: 'center', paddingHorizontal: 16, backgroundColor: colors.white
-    },
+    email: { fontSize: 16, color: colors.text, fontWeight: 'bold', marginBottom: 8 },
+    guide: { fontSize: 13, color: colors.subText, lineHeight: 19, marginBottom: 20 },
     textArea: {
         height: 200, borderWidth: 1, borderColor: colors.border, borderRadius: 5,
         padding: 16, backgroundColor: colors.white, fontSize: 14

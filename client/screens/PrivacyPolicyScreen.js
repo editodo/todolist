@@ -1,84 +1,110 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { colors } from '../theme';
+import LegalDoc from '../components/LegalDoc';
+import { COMPANY, COMPANY_WEB, SUPPORT_EMAIL } from '../config';
 
-export default function PrivacyPolicyScreen() {
-    return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            <Text style={styles.title}>Privacy Policy</Text>
-            <Text style={styles.date}>Last updated: February 07, 2026</Text>
+// Follows the 개인정보보호위원회 처리방침 작성지침 section order.
+// Retention days must match GUEST_RETENTION_DAYS on the server; HOSTING_PROVIDER must name the real server host.
+const HOSTING_PROVIDER = '[서버 호스팅 업체명]';
+const GUEST_RETENTION_DAYS = 30;
 
-            <Text style={styles.sectionTitle}>1. Introduction</Text>
-            <Text style={styles.paragraph}>
-                Welcome to EditoTodo ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy.
-                This Privacy Policy explains how we collect, use, and share your information when you use our mobile application and website.
-            </Text>
+const sections = [
+    ['', `${COMPANY}(이하 "회사")는 「개인정보 보호법」 제30조에 따라 EdiTodo 서비스(이하 "서비스") 이용자의 개인정보를 보호하고 관련 고충을 신속하게 처리하기 위해 다음과 같이 개인정보 처리방침을 수립·공개합니다.`],
+    ['제1조 (개인정보의 처리 목적)', `회사는 다음 목적을 위해 개인정보를 처리하며, 목적이 변경되는 경우 「개인정보 보호법」 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행합니다.
 
-            <Text style={styles.sectionTitle}>2. Information We Collect</Text>
-            <Text style={styles.paragraph}>
-                We collect information that you voluntarily provide to us when you register on the application, such as:
-                {'\n'}- User Account Data: Email address, encrypted password.
-                {'\n'}- User Content: Diary entries, todo items, and other text/media you input.
-            </Text>
+1. 회원 가입 및 관리: 회원 식별, 가입 의사 확인, 로그인 유지, 부정 이용 방지, 탈퇴 처리
+2. 서비스 제공: 할 일, 캘린더, 일기 및 감정 기록, 테마 설정 기능 제공과 기기 간 동기화
+3. 고객 문의 처리: 문의 확인, 답변 및 처리 결과 통보, 공지사항 전달
+4. 서비스 안정성 확보: 앱 오류의 원인 분석과 수정`],
+    ['제2조 (처리하는 개인정보 항목)', `1. 정회원 가입
+- 필수: 아이디, 비밀번호, 이메일
+- 선택: 닉네임, 프로필 이미지
 
-            <Text style={styles.sectionTitle}>3. How We Use Your Information</Text>
-            <Text style={styles.paragraph}>
-                We use your personal information to:
-                {'\n'}- Provide and manage your account.
-                {'\n'}- Sync your data across devices.
-                {'\n'}- Respond to user inquiries/support requests.
-                {'\n'}- Send administrative information (updates, security alerts).
-            </Text>
+2. Apple·Google 계정으로 가입
+- Apple: 서비스별 고유 식별자, 이메일(이용자가 '이메일 가리기'를 선택하면 Apple이 발급한 대리 이메일), 이름(최초 1회, 선택)
+- Google: 서비스별 고유 식별자, 이메일, 이름
+- 회사는 Apple·Google 계정의 비밀번호를 받지 않습니다.
 
-            <Text style={styles.sectionTitle}>4. Data Security</Text>
-            <Text style={styles.paragraph}>
-                We implement appropriate technical and organizational security measures designed to protect the security of any personal information we process.
-                However, please also remember that no method of transmission over the internet, or method of electronic storage, is 100% secure.
-            </Text>
+3. 체험(게스트) 이용
+- 자동 생성: 임시 아이디, 임시 닉네임
 
-            <Text style={styles.sectionTitle}>5. Contact Us</Text>
-            <Text style={styles.paragraph}>
-                If you have questions or comments about this policy, you may email us at:
-                {'\n'}admin@editodo.com
-            </Text>
+4. 서비스 이용 과정에서 이용자가 작성하는 정보
+- 할 일 내용과 완료 여부, 일기 내용, 감정 기록, 테마·색상 설정
 
-            <View style={{ height: 50 }} />
-        </ScrollView>
-    );
+5. 서비스 이용 과정에서 자동으로 생성·수집되는 정보
+- 접속 IP 주소, 접속 일시, 서비스 이용 기록
+- 앱 오류 발생 시: 오류 내용, 기기 모델, 운영체제 버전, 앱 버전
+
+6. 고객 문의 시
+- 이메일 주소, 문의 내용 (이용자가 보낸 메일에 포함된 정보)`],
+    ['제3조 (개인정보의 처리 및 보유 기간)', `회사는 법령에 따른 보유 기간 또는 이용자에게 동의받은 보유 기간 안에서 개인정보를 처리·보유합니다.
+
+1. 정회원 정보: 회원 탈퇴 시까지 (탈퇴 즉시 파기)
+2. 체험(게스트) 정보: 체험 기간(7일) 종료 후 정회원으로 전환하지 않은 경우 ${GUEST_RETENTION_DAYS}일 경과 시 파기
+3. 고객 문의 기록: 처리 완료 후 1년
+4. 비밀번호 재설정 인증 코드: 발급 후 15분 (사용하면 즉시 삭제)
+5. 앱 오류 기록: 수집 후 30일
+4. 법령에 따른 보관
+- 서비스 접속 기록: 3개월 (「통신비밀보호법」)`],
+    ['제4조 (개인정보의 파기 절차 및 방법)', `1. 회사는 보유 기간이 지나거나 처리 목적이 달성된 개인정보를 지체 없이 파기합니다.
+2. 법령에 따라 보존해야 하는 경우에는 해당 정보를 별도로 분리하여 보관하며, 보존 기간이 끝나면 파기합니다.
+3. 전자적 파일 형태의 정보는 복구·재생할 수 없는 기술적 방법으로 삭제합니다.`],
+    ['제5조 (개인정보의 제3자 제공)', `회사는 이용자의 개인정보를 제1조의 목적 범위에서만 처리하며, 이용자의 동의나 법률의 특별한 규정 등 「개인정보 보호법」 제17조 및 제18조에 해당하는 경우를 제외하고는 제3자에게 제공하지 않습니다.`],
+    ['제6조 (개인정보 처리의 위탁)', `회사는 원활한 서비스 제공을 위해 다음과 같이 개인정보 처리 업무를 위탁하고 있습니다.
+
+1. ${HOSTING_PROVIDER}: 서버 및 데이터베이스 운영·관리
+2. Resend, Inc.: 아이디 찾기·비밀번호 재설정 인증 메일 발송
+3. Functional Software, Inc.(Sentry): 앱 오류 기록의 저장과 분석
+
+회사는 위탁 계약 시 개인정보가 안전하게 관리되도록 필요한 사항을 규정하고 수탁자를 관리·감독합니다. 위탁 업무의 내용이나 수탁자가 변경되면 이 처리방침을 통해 알리겠습니다.`],
+    ['제7조 (개인정보의 국외 이전)', `회사는 메일 발송과 오류 분석을 위해 다음과 같이 개인정보를 국외로 이전합니다.
+
+1. Resend, Inc.
+- 이전 국가: 미국
+- 연락처: resend.com
+- 이전 항목: 이메일 주소, 아이디, 인증 코드
+- 이전 시기와 방법: 이용자가 아이디 찾기·비밀번호 재설정을 요청할 때 네트워크를 통해 전송
+- 이용 목적: 인증 메일 발송
+- 보유 기간: 발송 완료 후 수탁자의 정책에 따라 삭제
+
+2. Functional Software, Inc.(Sentry)
+- 이전 국가: 미국
+- 연락처: sentry.io
+- 이전 항목: 오류 내용, 기기 모델, 운영체제 버전, 앱 버전 (IP 주소와 이름·이메일 등 이용자를 식별하는 정보는 전송하지 않습니다)
+- 이전 시기와 방법: 앱에서 오류가 발생할 때 네트워크를 통해 전송
+- 이용 목적: 앱 오류의 원인 분석과 수정
+- 보유 기간: 수집 후 30일
+
+이용자는 메일 발송을 위한 국외 이전을 거부할 수 있습니다. 이 경우 아이디 찾기·비밀번호 재설정 메일 대신 ${SUPPORT_EMAIL} 로 문의해 본인 확인 후 처리할 수 있으며, 할 일, 일기 등 서비스의 기본 기능은 그대로 이용할 수 있습니다. 오류 기록에는 이용자를 식별할 수 있는 정보가 포함되지 않습니다.`],
+    ['제8조 (이용자와 법정대리인의 권리·의무 및 행사 방법)', `1. 이용자는 언제든지 회사에 개인정보 열람, 정정, 삭제, 처리 정지를 요구할 수 있습니다.
+2. 권리 행사는 앱의 마이페이지에서 직접 하거나, ${SUPPORT_EMAIL} 로 요청할 수 있으며 회사는 지체 없이 조치합니다.
+3. 권리 행사는 법정대리인이나 위임을 받은 사람을 통해서도 할 수 있습니다.
+4. 서비스는 만 14세 미만 아동의 회원가입을 받지 않습니다.`],
+    ['제9조 (계정 삭제 방법)', `1. 앱 또는 웹(editodo.com)에서: 마이페이지 > 회원 탈퇴
+2. 앱을 사용할 수 없는 경우: ${SUPPORT_EMAIL} 로 가입한 아이디를 적어 삭제를 요청하면 본인 확인 후 7일 이내에 삭제합니다.
+
+탈퇴하면 계정과 모든 할 일, 일기, 설정이 함께 삭제되며 복구할 수 없습니다. Apple 계정으로 가입한 경우 Apple에 연결 해제를 함께 요청합니다.`],
+    ['제10조 (개인정보의 안전성 확보 조치)', `1. 비밀번호 일방향 암호화: 비밀번호는 복호화할 수 없는 방식(bcrypt)으로 암호화하여 저장합니다.
+2. 전송 구간 암호화: 모든 통신은 HTTPS로 암호화합니다.
+3. 접근 통제: 이용자 본인만 자신의 기록에 접근할 수 있도록 인증을 적용하고, 개인정보처리시스템 접근 권한을 최소한의 인원으로 제한합니다.
+4. 접속 기록 보관: 개인정보처리시스템 접속 기록을 보관하고 점검합니다.`],
+    ['제11조 (개인정보 자동 수집 장치의 설치·운영 및 거부)', `1. 모바일 앱은 쿠키를 사용하지 않으며, 로그인 유지를 위한 인증 정보를 기기 내부 보안 저장소에 저장합니다.
+2. 웹(editodo.com)은 로그인 유지를 위해 브라우저 저장소를 사용합니다. 이용자는 브라우저 설정에서 이를 삭제하거나 차단할 수 있으나, 이 경우 로그인 유지가 되지 않을 수 있습니다.
+3. 회사는 광고 식별자를 수집하지 않으며, 행태 정보를 이용한 맞춤형 광고를 하지 않습니다.
+4. 할 일·일기 알림은 이용자의 기기 안에서 예약되며, 알림 설정과 내용은 회사 서버로 전송되지 않습니다. 알림은 앱의 마이페이지 > 알림 설정이나 기기 설정에서 언제든 끌 수 있습니다.`],
+    ['제12조 (개인정보 보호책임자)', `회사는 개인정보 처리에 관한 업무를 총괄하고 이용자의 불만 처리 및 피해 구제를 위해 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.
+
+- 담당: ${COMPANY} 개인정보 보호책임자
+- 이메일: ${SUPPORT_EMAIL}
+- 홈페이지: ${COMPANY_WEB}`],
+    ['제13조 (권익침해 구제 방법)', `이용자는 개인정보 침해로 인한 구제를 받기 위해 아래 기관에 분쟁 해결이나 상담을 신청할 수 있습니다.
+
+- 개인정보분쟁조정위원회: (국번없이) 1833-6972 (www.kopico.go.kr)
+- 개인정보침해신고센터: (국번없이) 118 (privacy.kisa.or.kr)
+- 대검찰청: (국번없이) 1301 (www.spo.go.kr)
+- 경찰청: (국번없이) 182 (ecrm.police.go.kr)`],
+    ['제14조 (개인정보 처리방침의 변경)', `이 개인정보 처리방침은 아래 시행일부터 적용됩니다. 내용이 추가·삭제·수정되는 경우 시행 7일 전부터 앱 공지사항을 통해 알리며, 이용자 권리에 중요한 변경이 있는 경우 30일 전에 알립니다.`],
+];
+
+export default function PrivacyPolicyScreen({ navigation }) {
+    return <LegalDoc navigation={navigation} title="개인정보처리방침" effectiveDate="2026년 10월 19일" sections={sections} />;
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    content: {
-        padding: 20,
-        maxWidth: 800,
-        alignSelf: 'center',
-        width: '100%',
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        color: '#333',
-    },
-    date: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 30,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginTop: 20,
-        marginBottom: 10,
-        color: colors.main,
-    },
-    paragraph: {
-        fontSize: 15,
-        lineHeight: 24,
-        color: '#444',
-    },
-});

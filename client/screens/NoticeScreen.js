@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, LayoutAnimation, Platform, UIManager } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, LayoutAnimation, Platform, UIManager, ActivityIndicator } from 'react-native';
 import { colors, layout } from '../theme';
 import Header from '../components/Header';
+import { API_URL } from '../config';
 
 if (Platform.OS === 'android') {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -36,6 +37,15 @@ const NoticeItem = ({ title, date, content }) => {
 };
 
 export default function NoticeScreen({ navigation }) {
+    const [notices, setNotices] = useState(null); // null = loading
+
+    useEffect(() => {
+        fetch(`${API_URL}/api/notices`)
+            .then((r) => (r.ok ? r.json() : []))
+            .then(setNotices)
+            .catch(() => setNotices([]));
+    }, []);
+
     return (
         <SafeAreaView style={styles.container}>
             <Header
@@ -43,16 +53,16 @@ export default function NoticeScreen({ navigation }) {
                 leftButton={<TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.back}>{'<'}</Text></TouchableOpacity>}
             />
             <ScrollView style={styles.list}>
-                <NoticeItem
-                    title="[공지] 새로운 테마가 추가되었습니다."
-                    date="2023/04/11"
-                    content={`E-T를 사랑해주신 여러분들, 봄맞이\n테마 컬러가 새로 출시되었습니다.\n\n더 다양한 테마와 글꼴이 출시 예정이니 많은 관심 부탁드립니다 :)`}
-                />
-                <NoticeItem
-                    title="[서비스] 서비스 장애로 불편을 드려 죄송합니다."
-                    date="2023/04/11"
-                    content={`2024.04.11 서비스 장애로 인해 불편을 드려 죄송합니다.\n복구 조치가 되었으나, 복구가 되지 않은 사용자분들은 문의하여 주세요^^`}
-                />
+                {notices === null && <ActivityIndicator style={{ marginTop: 40 }} color={colors.main} />}
+                {notices?.length === 0 && <Text style={styles.empty}>등록된 공지사항이 없습니다.</Text>}
+                {notices?.map((n) => (
+                    <NoticeItem
+                        key={n.id}
+                        title={n.title}
+                        date={new Date(n.created_at).toLocaleDateString('ko-KR')}
+                        content={n.content}
+                    />
+                ))}
             </ScrollView>
         </SafeAreaView>
     );
@@ -74,5 +84,6 @@ const styles = StyleSheet.create({
     date: { fontSize: 12, color: colors.guideText },
     arrow: { fontSize: 12, color: colors.subText },
     body: { marginTop: 15, padding: 10, backgroundColor: '#f9f9f9', borderRadius: 5 },
-    content: { fontSize: 14, color: colors.subText, lineHeight: 20 }
+    content: { fontSize: 14, color: colors.subText, lineHeight: 20 },
+    empty: { marginTop: 40, textAlign: 'center', color: colors.subText }
 });

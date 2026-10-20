@@ -1,5 +1,11 @@
 # Editodo 배포 및 앱 출시 가이드
 
+> **서버 위치 (2026년 10월 서버 이전 후)**: Oracle Cloud `152.69.225.91` (Ubuntu 20.04, dubuck과 같은 서버).
+> EdiTodo는 `/var/www/editodo`, PM2 `editodo-server`(8080), Nginx `/etc/nginx/conf.d/00-editodo.conf`, DB `editodo`(계정 `editodo`, 로컬 전용).
+> GitHub Actions 시크릿: `SERVER_HOST`, `SERVER_USER`(=ubuntu), `SERVER_KEY`(배포 전용 키 `editodo_deploy`의 개인키).
+> MariaDB root는 비밀번호 없이 서버에서 `sudo mysql`로 접속합니다(unix_socket).
+
+
 이 문서는 Editodo 프로젝트를 리눅스 서버에 배포하고, 모바일 앱(Android/iOS)을 스토어에 출시하는 방법을 안내합니다.
 
 ## 1. 서버 배포 가이드 (Server Deployment)
@@ -19,19 +25,20 @@
    ```bash
    mysql -u root -p < db_setup.sql
    ```
-   > **참고**: `dbEdit0d0!@` 비밀번호를 사용하는 `editodo` 유저와 데이터베이스가 생성됩니다.
+   > **참고**: `editodo` 유저와 데이터베이스가 생성됩니다. 비밀번호는 직접 정해 `server/.env`에만 적고, 문서나 저장소에는 절대 적지 마세요.
 
 ### 1.3 백엔드(Server) 배포
-1. 프로젝트의 `server` 폴더와 `ecosystem.config.js` 파일을 서버의 `/var/www/editodo` 경로로 업로드합니다.
-2. 패키지 의존성을 설치합니다.
+1. 평소에는 main 브랜치에 푸시하면 GitHub Actions가 `server`, `client/dist`, `nginx.conf`를 서버의 `/var/www/editodo`로 자동 배포합니다.
+2. 처음 한 번은 서버에 `server/.env`를 직접 만들어야 합니다. 항목은 `server/.env.example`을 보고 채웁니다 (DB 접속 정보, `JWT_SECRET`, `SESSION_SECRET`, 관리자 계정). 이 파일이 없으면 서버가 시작되지 않고 배포도 중단됩니다.
+3. 수동으로 실행할 때:
    ```bash
    cd /var/www/editodo/server
-   npm install --production
-   ```
-3. PM2를 사용하여 서버를 실행합니다.
-   ```bash
-   cd ..
+   npm install --omit=dev
    pm2 start ecosystem.config.js --env production
+   ```
+4. 만료된 체험 계정 정리 (crontab에 등록):
+   ```bash
+   0 4 * * * cd /var/www/editodo/server && node cleanup_guests.js >> /var/log/editodo-cleanup.log 2>&1
    ```
 
 ### 1.4 프론트엔드(Web) 배포

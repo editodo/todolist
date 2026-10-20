@@ -7,8 +7,9 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useDate } from '../context/DateContext';
 import TodoItem from '../components/TodoItem';
+import UndoToast, { useUndoDelete } from '../components/UndoToast';
 import Header from '../components/Header';
-import { API_URL } from '../config';
+import { API_URL, apiFetch } from '../config';
 
 // Configure Calendar Locale (Korean)
 LocaleConfig.locales['ko'] = {
@@ -28,6 +29,16 @@ export default function TodoListScreen({ navigation }) {
     const { selectedDate, setSelectedDate } = useDate(); // Global Date
 
     const [todos, setTodos] = useState([]);
+    // ✕ removes at once; the server delete runs when the undo toast expires (failure → reload from server)
+    const { pending: pendingDelete, remove: removeTodo, undo: undoDelete, flush: flushDelete } = useUndoDelete(setTodos, async (item) => {
+        try {
+            const response = await apiFetch(`${API_URL}/api/todos/${item.id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('delete failed');
+        } catch (e) {
+            console.error('Delete failed', e);
+            fetchTodos();
+        }
+    });
     const [isWriting, setIsWriting] = useState(false);
     const [newTodoText, setNewTodoText] = useState('');
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
@@ -39,14 +50,13 @@ export default function TodoListScreen({ navigation }) {
 
     // Initial Fetch
     useEffect(() => {
-        if (user) {
-            fetchTodos();
-        }
+        // Commit a pending delete first, or the old date's list could bring it back
+        if (user) flushDelete().then(fetchTodos);
     }, [user, selectedDate]); // Refetch when date changes
 
     const fetchTodos = async () => {
         try {
-            const response = await fetch(`${API_URL}/api/todos/${user.id}?date=${selectedDate}`);
+            const response = await apiFetch(`${API_URL}/api/todos/${user.id}?date=${selectedDate}`);
             if (response.ok) {
                 const data = await response.json();
                 // Map DB columns (if snake_case) to app state attributes
@@ -75,7 +85,7 @@ export default function TodoListScreen({ navigation }) {
 
         // API Call
         try {
-            await fetch(`${API_URL}/api/todos/${id}`, {
+            await apiFetch(`${API_URL}/api/todos/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ is_completed: newStatus })
@@ -86,23 +96,23 @@ export default function TodoListScreen({ navigation }) {
         }
     };
 
-    const handleMore = (id) => {
-        Alert.alert('설정', '', [
-            { text: '삭제', style: 'destructive', onPress: () => handleDelete(id) },
-            { text: '취소', style: 'cancel' }
-        ]);
-    };
-
-    const handleDelete = async (id) => {
-        // Optimistic UI Update
-        setTodos(prev => prev.filter(t => t.id !== id));
-
+    const handleEdit = async (id, text) => {
+        const before = todos.find(t => t.id === id)?.text;
+        setTodos(prev => prev.map(t => (t.id === id ? { ...t, text } : t)));
         try {
-            await fetch(`${API_URL}/api/todos/${id}`, { method: 'DELETE' });
+            const response = await apiFetch(`${API_URL}/api/todos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            if (!response.ok) throw new Error('edit failed');
         } catch (e) {
-            console.error('Delete failed', e);
+            console.error('Edit failed', e);
+            setTodos(prev => prev.map(t => (t.id === id ? { ...t, text: before } : t)));
         }
     };
+
+    const handleDelete = (id) => removeTodo(todos, id);
 
     const handleAddStart = () => {
         setIsWriting(true);
@@ -128,7 +138,7 @@ export default function TodoListScreen({ navigation }) {
 
         // API Call
         try {
-            const response = await fetch(`${API_URL}/api/todos`, {
+            const response = await apiFetch(`${API_URL}/api/todos`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -188,7 +198,8 @@ export default function TodoListScreen({ navigation }) {
                                 text={item.text}
                                 isCompleted={item.isCompleted}
                                 onToggle={handleToggle}
-                                onMore={handleMore}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
                                 theme={theme}
                             />
                         )}
@@ -268,6 +279,7 @@ export default function TodoListScreen({ navigation }) {
                     </View>
                 </TouchableOpacity>
             </Modal>
+            <UndoToast visible={!!pendingDelete} message="할 일을 삭제했어요" onUndo={undoDelete} />
         </SafeAreaView>
     );
 }
