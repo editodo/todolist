@@ -286,9 +286,9 @@ router.post('/social/:provider', async (req, res) => {
 
         if (provider === 'apple' && req.body.authorizationCode) {
             try {
-                const refreshToken = await appleRefreshToken(req.body.authorizationCode);
+                const refreshToken = await appleRefreshToken(req.body.authorizationCode, profile.clientId);
                 if (refreshToken) {
-                    await db.query("UPDATE social_accounts SET apple_refresh_token = ? WHERE provider = 'apple' AND provider_user_id = ?", [refreshToken, profile.sub]);
+                    await db.query("UPDATE social_accounts SET apple_refresh_token = ?, apple_client_id = ? WHERE provider = 'apple' AND provider_user_id = ?", [refreshToken, profile.clientId, profile.sub]);
                 }
             } catch (e) {
                 console.error('Apple token exchange failed:', e.message); // login still succeeds; only revocation is affected

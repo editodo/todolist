@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 
 process.env.JWT_SECRET = 'test-secret';
 process.env.GOOGLE_CLIENT_IDS = 'web-client.apps.googleusercontent.com';
+process.env.APPLE_SERVICES_ID = 'com.editodo.web';
 
 // Act as Apple and Google: our own key pair, published through a stubbed JWKS endpoint
 const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
@@ -45,6 +46,13 @@ test('genuine Apple and Google tokens are accepted', async () => {
     assert.strictEqual((await verifySocialToken('apple', { identityToken: appleToken() })).sub, 'apple-1');
     const g = await verifySocialToken('google', { idToken: googleToken() });
     assert.deepStrictEqual([g.sub, g.email, g.emailVerified, g.name], ['g-1', 'minji@gmail.com', true, '민지']);
+});
+
+test('Apple web sign-in (Services ID) is accepted and remembers which client issued it', async () => {
+    const web = await verifySocialToken('apple', { identityToken: appleToken({ aud: 'com.editodo.web' }) });
+    assert.strictEqual(web.clientId, 'com.editodo.web');
+    const ios = await verifySocialToken('apple', { identityToken: appleToken() });
+    assert.strictEqual(ios.clientId, 'com.editodo.app');
 });
 
 test('tokens for another app, forged, or expired are rejected', async () => {

@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Platform, AppState } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Platform, AppState, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { wrapApp } from './sentry';
 import { syncReminders, onReminderTap } from './notifications';
@@ -37,6 +37,23 @@ import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
 import TermsScreen from './screens/TermsScreen';
 import PasswordResetScreen from './screens/PasswordResetScreen';
 import NotificationSettingsScreen from './screens/NotificationSettingsScreen';
+
+// react-native-web's Alert.alert does nothing, so on the web every login/join error and confirm vanished.
+// Map it to the browser's alert/confirm: a cancel button + an action becomes OK/Cancel.
+if (Platform.OS === 'web') {
+  Alert.alert = (title, message, buttons = []) => {
+    const text = [title, message].filter(Boolean).join('\n\n');
+    const cancel = buttons.find((b) => b.style === 'cancel');
+    const action = buttons.find((b) => b.style !== 'cancel');
+    if (cancel && action) {
+      if (window.confirm(text)) action.onPress?.();
+      else cancel.onPress?.();
+      return;
+    }
+    window.alert(text);
+    action?.onPress?.();
+  };
+}
 
 // Admin dashboard is a web-only tool; it is not registered in the store apps
 const IS_WEB = Platform.OS === 'web';

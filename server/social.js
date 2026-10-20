@@ -13,7 +13,8 @@ const JWKS_URLS = {
 const JWKS_TTL_MS = 60 * 60 * 1000;
 const jwksCache = {};
 
-const appleClientId = () => process.env.APPLE_BUNDLE_ID || 'com.editodo.app';
+// Apple tokens are issued to the iOS bundle ID or, for web sign-in, to a Services ID; both are accepted
+const appleClientIds = () => [process.env.APPLE_BUNDLE_ID || 'com.editodo.app', process.env.APPLE_SERVICES_ID].filter(Boolean);
 const googleClientIds = () => (process.env.GOOGLE_CLIENT_IDS || '').split(',').map((s) => s.trim()).filter(Boolean);
 
 async function publicKeyFor(provider, kid) {
@@ -35,7 +36,7 @@ async function verifyIdToken(provider, idToken) {
     if (!decoded?.header?.kid) throw new Error('malformed token');
     const key = await publicKeyFor(provider, decoded.header.kid);
     const options = provider === 'apple'
-        ? { algorithms: ['RS256'], issuer: APPLE_ISSUER, audience: appleClientId() }
+        ? { algorithms: ['RS256'], issuer: APPLE_ISSUER, audience: appleClientIds() }
         : { algorithms: ['RS256'], issuer: GOOGLE_ISSUERS, audience: googleClientIds() };
     return jwt.verify(idToken, key, options);
 }
@@ -45,7 +46,7 @@ async function verifySocialToken(provider, body) {
     if (provider === 'apple') {
         const claims = await verifyIdToken('apple', body.identityToken);
         const name = [body.fullName?.familyName, body.fullName?.givenName].filter(Boolean).join('') || null;
-        return { sub: claims.sub, email: claims.email || null, emailVerified: String(claims.email_verified) === 'true', name };
+        return { sub: claims.sub, email: claims.email || null, emailVerified: String(claims.email_verified) === 'true', name, clientId: claims.aud };
     }
     if (provider === 'google') {
         if (googleClientIds().length === 0) throw new Error('GOOGLE_CLIENT_IDS not set');
@@ -58,38 +59,39 @@ async function verifySocialToken(provider, body) {
 // --- Apple token revocation (App Store guideline 5.1.1(v)) ---
 const appleKeyConfigured = () => Boolean(process.env.APPLE_TEAM_ID && process.env.APPLE_KEY_ID && process.env.APPLE_PRIVATE_KEY);
 
-function appleClientSecret() {
+function appleClientSecret(clientId) {
     const privateKey = process.env.APPLE_PRIVATE_KEY.replace(/\\n/g, '\n'); // .env stores the .p8 on one line
     return jwt.sign({}, privateKey, {
         algorithm: 'ES256',
         keyid: process.env.APPLE_KEY_ID,
         issuer: process.env.APPLE_TEAM_ID,
         audience: APPLE_ISSUER,
-        subject: appleClientId(),
+        subject: clientId,
         expiresIn: '5m',
     });
 }
 
-async function appleForm(path, params) {
+async function appleForm(path, clientId, params) {
     const res = await fetch(`${APPLE_ISSUER}/auth/${path}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ client_id: appleClientId(), client_secret: appleClientSecret(), ...params }),
+        body: new URLSearchParams({ client_id: clientId, client_secret: appleClientSecret(clientId), ...params }),
     });
     if (!res.ok) throw new Error(`Apple ${path} ${res.status}: ${await res.text()}`);
     return path === 'token' ? res.json() : null;
 }
 
 // Trades the one-time authorization code for a refresh token we can later revoke. null when not configured.
-async function appleRefreshToken(authorizationCode) {
+// clientId must be the one the code was issued to (bundle ID for iOS, Services ID for web).
+async function appleRefreshToken(authorizationCode, clientId) {
     if (!appleKeyConfigured() || !authorizationCode) return null;
-    const data = await appleForm('token', { code: authorizationCode, grant_type: 'authorization_code' });
+    const data = await appleForm('token', clientId, { code: authorizationCode, grant_type: 'authorization_code' });
     return data.refresh_token || null;
 }
 
-async function revokeAppleToken(refreshToken) {
+async function revokeAppleToken(refreshToken, clientId) {
     if (!appleKeyConfigured() || !refreshToken) return;
-    await appleForm('revoke', { token: refreshToken, token_type_hint: 'refresh_token' });
+    await appleForm('revoke', clientId || appleClientIds()[0], { token: refreshToken, token_type_hint: 'refresh_token' });
 }
 
 module.exports = { verifySocialToken, appleRefreshToken, revokeAppleToken };

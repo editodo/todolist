@@ -70,10 +70,13 @@ const startServer = async () => {
         provider_user_id VARCHAR(255) NOT NULL,
         user_id INT NOT NULL,
         apple_refresh_token TEXT NULL,
+        apple_client_id VARCHAR(255) NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (provider, provider_user_id),
         KEY idx_social_user (user_id)
       )`);
+    // Added after first release: which Apple client (iOS bundle / web Services ID) issued the token
+    await db.query('ALTER TABLE social_accounts ADD COLUMN IF NOT EXISTS apple_client_id VARCHAR(255) NULL AFTER apple_refresh_token');
   } catch (e) {
     console.error('⚠️  Could not ensure password_resets/social_accounts tables:', e.code || e.message);
   }
