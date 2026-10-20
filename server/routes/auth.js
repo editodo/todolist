@@ -142,7 +142,12 @@ router.post('/convert', requireAuth, async (req, res) => {
 router.put('/user/:id', requireAuth, async (req, res) => {
     const userId = req.userId;
     if (Number(req.params.id) !== userId) return res.status(403).json({ error: '권한이 없습니다.' });
-    const { nickname, profile_image } = req.body;
+    const nickname = typeof req.body.nickname === 'string' ? req.body.nickname.trim() : '';
+    const { profile_image } = req.body;
+    if (!nickname || nickname.length > 20) return res.status(400).json({ error: '닉네임은 1~20자로 입력해주세요.' });
+    if (profile_image != null && (typeof profile_image !== 'string' || profile_image.length > 255)) {
+        return res.status(400).json({ error: '프로필 이미지 주소가 올바르지 않습니다.' });
+    }
 
     try {
         await db.query(

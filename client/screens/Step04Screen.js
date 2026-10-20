@@ -57,7 +57,7 @@ export default function Step04Screen({ navigation }) {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
-                <StepIndicator step={4} />
+                <StepIndicator step={3} />
 
                 <View style={styles.content}>
                     <Text style={styles.title}>나만의 Todolist 생성 완료!{'\n'}아래의 테마가 맞는지 확인해 주세요.</Text>
@@ -82,18 +82,8 @@ export default function Step04Screen({ navigation }) {
 
                 <View style={styles.bottomBtnGroup}>
                     <View style={{ flexDirection: 'row', gap: 10 }}>
-                        <Button
-                            title="이전"
-                            type="sub"
-                            onPress={() => navigation.goBack()}
-                            style={{ flex: 1, backgroundColor: '#EEEEEE', borderColor: '#EEE' }}
-                            textStyle={{ color: '#888' }}
-                        />
-                        <Button
-                            title="시작"
-                            onPress={handleStart}
-                            style={{ flex: 2 }}
-                        />
+                        <Button title="이전" type="prev" onPress={() => navigation.goBack()} style={{ flex: 1 }} />
+                        <Button title="시작" onPress={handleStart} style={{ flex: 1 }} />
                     </View>
                 </View>
             </View>
@@ -106,7 +96,7 @@ const getStyles = (theme) => StyleSheet.create({
     container: { flex: 1, padding: 18, maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center' },
 
     content: { flex: 1, marginTop: 20 },
-    title: { fontSize: 22, fontWeight: 'bold', marginBottom: 30, color: theme.colors.text, lineHeight: 30 },
+    title: { fontSize: 18, fontWeight: '700', marginBottom: 30, color: theme.colors.text, lineHeight: 26, letterSpacing: -0.33 },
 
     previewContainer: { flex: 1 },
 

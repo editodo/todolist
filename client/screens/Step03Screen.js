@@ -28,7 +28,7 @@ export default function Step03Screen({ navigation }) {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
-                <StepIndicator step={3} />
+                <StepIndicator step={2} />
 
                 <View style={styles.content}>
                     <Text style={styles.title}>
@@ -62,17 +62,11 @@ export default function Step03Screen({ navigation }) {
 
                 <View style={styles.bottomBtnGroup}>
                     <View style={{ flexDirection: 'row', gap: 10 }}>
-                        <Button
-                            title="이전"
-                            type="sub"
-                            onPress={() => navigation.goBack()}
-                            style={{ flex: 1, backgroundColor: '#EEEEEE', borderColor: '#EEE' }}
-                            textStyle={{ color: '#888' }}
-                        />
+                        <Button title="이전" type="prev" onPress={() => navigation.goBack()} style={{ flex: 1 }} />
                         <Button
                             title="다음"
                             onPress={handleNext}
-                            style={{ flex: 2 }}
+                            style={{ flex: 1 }}
                         />
                     </View>
                 </View>
@@ -86,7 +80,7 @@ const getStyles = (theme) => StyleSheet.create({
     container: { flex: 1, padding: 18, maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center' },
 
     content: { flex: 1, marginTop: 20 },
-    title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10, color: theme.colors.text, lineHeight: 30 },
+    title: { fontSize: 18, fontWeight: '700', marginBottom: 10, color: theme.colors.text, lineHeight: 26, letterSpacing: -0.33 },
     subtitle: { fontSize: 13, color: theme.colors.guideText, marginBottom: 30, lineHeight: 18 },
 
     optionsRow: { flexDirection: 'row', gap: 8, marginBottom: 30 },

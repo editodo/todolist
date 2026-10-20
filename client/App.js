@@ -23,10 +23,10 @@ import LoginScreen from './screens/LoginScreen';
 import JoinScreen from './screens/JoinScreen';
 import TodoListScreen from './screens/TodoListScreen';
 import CalendarScreen from './screens/CalendarScreen';
-import DailyScreen from './screens/DailyScreen';
+import DailyWriteScreen from './screens/DailyWriteScreen';
+import UserModifyScreen from './screens/UserModifyScreen';
 import MyPageScreen from './screens/MyPageScreen';
 import Step01Screen from './screens/Step01Screen';
-import Step02Screen from './screens/Step02Screen';
 import Step03Screen from './screens/Step03Screen';
 import Step04Screen from './screens/Step04Screen';
 import NoticeScreen from './screens/NoticeScreen';
@@ -93,7 +93,6 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           let iconName = 'help-circle';
           if (route.name === 'Todolist') iconName = isFocused ? 'list' : 'list-outline';
           else if (route.name === 'Calendar') iconName = isFocused ? 'calendar' : 'calendar-outline';
-          else if (route.name === 'Daily') iconName = isFocused ? 'book' : 'book-outline';
           else if (route.name === 'MyPage') iconName = isFocused ? 'person' : 'person-outline';
 
           return (
@@ -109,12 +108,12 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
               <Ionicons
                 name={iconName}
                 size={24}
-                color={isFocused ? colors.main : '#CCCCCC'}
+                color={isFocused ? colors.fnbActive : colors.fnb} // design: selected tab is dark, not teal
                 style={styles.fnbIcon}
               />
               <Text style={[
                 styles.fnbTit,
-                { color: isFocused ? colors.main : '#CCCCCC', fontWeight: isFocused ? '700' : '500' }
+                { color: isFocused ? colors.fnbActive : colors.fnbText, fontWeight: '500' }
               ]}>
                 {label}
               </Text>
@@ -138,7 +137,6 @@ function MainTabNavigator() {
     >
       <Tab.Screen name="Todolist" component={TodoListScreen} options={{ tabBarLabel: '투두리스트' }} />
       <Tab.Screen name="Calendar" component={CalendarScreen} options={{ tabBarLabel: '캘린더' }} />
-      <Tab.Screen name="Daily" component={DailyScreen} options={{ tabBarLabel: '하루일기' }} />
       <Tab.Screen name="MyPage" component={MyPageScreen} options={{ tabBarLabel: '마이페이지' }} />
     </Tab.Navigator>
   );
@@ -229,7 +227,10 @@ function AuthWrapper() {
     return () => sub.remove();
   }, [user?.token]);
 
-  const openTab = (screen) => navigationRef.navigate('MainTabs', { screen: 'Home', params: { screen } });
+  // Reminder taps: 'Daily' opens today's record (no longer a tab), anything else is a tab
+  const openTab = (screen) => (screen === 'Daily'
+    ? navigationRef.navigate('DailyWrite')
+    : navigationRef.navigate('MainTabs', { screen: 'Home', params: { screen } }));
 
   useEffect(() => onReminderTap((screen) => {
     if (navigationRef.isReady()) openTab(screen);
@@ -251,17 +252,24 @@ function AuthWrapper() {
         ...(IS_WEB ? { AdminLogin: 'admin', AdminDashboard: 'admin/dashboard' } : {}),
         PrivacyPolicy: 'privacy',
         Terms: 'terms',
+        DailyWrite: 'daily',
+        UserModify: 'mypage/edit',
         PasswordReset: 'reset-password',
         Login: 'login',
         Join: 'join',
+        // Tabs live under MainTabs → Home (drawer) → tab; skipping Home made /calendar and /mypage open the to-do tab
         MainTabs: {
           screens: {
-            Todolist: 'todo',
-            Calendar: 'calendar',
-            Daily: 'daily',
-            MyPage: 'mypage',
-          }
-        }
+            Home: {
+              screens: {
+                Todolist: 'todo',
+                Calendar: 'calendar',
+                MyPage: 'mypage',
+              },
+            },
+          },
+        },
+        Step01: 'setup',
       },
     },
   };
@@ -286,7 +294,6 @@ function AuthWrapper() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Join" component={JoinScreen} />
         <Stack.Screen name="Step01" component={Step01Screen} />
-        <Stack.Screen name="Step02" component={Step02Screen} />
         <Stack.Screen name="Step03" component={Step03Screen} />
         <Stack.Screen name="Step04" component={Step04Screen} />
         <Stack.Screen name="MainTabs" component={DrawerNavigator} />
@@ -297,6 +304,8 @@ function AuthWrapper() {
         {IS_WEB && <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />}
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
         <Stack.Screen name="Terms" component={TermsScreen} />
+        <Stack.Screen name="DailyWrite" component={DailyWriteScreen} />
+        <Stack.Screen name="UserModify" component={UserModifyScreen} />
         <Stack.Screen name="PasswordReset" component={PasswordResetScreen} />
         <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
       </Stack.Navigator>

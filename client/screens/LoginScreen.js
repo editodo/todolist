@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, TextInput, Platform } from 'react-native';
 import { colors, layout } from '../theme';
 import Button from '../components/Button';
-import Input from '../components/Input';
 import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import SocialLoginButtons from '../components/SocialLoginButtons';
@@ -50,16 +49,25 @@ export default function LoginScreen({ navigation }) {
 
                 {/* Form Area */}
                 <View style={styles.formWrap}>
-                    <Input
+                    {/* Design: ID and password joined into one box */}
+                    <TextInput
+                        style={[styles.input, styles.inputTop]}
                         placeholder="아이디"
+                        placeholderTextColor={colors.guideText}
                         value={username}
                         onChangeText={setUsername}
+                        autoCapitalize="none"
+                        accessibilityLabel="아이디"
                     />
-                    <Input
+                    <TextInput
+                        style={[styles.input, styles.inputBottom]}
                         placeholder="비밀번호"
+                        placeholderTextColor={colors.guideText}
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
+                        onSubmitEditing={handleLogin}
+                        accessibilityLabel="비밀번호"
                     />
 
                     {/* Find ID/PW by emailed code (login already persists on the device, so no 'save ID') */}
@@ -122,9 +130,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     formWrap: {
-        marginTop: 20,
-        flex: 1,
+        paddingTop: 20,
     },
+    input: {
+        height: 44,
+        borderWidth: 1,
+        borderColor: colors.lightGray,
+        paddingHorizontal: 16,
+        fontSize: Platform.OS === 'web' ? 16 : 14,
+        color: colors.text,
+        backgroundColor: colors.white,
+    },
+    inputTop: { borderTopLeftRadius: 5, borderTopRightRadius: 5 },
+    inputBottom: { marginTop: -1, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 },
     loginUtil: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -144,10 +162,12 @@ const styles = StyleSheet.create({
         marginRight: 6,
     },
     utilText: {
-        fontSize: 13,
-        color: '#666', // var(--calendar-colr)
+        fontSize: 12,
+        fontWeight: '500',
+        color: colors.guideText,
     },
     bottomBtnGroup: {
+        marginTop: 20,
         marginBottom: 40,
     }
 });

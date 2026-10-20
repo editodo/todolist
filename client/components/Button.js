@@ -2,16 +2,19 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { colors } from '../theme';
 
-export default function Button({ title, type = 'main', onPress, style }) {
-    // type: 'main' | 'sub' | 'dark'
-    const backgroundColor = type === 'main' ? colors.main :
-        type === 'dark' ? colors.dark :
-            colors.white;
+// type: 'main' (teal) | 'sub' (teal outline) | 'dark' | 'prev' (light gray, the design's 이전 button)
+const TYPES = {
+    main: { bg: colors.main, border: colors.main, text: colors.white },
+    sub: { bg: colors.white, border: colors.main, text: colors.main },
+    dark: { bg: colors.dark, border: colors.dark, text: colors.white },
+    prev: { bg: colors.lightGray, border: colors.lightGray, text: '#888888' },
+};
 
-    const textColor = type === 'main' || type === 'dark' ? colors.white : colors.main;
-    const borderColor = type === 'main' ? colors.main :
-        type === 'dark' ? colors.dark :
-            colors.main;
+export default function Button({ title, type = 'main', onPress, style, textStyle }) {
+    const t = TYPES[type] || TYPES.main;
+    const backgroundColor = t.bg;
+    const borderColor = t.border;
+    const textColor = t.text;
 
     return (
         <TouchableOpacity
@@ -19,7 +22,7 @@ export default function Button({ title, type = 'main', onPress, style }) {
             onPress={onPress}
             activeOpacity={0.8}
         >
-            <Text style={[styles.text, { color: textColor }]}>{title}</Text>
+            <Text style={[styles.text, { color: textColor }, textStyle]}>{title}</Text>
         </TouchableOpacity>
     );
 }
@@ -36,6 +39,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: '500',
+        letterSpacing: -0.33,
     }
 });

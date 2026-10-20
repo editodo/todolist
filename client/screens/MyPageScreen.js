@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert, ScrollView, Platform, Modal, TextInput, Image } from 'react-native';
 import { colors, layout } from '../theme';
-import Header from '../components/Header';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,7 +13,7 @@ const MenuItem = ({ title, onPress, value }) => (
         <Text style={styles.menuText}>{title}</Text>
         <View style={styles.menuRight}>
             {value && <Text style={styles.menuValue}>{value}</Text>}
-            <Text style={styles.arrow}>{'>'}</Text>
+            <Ionicons name="chevron-forward" size={12} color="#cccccc" />
         </View>
     </TouchableOpacity>
 );
@@ -98,76 +97,55 @@ export default function MyPageScreen({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Header title="마이페이지" showMenu={true} />
             <ScrollView style={styles.content}>
+                {/* Design: name header. Member → edit profile; guest → keep data by converting */}
+                <TouchableOpacity
+                    style={styles.infoBar}
+                    onPress={() => (isGuest ? setConvertModalVisible(true) : navigation.navigate('UserModify'))}
+                    accessibilityRole="button"
+                >
+                    <Text style={styles.infoName}>{isGuest ? '로그인/회원가입' : (user?.nickname || user?.username)}</Text>
+                    <Ionicons name="chevron-forward" size={18} color={colors.text} />
+                </TouchableOpacity>
 
-                {/* Profile Section */}
-                <View style={[styles.profileSection, isGuest && styles.guestProfile]}>
-                    <View style={styles.profileRow}>
-                        {/* Profile Image Placeholder */}
-                        <TouchableOpacity style={styles.profileImageContainer}>
-                            {user?.profile_image ? (
-                                <Image source={{ uri: user.profile_image }} style={styles.profileImage} />
-                            ) : (
-                                <View style={styles.profilePlaceholder}>
-                                    <Ionicons name="person" size={30} color="#fff" />
-                                </View>
-                            )}
-                            <View style={styles.editIconBadge}>
-                                <Ionicons name="camera" size={12} color="#fff" />
-                            </View>
-                        </TouchableOpacity>
+                {isGuest && (
+                    <TouchableOpacity style={styles.trialBox} onPress={() => setConvertModalVisible(true)}>
+                        <Text style={[styles.trialText, daysLeft <= 0 && styles.expired]}>
+                            {daysLeft > 0 ? `체험 기간 ${daysLeft}일 남음` : '체험 기간이 끝났어요'}
+                        </Text>
+                        <Text style={styles.trialSub}>정회원으로 전환하면 지금까지의 기록이 그대로 유지돼요</Text>
+                    </TouchableOpacity>
+                )}
 
-                        <View style={styles.profileInfo}>
-                            <View style={styles.nameRow}>
-                                <Text style={styles.nickname}>{user?.nickname || '닉네임 없음'}</Text>
-                                {isGuest && <View style={styles.badge}><Text style={styles.badgeText}>체험중</Text></View>}
-                            </View>
-                            <Text style={styles.username}>@{user?.username}</Text>
-
-                            {isGuest && (
-                                <Text style={[styles.expiryText, daysLeft <= 0 ? styles.expired : null]}>
-                                    {daysLeft > 0 ? `체험기간 ${daysLeft}일 남음` : '체험기간 만료됨'}
-                                </Text>
-                            )}
-                        </View>
-                    </View>
-
-                    {isGuest && (
-                        <TouchableOpacity style={styles.convertBtn} onPress={() => setConvertModalVisible(true)}>
-                            <Text style={styles.convertBtnText}>정회원 전환하고 데이터 유지하기</Text>
-                        </TouchableOpacity>
-                    )}
+                <View style={styles.menuGroup}>
+                    <MenuItem title="테마 및 색상 변경" onPress={() => navigation.navigate('Step01')} />
+                    {remindersSupported && <MenuItem title="알림 설정" onPress={() => navigation.navigate('NotificationSettings')} />}
                 </View>
 
-                {/* Settings */}
                 <View style={styles.menuGroup}>
-                    <MenuItem
-                        title="테마 및 색상변경"
-                        onPress={() => navigation.navigate('Step01')}
-                    />
-                    {remindersSupported && <MenuItem title="알림 설정" onPress={() => navigation.navigate('NotificationSettings')} />}
                     <MenuItem title="공지사항" onPress={() => navigation.navigate('Notice')} />
                     <MenuItem title="이용약관" onPress={() => navigation.navigate('Terms')} />
-                    <MenuItem title="개인정보처리방침" onPress={() => navigation.navigate('PrivacyPolicy')} />
+                    <MenuItem title="개인정보 정책" onPress={() => navigation.navigate('PrivacyPolicy')} />
                     <MenuItem title="문의하기" onPress={() => navigation.navigate('Inquiry')} />
                 </View>
 
                 <View style={styles.menuGroup}>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.infoLabel}>버전정보</Text>
-                        <Text style={styles.infoValue}>{Constants.expoConfig?.version}</Text>
+                    <View style={styles.menuItem}>
+                        <Text style={styles.menuText}>버전 정보</Text>
+                        <Text style={styles.menuValue}>{Constants.expoConfig?.version}</Text>
                     </View>
+                </View>
 
-                    <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-                        <Text style={styles.logoutText}>{isGuest ? '체험 종료 (로그아웃)' : '로그아웃'}</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.logoutBtn} onPress={handleDeleteAccount}>
-                        <Text style={styles.withdrawText}>회원 탈퇴</Text>
+                <View style={styles.menuGroup}>
+                    <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+                        <Text style={styles.menuText}>{isGuest ? '체험 종료 (로그아웃)' : '로그아웃'}</Text>
                     </TouchableOpacity>
                 </View>
 
+                {/* Store rule: account deletion must stay reachable (static design: small underlined link) */}
+                <TouchableOpacity style={styles.leaveBtn} onPress={handleDeleteAccount}>
+                    <Text style={styles.withdrawText}>회원 탈퇴</Text>
+                </TouchableOpacity>
             </ScrollView>
 
             {/* Conversion Modal */}
@@ -237,12 +215,21 @@ export default function MyPageScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.body,
+        backgroundColor: '#f7f8f9', // design: mypage gray between groups
         maxWidth: layout.maxWidth,
         width: '100%',
         alignSelf: 'center',
     },
-    content: { flex: 1, padding: 20 },
+    content: { flex: 1 },
+    infoBar: {
+        height: 60, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16,
+        backgroundColor: colors.white, borderBottomWidth: 1, borderBottomColor: colors.lightGray,
+    },
+    infoName: { fontSize: 20, fontWeight: '600', color: colors.text, letterSpacing: -0.33 },
+    trialBox: { backgroundColor: colors.white, paddingHorizontal: 16, paddingBottom: 14 },
+    trialText: { fontSize: 13, fontWeight: '600', color: colors.main },
+    trialSub: { fontSize: 12, color: colors.guideText, marginTop: 2 },
+    leaveBtn: { alignSelf: 'flex-end', marginTop: 14, marginRight: 18, marginBottom: 90, padding: 4 },
 
     profileSection: {
         backgroundColor: '#fff',
@@ -344,23 +331,23 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
 
+    // Design: white groups separated by 10px of gray, rows 45 high
     menuGroup: {
-        marginBottom: 20,
+        marginTop: 10,
         backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 5,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.lightGray,
     },
     menuItem: {
+        height: 45,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f5f5f5',
+        paddingHorizontal: 20,
     },
-    menuText: { fontSize: 15, color: colors.text },
+    menuText: { fontSize: 14, color: colors.subText },
     menuRight: { flexDirection: 'row', alignItems: 'center' },
-    menuValue: { marginRight: 8, color: colors.subText, fontSize: 13 },
+    menuValue: { marginRight: 8, color: colors.guideText, fontSize: 13 },
     arrow: { fontSize: 16, color: '#ccc' },
 
     infoRow: {
@@ -379,7 +366,7 @@ const styles = StyleSheet.create({
         borderTopColor: '#f5f5f5',
     },
     logoutText: { color: colors.subText, fontSize: 14 },
-    withdrawText: { color: colors.subText, fontSize: 12, textDecorationLine: 'underline' },
+    withdrawText: { color: colors.guideText, fontSize: 12, textDecorationLine: 'underline' },
 
     // Modal
     modalOverlay: {

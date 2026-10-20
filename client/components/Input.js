@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, Text } from 'react-native';
+import { View, TextInput, StyleSheet, Text, Platform } from 'react-native';
 import { colors } from '../theme';
 
 export default function Input({ value, onChangeText, placeholder, secureTextEntry, label }) {
@@ -29,12 +29,12 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     input: {
-        height: 48, // slightly taller for mobile touch
+        height: 44, // design is 40; 44 keeps a comfortable touch target
         borderWidth: 1,
         borderColor: colors.border,
         borderRadius: 5,
         paddingHorizontal: 16,
-        fontSize: 16, // prevent iOS zoom
+        fontSize: Platform.OS === 'web' ? 16 : 14, // design 14; web stays 16 so mobile Safari doesn't zoom
         color: colors.text,
         backgroundColor: colors.body,
     },

@@ -8,7 +8,6 @@ import { useAuth } from '../context/AuthContext';
 import { useDate } from '../context/DateContext';
 import TodoItem from '../components/TodoItem';
 import UndoToast, { useUndoDelete } from '../components/UndoToast';
-import Header from '../components/Header';
 import { API_URL, apiFetch } from '../config';
 
 // Configure Calendar Locale (Korean)
@@ -44,8 +43,10 @@ export default function TodoListScreen({ navigation }) {
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
 
     // Date Logic
-    const dateObj = new Date(selectedDate);
-    const formattedDate = selectedDate.replace(/-/g, '.');
+    // Local date (new Date('YYYY-MM-DD') is UTC and can land on the previous day)
+    const [selY, selM, selD] = selectedDate.split('-').map(Number);
+    const dateObj = new Date(selY, selM - 1, selD);
+    const formattedDate = `${String(selM).padStart(2, '0')}.${String(selD).padStart(2, '0')}`;
     const weekMap = ['일', '월', '화', '수', '목', '금', '토'];
 
     // Initial Fetch
@@ -175,22 +176,20 @@ export default function TodoListScreen({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Header title="투두리스트" showMenu={true} />
-
-            {/* Date Navigation Sub-Header */}
+            {/* Design: ◀ 07.23(토) ▶ — tap the date to pick from a calendar */}
             <View style={styles.dateNav}>
-                <TouchableOpacity onPress={() => changeDate(-1)}><Text style={styles.arrow}>◀</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setIsCalendarVisible(true)}>
-                    <Text style={styles.dateText}>{formattedDate} ({weekMap[isNaN(dateObj.getDay()) ? 0 : dateObj.getDay()]})</Text>
+                <TouchableOpacity onPress={() => changeDate(-1)} style={styles.arrowBtn} accessibilityLabel="이전 날"><Text style={styles.arrow}>◀</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setIsCalendarVisible(true)} accessibilityLabel="날짜 선택">
+                    <Text style={styles.dateText}>{formattedDate}({weekMap[dateObj.getDay()]})</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => changeDate(1)}><Text style={styles.arrow}>▶</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => changeDate(1)} style={styles.arrowBtn} accessibilityLabel="다음 날"><Text style={styles.arrow}>▶</Text></TouchableOpacity>
             </View>
 
             <View style={styles.content}>
                 <View style={styles.contentInner}>
                     <FlatList
                         data={todos}
-                        contentContainerStyle={{ paddingBottom: 20 }}
+                        contentContainerStyle={{ padding: 6, paddingBottom: 20 }}
                         keyExtractor={item => item.id.toString()}
                         renderItem={({ item }) => (
                             <TodoItem
@@ -216,24 +215,32 @@ export default function TodoListScreen({ navigation }) {
                                         onSubmitEditing={handleAddSubmit}
                                         returnKeyType="done"
                                     />
-                                    <TouchableOpacity onPress={() => setIsWriting(false)} style={styles.cancelBtn}>
+                                    <TouchableOpacity onPress={() => setIsWriting(false)} style={styles.cancelBtn} accessibilityLabel="입력 취소">
                                         <View style={styles.cancelIconCircle}>
                                             <Text style={styles.cancelIconText}>×</Text>
                                         </View>
                                     </TouchableOpacity>
                                 </View>
-                            ) : null
+                            ) : (
+                                // Design: "+ new todo" pill inside the card, palette accent color
+                                <TouchableOpacity style={styles.newTodoBtn} onPress={handleAddStart} accessibilityRole="button">
+                                    <Text style={styles.newTodoText}>+ new todo</Text>
+                                </TouchableOpacity>
+                            )
                         }
                     />
                 </View>
             </View>
 
-            {/* Floating Action Button (FAB) (Always visible) */}
-            {!isWriting && (
-                <TouchableOpacity style={styles.fab} onPress={handleAddStart}>
-                    <Text style={styles.fabText}>+</Text>
-                </TouchableOpacity>
-            )}
+            {/* Design: 하루 기록 button opens the daily record for this date */}
+            <TouchableOpacity
+                style={styles.dailyBtn}
+                onPress={() => navigation.navigate('DailyWrite', { date: selectedDate })}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+            >
+                <Text style={styles.dailyBtnText}>하루 기록</Text>
+            </TouchableOpacity>
 
             {/* Calendar Modal */}
             <Modal
@@ -293,22 +300,22 @@ const getStyles = (theme) => StyleSheet.create({
         alignSelf: 'center',
     },
     dateNav: {
+        height: 50,
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 15,
+        paddingHorizontal: 18,
         backgroundColor: theme.colors.body,
     },
     dateText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginHorizontal: 20,
+        fontSize: 15,
+        fontWeight: '600',
         color: theme.colors.text,
     },
+    arrowBtn: { width: 30, height: 30, justifyContent: 'center', alignItems: 'center' },
     arrow: {
-        fontSize: 14,
-        color: theme.colors.guideText,
-        padding: 10
+        fontSize: 10,
+        color: theme.colors.calendarColr,
     },
     modalOverlay: {
         flex: 1,
@@ -333,15 +340,41 @@ const getStyles = (theme) => StyleSheet.create({
         flex: 1,
         paddingHorizontal: 18,
     },
+    // Design: paper card in the palette color with a soft shadow
     contentInner: {
         flex: 1,
+        marginTop: 10,
         backgroundColor: theme.colors.base,
         borderRadius: theme.style.borderRadius,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        marginBottom: 70,
+        paddingVertical: 14,
+        paddingHorizontal: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 2, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 2,
     },
+    newTodoBtn: {
+        alignSelf: 'center',
+        marginTop: 14,
+        height: 30,
+        paddingHorizontal: 14,
+        borderRadius: 15,
+        justifyContent: 'center',
+        backgroundColor: theme.colors.accent,
+    },
+    newTodoText: { fontSize: 13, color: theme.colors.base },
+    dailyBtn: {
+        height: 50,
+        marginTop: 12,
+        marginHorizontal: 18,
+        marginBottom: 70, // clears the 60px tab bar
+        borderRadius: 6,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: theme.colors.accent,
+    },
+    dailyBtnText: { fontSize: 16, fontWeight: '500', letterSpacing: -0.33, color: theme.colors.base },
     writeRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -351,9 +384,8 @@ const getStyles = (theme) => StyleSheet.create({
         marginBottom: 10,
         borderBottomWidth: 2,
         borderBottomColor: theme.colors.dominant,
-        backgroundColor: theme.colors.body,
-        borderRadius: 8,
-        paddingHorizontal: 10,
+        backgroundColor: 'transparent',
+        paddingHorizontal: 4,
     },
     input: {
         flex: 1,
@@ -380,26 +412,4 @@ const getStyles = (theme) => StyleSheet.create({
         fontWeight: 'bold',
         marginTop: -2
     },
-    fab: {
-        position: 'absolute',
-        bottom: 80,
-        right: 20,
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: theme.colors.main,
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4.65,
-        elevation: 8,
-        zIndex: 999
-    },
-    fabText: {
-        fontSize: 32,
-        color: '#fff',
-        marginTop: -4
-    }
 });

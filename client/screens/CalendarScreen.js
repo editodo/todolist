@@ -1,32 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Alert, Image } from 'react-native';
 import { colors, layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import TodoItem from '../components/TodoItem'; // Reusing TodoItem
 import UndoToast, { useUndoDelete } from '../components/UndoToast';
-import DiaryModal from '../components/DiaryModal';
-import Header from '../components/Header';
+import { STICKER_MAP } from '../components/stickers';
 
-// Emoji Map for Icons
-const EMOJI_MAP = {
-    emoji_1: require('../assets/images/emoji/emoji_1.svg'),
-    emoji_2: require('../assets/images/emoji/emoji_2.svg'),
-    emoji_3: require('../assets/images/emoji/emoji_3.svg'),
-    emoji_4: require('../assets/images/emoji/emoji_4.svg'),
-    emoji_5: require('../assets/images/emoji/emoji_5.svg'),
-    emoji_6: require('../assets/images/emoji/emoji_6.svg'),
-    emoji_7: require('../assets/images/emoji/emoji_7.svg'),
-    emoji_8: require('../assets/images/emoji/emoji_8.svg'),
-    emoji_9: require('../assets/images/emoji/emoji_9.svg'),
-    emoji_10: require('../assets/images/emoji/emoji_10.svg'),
-    emoji_11: require('../assets/images/emoji/emoji_11.svg'),
-    emoji_12: require('../assets/images/emoji/emoji_12.svg'),
-    emoji_13: require('../assets/images/emoji/emoji_13.svg'),
-    emoji_14: require('../assets/images/emoji/emoji_14.svg'),
-    emoji_15: require('../assets/images/emoji/emoji_15.svg'),
-    emoji_16: require('../assets/images/emoji/emoji_16.svg'),
-};
+const EMOJI_MAP = STICKER_MAP;
 
 // Mock Data for Calendar Status
 // status: 'complete' | 'incomplete' | 'none'
@@ -80,8 +62,6 @@ export default function CalendarScreen({ navigation }) {
             fetchDateTodos();
         }
     });
-    const [isDiaryModalVisible, setIsDiaryModalVisible] = useState(false);
-    const [diaryInitialData, setDiaryInitialData] = useState(null);
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -91,6 +71,11 @@ export default function CalendarScreen({ navigation }) {
     useEffect(() => {
         if (user) fetchMonthData();
     }, [user, year, month]);
+
+    // Coming back from the 하루 기록 screen: show the new/removed sticker
+    useFocusEffect(useCallback(() => {
+        if (user) fetchMonthData();
+    }, [user, year, month]));
 
     // Fetch Selected Date Todos
     useEffect(() => {
@@ -195,8 +180,6 @@ export default function CalendarScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
-                {/* Header */}
-                <Header title="캘린더" showMenu={true} />
                 <View style={styles.monthNav}>
                     <TouchableOpacity onPress={handlePrevMonth} style={styles.arrowBtn}>
                         <Text style={styles.arrowText}>◀</Text>
@@ -211,7 +194,7 @@ export default function CalendarScreen({ navigation }) {
                 <View style={styles.calendarBox}>
                     <View style={styles.weekRow}>
                         {['일', '월', '화', '수', '목', '금', '토'].map((d, i) => (
-                            <Text key={i} style={[styles.weekText, i === 0 && { color: '#FF6B6B' }, i === 6 && { color: '#4D96FF' }]}>{d}</Text>
+                            <Text key={i} style={styles.weekText}>{d}</Text>
                         ))}
                     </View>
 
@@ -236,7 +219,7 @@ export default function CalendarScreen({ navigation }) {
                                         {day && (
                                             <Text style={[
                                                 styles.dayText,
-                                                isSelected && { color: c.main, fontWeight: 'bold' }
+                                                isSelected && { fontWeight: '700' }
                                             ]}>
                                                 {day}
                                             </Text>
@@ -296,38 +279,17 @@ export default function CalendarScreen({ navigation }) {
                         )}
                     </ScrollView>
 
-                    {/* Write/Read Diary FAB */}
-                    {selectedDate && (
-                        <TouchableOpacity
-                            style={styles.fab}
-                            onPress={() => {
-                                const selectedDay = parseInt(selectedDate.split('-')[2]);
-                                const diary = monthData[selectedDay];
-                                setDiaryInitialData(diary ? { content: diary.content, emotion: diary.mood } : null);
-                                setIsDiaryModalVisible(true);
-                            }}
-                        >
-                            {/* Check if diary exists for the selected date */}
-                            {monthData[parseInt(selectedDate.split('-')[2])] ? (
-                                <Ionicons name="book" size={24} color="#fff" /> // Read Icon
-                            ) : (
-                                <Ionicons name="pencil" size={24} color="#fff" /> // Write Icon
-                            )}
-                        </TouchableOpacity>
-                    )}
                 </View>
 
-                {/* Diary Popup Modal */}
-                <DiaryModal
-                    visible={isDiaryModalVisible}
-                    date={selectedDate}
-                    onClose={() => setIsDiaryModalVisible(false)}
-                    onSaved={fetchMonthData}
-                    initialData={diaryInitialData}
-                    userId={user?.id}
-                    apiUrl={API_URL}
-                />
-
+                {/* Design: 하루 기록 button under the day's list (palette accent color) */}
+                <TouchableOpacity
+                    style={[styles.dailyBtn, { backgroundColor: c.accent }]}
+                    onPress={() => navigation.navigate('DailyWrite', { date: selectedDate })}
+                    activeOpacity={0.85}
+                    accessibilityRole="button"
+                >
+                    <Text style={[styles.dailyBtnText, { color: c.base }]}>하루 기록</Text>
+                </TouchableOpacity>
             </View>
             <UndoToast visible={!!pendingDelete} message="할 일을 삭제했어요" onUndo={undoDelete} />
         </SafeAreaView>
@@ -336,68 +298,40 @@ export default function CalendarScreen({ navigation }) {
 
 const getStyles = (theme) => StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: theme.colors.body },
-    container: { flex: 1, maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center', paddingHorizontal: 18 },
+    container: { flex: 1, maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center', paddingHorizontal: 18, paddingBottom: 70 },
 
-    monthNav: {
-        flexDirection: 'row', justifyContent: 'center', alignItems: 'center',
-        paddingVertical: 10,
-    },
-    headerTitle: { fontSize: 18, fontWeight: 'bold', marginHorizontal: 20, color: theme.colors.text },
-    arrowBtn: { padding: 10 },
-    arrowText: { fontSize: 14, color: theme.colors.guideText },
+    // Design: ◀ 2022.07 ▶ month header (50 high, 15 bold)
+    monthNav: { height: 50, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    headerTitle: { fontSize: 15, fontWeight: '600', color: theme.colors.text },
+    arrowBtn: { width: 30, height: 30, justifyContent: 'center', alignItems: 'center' },
+    arrowText: { fontSize: 10, color: theme.colors.calendarColr },
 
     calendarBox: { marginBottom: 10 },
-    weekRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
-    weekText: { width: 40, textAlign: 'center', fontSize: 14, color: theme.colors.guideText, fontWeight: '500' },
+    weekRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
+    weekText: { width: 40, textAlign: 'center', fontSize: 14, color: theme.colors.fnbText, fontWeight: '600', paddingVertical: 8 },
 
-    dayCell: {
-        width: 40, alignItems: 'center', justifyContent: 'flex-start', height: 60,
-        borderRadius: 20, paddingVertical: 2
-    },
-    selectedDayCell: {
-        backgroundColor: theme.colors.body,
-        borderWidth: 1,
-        borderColor: theme.colors.main,
-    },
-    dayText: { fontSize: 13, color: theme.colors.text, marginBottom: 1 },
-    statusCircle: {
-        width: 32, height: 32, borderRadius: 16,
-        justifyContent: 'center', alignItems: 'center',
-    },
-    emojiText: { fontSize: 24 },
-    emojiImage: {
-        width: 30,
-        height: 30,
-        borderRadius: 15
-    },
-    selectedEmoji: {
-        transform: [{ scale: 1.1 }]
-    },
+    dayCell: { width: 40, height: 46, alignItems: 'center', justifyContent: 'flex-start', paddingTop: 4 },
+    selectedDayCell: { borderWidth: 1, borderColor: theme.colors.text },
+    dayText: { fontSize: 13, fontWeight: '500', color: theme.colors.text, marginBottom: 3 },
+    statusCircle: { width: 20, height: 20, borderRadius: 10, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+    emojiText: { fontSize: 16 },
+    emojiImage: { width: 20, height: 20, borderRadius: 10 },
+    selectedEmoji: {},
 
+    // Design: the day's to-dos in a paper card (palette base, soft shadow)
     bottomSheet: {
         flex: 1,
-        borderRadius: 20,
-        padding: 20,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
+        marginTop: 6,
+        borderRadius: theme.themeName === 'round' ? 16 : 0,
+        padding: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 2, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 2,
     },
-    todoList: { paddingBottom: 100 },
+    todoList: { paddingBottom: 10 },
 
-    fab: {
-        position: 'absolute',
-        bottom: 80,
-        right: 20,
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: theme.colors.main,
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4.65,
-        elevation: 8,
-        zIndex: 999
-    }
+    dailyBtn: { height: 50, borderRadius: 6, marginTop: 12, justifyContent: 'center', alignItems: 'center' },
+    dailyBtnText: { fontSize: 16, fontWeight: '500', letterSpacing: -0.33 },
 });
