@@ -1,5 +1,11 @@
 # Editodo 배포 및 앱 출시 가이드
 
+> **서버 위치 (2026년 10월 서버 이전 후)**: Oracle Cloud `152.69.225.91` (Ubuntu 20.04, dubuck과 같은 서버).
+> EdiTodo는 `/var/www/editodo`, PM2 `editodo-server`(8080), Nginx `/etc/nginx/conf.d/00-editodo.conf`, DB `editodo`(계정 `editodo`, 로컬 전용).
+> GitHub Actions 시크릿: `SERVER_HOST`, `SERVER_USER`(=ubuntu), `SERVER_KEY`(배포 전용 키 `editodo_deploy`의 개인키).
+> MariaDB root는 비밀번호 없이 서버에서 `sudo mysql`로 접속합니다(unix_socket).
+
+
 이 문서는 Editodo 프로젝트를 리눅스 서버에 배포하고, 모바일 앱(Android/iOS)을 스토어에 출시하는 방법을 안내합니다.
 
 ## 1. 서버 배포 가이드 (Server Deployment)
