@@ -5,6 +5,9 @@ import Header from '../components/Header';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
+import SocialLoginButtons from '../components/SocialLoginButtons';
+import { isSupported as remindersSupported } from '../notifications';
 
 const MenuItem = ({ title, onPress, value }) => (
     <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -18,14 +21,14 @@ const MenuItem = ({ title, onPress, value }) => (
 
 export default function MyPageScreen({ navigation }) {
     const { mode, themeStyle, palette } = useTheme();
-    const { user, logout, convertAccount } = useAuth();
+    const { user, logout, convertAccount, deleteAccount } = useAuth();
 
     // Robust check for guest status
     const isGuest = user?.user_type === 'GUEST' || user?.username?.startsWith('guest_');
     const isExpired = user?.isExpired;
     // Conversion Modal State
     const [convertModalVisible, setConvertModalVisible] = useState(false);
-    const [convertData, setConvertData] = useState({ username: '', password: '', email: '', nickname: '', phone_number: '' });
+    const [convertData, setConvertData] = useState({ username: '', password: '', email: '', nickname: '' });
 
     // Expiration Calc
     const getDaysLeft = () => {
@@ -51,6 +54,29 @@ export default function MyPageScreen({ navigation }) {
             Alert.alert('로그아웃', isGuest ? '체험계정을 종료하면 데이터가 삭제될 수 있습니다. 계속하시겠습니까?' : '로그아웃 하시겠습니까?', [
                 { text: '취소', style: 'cancel' },
                 { text: '확인', style: 'destructive', onPress: logoutAction }
+            ]);
+        }
+    };
+
+    const handleDeleteAccount = () => {
+        const message = '계정과 모든 할 일, 일기, 설정이 즉시 삭제되며 복구할 수 없습니다. 탈퇴하시겠습니까?';
+        const deleteAction = async () => {
+            const result = await deleteAccount();
+            if (result.success) {
+                navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
+            } else if (Platform.OS === 'web') {
+                window.alert(result.error);
+            } else {
+                Alert.alert('실패', result.error);
+            }
+        };
+
+        if (Platform.OS === 'web') {
+            if (window.confirm(message)) deleteAction();
+        } else {
+            Alert.alert('회원 탈퇴', message, [
+                { text: '취소', style: 'cancel' },
+                { text: '탈퇴', style: 'destructive', onPress: deleteAction }
             ]);
         }
     };
@@ -120,19 +146,25 @@ export default function MyPageScreen({ navigation }) {
                         title="테마 및 색상변경"
                         onPress={() => navigation.navigate('Step01')}
                     />
+                    {remindersSupported && <MenuItem title="알림 설정" onPress={() => navigation.navigate('NotificationSettings')} />}
                     <MenuItem title="공지사항" onPress={() => navigation.navigate('Notice')} />
-                    <MenuItem title="이용약관" onPress={() => Alert.alert('이용약관', '약관 내용...')} />
+                    <MenuItem title="이용약관" onPress={() => navigation.navigate('Terms')} />
+                    <MenuItem title="개인정보처리방침" onPress={() => navigation.navigate('PrivacyPolicy')} />
                     <MenuItem title="문의하기" onPress={() => navigation.navigate('Inquiry')} />
                 </View>
 
                 <View style={styles.menuGroup}>
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>버전정보</Text>
-                        <Text style={styles.infoValue}>1.0.0</Text>
+                        <Text style={styles.infoValue}>{Constants.expoConfig?.version}</Text>
                     </View>
 
                     <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
                         <Text style={styles.logoutText}>{isGuest ? '체험 종료 (로그아웃)' : '로그아웃'}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.logoutBtn} onPress={handleDeleteAccount}>
+                        <Text style={styles.withdrawText}>회원 탈퇴</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -178,13 +210,6 @@ export default function MyPageScreen({ navigation }) {
                             onChangeText={t => setConvertData({ ...convertData, email: t })}
                             autoCapitalize="none"
                         />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="전화번호 (선택)"
-                            keyboardType="phone-pad"
-                            value={convertData.phone_number}
-                            onChangeText={t => setConvertData({ ...convertData, phone_number: t })}
-                        />
 
                         <View style={styles.modalButtons}>
                             <TouchableOpacity style={[styles.modalBtn, styles.cancelBtn]} onPress={() => setConvertModalVisible(false)}>
@@ -194,6 +219,14 @@ export default function MyPageScreen({ navigation }) {
                                 <Text style={styles.confirmText}>전환하기</Text>
                             </TouchableOpacity>
                         </View>
+
+                        {/* Apple/Google: the server sees the guest token and keeps this account's data */}
+                        <SocialLoginButtons
+                            onDone={() => {
+                                setConvertModalVisible(false);
+                                Alert.alert('성공', '정회원으로 전환되었습니다!');
+                            }}
+                        />
                     </View>
                 </View>
             </Modal>
@@ -346,6 +379,7 @@ const styles = StyleSheet.create({
         borderTopColor: '#f5f5f5',
     },
     logoutText: { color: colors.subText, fontSize: 14 },
+    withdrawText: { color: colors.subText, fontSize: 12, textDecorationLine: 'underline' },
 
     // Modal
     modalOverlay: {

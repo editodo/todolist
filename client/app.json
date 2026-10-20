@@ -13,7 +13,12 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.editodo.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "com.editodo.app",
@@ -29,10 +34,31 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "scheme": "editodo",
+    "plugins": [
+      "expo-secure-store",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "organization": "codemodo",
+          "project": "editodo"
+        }
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.REPLACE-WITH-IOS-CLIENT-ID"
+        }
+      ],
+      "expo-apple-authentication",
+      "expo-notifications"
+    ],
     "extra": {
       "eas": {
-        "projectId": "e3d55d42-d887-499e-be47-a80c3ad2dc9c"
+        "projectId": "dd8b1948-e135-4f85-bbee-a069e0a62da5"
       }
-    }
+    },
+    "owner": "codemodo"
   }
 }

@@ -2,6 +2,39 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcrypt'); // Password hashing (Install needed: npm install bcrypt)
+const crypto = require('crypto');
+const { signToken, requireAuth, userIdFromHeader, deleteUser } = require('../auth');
+const { verifySocialToken, appleRefreshToken } = require('../social');
+const { isMailConfigured, sendMail } = require('../mail');
+
+const USERNAME_RE = /^[a-zA-Z0-9_]{4,20}$/;
+const MIN_PASSWORD = 8;
+
+// The user object the app keeps after login (login, refresh and social sign-in all return this shape)
+async function userPayload(user) {
+    const [prefs] = await db.query('SELECT * FROM user_preferences WHERE user_id = ?', [user.id]);
+    const userPrefs = prefs[0] || {};
+    return {
+        id: user.id,
+        username: user.username,
+        nickname: user.nickname,
+        email: user.email,
+        user_type: user.user_type,
+        profile_image: user.profile_image,
+        expires_at: user.expires_at,
+        mode: userPrefs.mode,
+        theme: userPrefs.theme,
+        color_theme: userPrefs.color_theme
+    };
+}
+
+// Returns an error message, or null when the new account fields are acceptable
+function validateAccount(username, password) {
+    if (!USERNAME_RE.test(username)) return '아이디는 영문, 숫자, _ 조합 4~20자로 입력해주세요.';
+    if (username.startsWith('guest_')) return '사용할 수 없는 아이디입니다.';
+    if (typeof password !== 'string' || password.length < MIN_PASSWORD) return `비밀번호는 ${MIN_PASSWORD}자 이상 입력해주세요.`;
+    return null;
+}
 
 // ---------------------------------------------------------
 // Helper: Random Nickname Generator
@@ -22,7 +55,7 @@ function generateRandomNickname() {
 router.post('/guest-login', async (req, res) => {
     try {
         // 임시 게스트 정보 생성
-        const guestUsername = `guest_${Date.now()}`;
+        const guestUsername = `guest_${crypto.randomBytes(8).toString('hex')}`; // unguessable: guests have no password
         const randomNickname = generateRandomNickname();
 
         // 7일 후 만료 설정
@@ -45,6 +78,7 @@ router.post('/guest-login', async (req, res) => {
                 user_type: 'GUEST',
                 expires_at: expiresAt
             },
+            token: signToken(newUserId),
             isNew: true // 체험 단계(STEP01)로 이동 트리거
         });
     } catch (error) {
@@ -55,12 +89,15 @@ router.post('/guest-login', async (req, res) => {
 
 // ✅ 계정 전환 (Convert Guest to Regular)
 // POST /api/auth/convert
-router.post('/convert', async (req, res) => {
-    const { user_id, username, password, nickname, email, phone_number } = req.body;
+router.post('/convert', requireAuth, async (req, res) => {
+    const { username, password, nickname, email, phone_number } = req.body;
+    const user_id = req.userId; // only the logged-in guest can convert itself
 
-    if (!user_id || !username || !password) {
+    if (!username || !password) {
         return res.status(400).json({ error: '필수 정보를 모두 입력해주세요.' });
     }
+    const invalid = validateAccount(username, password);
+    if (invalid) return res.status(400).json({ error: invalid });
 
     try {
         // 1. 현재 사용자 확인
@@ -75,6 +112,10 @@ router.post('/convert', async (req, res) => {
         // 2. 아이디 중복 확인
         const [existing] = await db.query('SELECT id FROM users WHERE username = ? AND id != ?', [username, user_id]);
         if (existing.length > 0) return res.status(409).json({ error: '이미 존재하는 아이디입니다.' });
+        if (email) {
+            const [emailTaken] = await db.query('SELECT id FROM users WHERE email = ? AND id != ?', [email, user_id]);
+            if (emailTaken.length > 0) return res.status(409).json({ error: '이미 가입된 이메일입니다.' });
+        }
 
         // 3. 비밀번호 해싱
         const saltRounds = 10;
@@ -98,8 +139,9 @@ router.post('/convert', async (req, res) => {
 
 // ✅ 프로필 업데이트 (Update Profile)
 // PUT /api/auth/user/:id
-router.put('/user/:id', async (req, res) => {
-    const userId = req.params.id;
+router.put('/user/:id', requireAuth, async (req, res) => {
+    const userId = req.userId;
+    if (Number(req.params.id) !== userId) return res.status(403).json({ error: '권한이 없습니다.' });
     const { nickname, profile_image } = req.body;
 
     try {
@@ -123,6 +165,8 @@ router.post('/join', async (req, res) => {
         if (!username || !email || !password) {
             return res.status(400).json({ error: '필수 정보를 모두 입력해주세요.' });
         }
+        const invalid = validateAccount(username, password);
+        if (invalid) return res.status(400).json({ error: invalid });
 
         const [existing] = await db.query('SELECT id FROM users WHERE username = ? OR email = ?', [username, email]);
         if (existing.length > 0) return res.status(409).json({ error: '이미 존재하는 아이디 혹은 이메일입니다.' });
@@ -149,52 +193,202 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
+        const LOGIN_FAILED = '아이디 또는 비밀번호가 일치하지 않습니다.';
         const [users] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
-        if (users.length === 0) return res.status(404).json({ error: '존재하지 않는 사용자입니다.' });
+        if (users.length === 0) return res.status(401).json({ error: LOGIN_FAILED });
 
         const user = users[0];
 
-        // 만료 체크 (게스트인 경우)
-        if (user.user_type === 'GUEST' && user.expires_at && new Date() > new Date(user.expires_at)) {
-            // 만료됨 -> 그러나 전환은 가능하도록 로그인 자체를 막을지, 아니면 'Expired' 상태를 리턴할지?
-            // 요구사항 4: 체험기간 만료시 로그인 불가하지만 본계정으로 전환가능하도록 처리
-            // -> 로그인은 성공시키되, 클라이언트에서 '만료됨 -> 전환 모달'을 띄우는 것이 UX상 좋음.
-            // 일단 로그인 성공시키고 isExpired 플래그를 보냄.
+        // Guests have no password and are reachable only through their token
+        if (user.user_type !== 'REGULAR' || !user.password_hash) {
+            return res.status(401).json({ error: LOGIN_FAILED });
         }
 
-        const match = await bcrypt.compare(password, user.password_hash || '');
-        // 게스트는 password_hash가 null일 수 있음. 
-        // 게스트는 아이디로만 로그인? 아니면 로컬스토리지 토큰으로만?
-        // 게스트가 '로그인' 화면에서 아이디를 칠 일은 거의 없음 (자동로그인). 
-        // 하지만 만약 친다면 비번이 없으므로 로그인 불가.
-
-        if (user.user_type === 'REGULAR' && !match) {
-            return res.status(401).json({ error: '비밀번호가 일치하지 않습니다.' });
+        const match = await bcrypt.compare(password || '', user.password_hash);
+        if (!match) {
+            return res.status(401).json({ error: LOGIN_FAILED });
         }
-
-        // Preferneces Join
-        const [prefs] = await db.query('SELECT * FROM user_preferences WHERE user_id = ?', [user.id]);
-        const userPrefs = prefs[0] || {};
 
         res.status(200).json({
             message: '로그인 성공',
-            user: {
-                id: user.id,
-                username: user.username,
-                nickname: user.nickname,
-                email: user.email,
-                user_type: user.user_type,
-                profile_image: user.profile_image,
-                expires_at: user.expires_at,
-                mode: userPrefs.mode, // Include prefs in login response
-                theme: userPrefs.theme,
-                color_theme: userPrefs.color_theme
-            }
+            token: signToken(user.id),
+            user: await userPayload(user)
         });
 
     } catch (error) {
         console.error('Login Error:', error);
         res.status(500).json({ error: '로그인 중 오류 발생' });
+    }
+});
+
+// ✅ 로그인 유지 (Session refresh)
+// POST /api/auth/refresh — the app calls this on every start: a valid token is swapped for a fresh 90-day one
+router.post('/refresh', requireAuth, async (req, res) => {
+    try {
+        const [users] = await db.query('SELECT * FROM users WHERE id = ?', [req.userId]);
+        res.status(200).json({ token: signToken(req.userId), user: await userPayload(users[0]) });
+    } catch (error) {
+        console.error('Refresh Error:', error);
+        res.status(500).json({ error: 'Server Error' });
+    }
+});
+
+// ✅ SNS 로그인 (Sign in with Apple / Google)
+// POST /api/auth/social/:provider  apple: { identityToken, authorizationCode, fullName }  google: { idToken }
+// Order: existing link → logged-in guest keeps their data → same verified email links → new account.
+router.post('/social/:provider', async (req, res) => {
+    const { provider } = req.params;
+    if (!['apple', 'google'].includes(provider)) return res.status(404).json({ error: '지원하지 않는 로그인 방식입니다.' });
+
+    let profile;
+    try {
+        profile = await verifySocialToken(provider, req.body);
+    } catch (e) {
+        console.error(`Social verify (${provider}) failed:`, e.message);
+        return res.status(401).json({ error: '로그인 정보를 확인하지 못했습니다. 다시 시도해주세요.' });
+    }
+
+    try {
+        let isNew = false;
+        let userId;
+        const [linked] = await db.query('SELECT user_id FROM social_accounts WHERE provider = ? AND provider_user_id = ?', [provider, profile.sub]);
+
+        if (linked.length > 0) {
+            userId = linked[0].user_id;
+        } else {
+            const guestId = userIdFromHeader(req);
+            const [guest] = guestId ? await db.query("SELECT id FROM users WHERE id = ? AND user_type = 'GUEST'", [guestId]) : [[]];
+            const [sameEmail] = profile.email && profile.emailVerified
+                ? await db.query("SELECT id FROM users WHERE email = ? AND user_type = 'REGULAR'", [profile.email])
+                : [[]];
+
+            if (guest.length > 0) {
+                userId = guest[0].id;
+                const [emailTaken] = profile.email ? await db.query('SELECT id FROM users WHERE email = ? AND id != ?', [profile.email, userId]) : [[]];
+                await db.query(
+                    "UPDATE users SET user_type = 'REGULAR', expires_at = NULL, email = ?, nickname = COALESCE(?, nickname) WHERE id = ?",
+                    [emailTaken.length ? null : profile.email, profile.name, userId]
+                );
+            } else if (sameEmail.length > 0) {
+                userId = sameEmail[0].id;
+            } else {
+                const [emailTaken] = profile.email ? await db.query('SELECT id FROM users WHERE email = ?', [profile.email]) : [[]];
+                const [result] = await db.query(
+                    "INSERT INTO users (username, nickname, email, user_type) VALUES (?, ?, ?, 'REGULAR')",
+                    [`${provider}_${crypto.randomBytes(8).toString('hex')}`, profile.name || generateRandomNickname(), emailTaken.length ? null : profile.email]
+                );
+                userId = result.insertId;
+                isNew = true;
+            }
+
+            await db.query('INSERT INTO social_accounts (provider, provider_user_id, user_id) VALUES (?, ?, ?)', [provider, profile.sub, userId]);
+        }
+
+        if (provider === 'apple' && req.body.authorizationCode) {
+            try {
+                const refreshToken = await appleRefreshToken(req.body.authorizationCode);
+                if (refreshToken) {
+                    await db.query("UPDATE social_accounts SET apple_refresh_token = ? WHERE provider = 'apple' AND provider_user_id = ?", [refreshToken, profile.sub]);
+                }
+            } catch (e) {
+                console.error('Apple token exchange failed:', e.message); // login still succeeds; only revocation is affected
+            }
+        }
+
+        const [users] = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
+        res.status(200).json({ token: signToken(userId), user: await userPayload(users[0]), isNew });
+    } catch (error) {
+        console.error('Social Login Error:', error);
+        res.status(500).json({ error: '로그인 중 오류가 발생했습니다.' });
+    }
+});
+
+// ✅ 아이디 찾기 + 비밀번호 재설정 (Password reset by emailed 6-digit code)
+const RESET_TTL_MIN = 15;
+const RESET_MAX_ATTEMPTS = 5;
+const hashCode = (code) => crypto.createHmac('sha256', process.env.JWT_SECRET).update(code).digest('hex');
+
+// POST /api/auth/password-reset/request { email }
+// Same response whether or not the email exists, so it can't be used to discover accounts.
+router.post('/password-reset/request', async (req, res) => {
+    const { email } = req.body;
+    const SENT = { message: '가입된 이메일이라면 인증 코드를 보냈습니다. 메일함을 확인해주세요.' };
+    if (typeof email !== 'string' || !email.includes('@')) return res.status(400).json({ error: '이메일을 정확히 입력해주세요.' });
+    if (!isMailConfigured()) return res.status(503).json({ error: '메일 발송이 준비되지 않았습니다. 문의하기로 연락해주세요.' });
+
+    try {
+        const [users] = await db.query("SELECT id, username FROM users WHERE email = ? AND user_type = 'REGULAR'", [email]);
+        if (users.length === 0) return res.status(200).json(SENT);
+
+        const user = users[0];
+        const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+        await db.query(
+            `REPLACE INTO password_resets (user_id, code_hash, expires_at, attempts)
+             VALUES (?, ?, NOW() + INTERVAL ? MINUTE, 0)`,
+            [user.id, hashCode(code), RESET_TTL_MIN]
+        );
+        await sendMail({
+            to: email,
+            subject: '[EdiTodo] 비밀번호 재설정 인증 코드',
+            text: `안녕하세요, EdiTodo입니다.
+
+아이디: ${user.username}
+인증 코드: ${code}
+
+앱의 비밀번호 재설정 화면에 위 코드를 입력해주세요. 코드는 ${RESET_TTL_MIN}분 동안 유효합니다.
+본인이 요청하지 않았다면 이 메일은 무시하셔도 됩니다.`,
+        });
+        res.status(200).json(SENT);
+    } catch (error) {
+        console.error('Password Reset Request Error:', error);
+        res.status(500).json({ error: '메일 발송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' });
+    }
+});
+
+// POST /api/auth/password-reset/confirm { email, code, password }
+router.post('/password-reset/confirm', async (req, res) => {
+    const { email, code, password } = req.body;
+    const INVALID = { error: '인증 코드가 올바르지 않거나 만료되었습니다.' };
+    if (typeof password !== 'string' || password.length < MIN_PASSWORD) {
+        return res.status(400).json({ error: `비밀번호는 ${MIN_PASSWORD}자 이상 입력해주세요.` });
+    }
+    if (typeof code !== 'string' || !/^\d{6}$/.test(code)) return res.status(400).json(INVALID);
+
+    try {
+        const [rows] = await db.query(
+            `SELECT r.user_id, r.code_hash, r.attempts, r.expires_at > NOW() AS valid
+             FROM password_resets r JOIN users u ON u.id = r.user_id
+             WHERE u.email = ? AND u.user_type = 'REGULAR'`,
+            [email]
+        );
+        const reset = rows[0];
+        if (!reset || !reset.valid || reset.attempts >= RESET_MAX_ATTEMPTS) return res.status(400).json(INVALID);
+
+        const given = Buffer.from(hashCode(code));
+        if (!crypto.timingSafeEqual(given, Buffer.from(reset.code_hash))) {
+            await db.query('UPDATE password_resets SET attempts = attempts + 1 WHERE user_id = ?', [reset.user_id]);
+            return res.status(400).json(INVALID);
+        }
+
+        const hash = await bcrypt.hash(password, 10);
+        await db.query('UPDATE users SET password_hash = ? WHERE id = ?', [hash, reset.user_id]);
+        await db.query('DELETE FROM password_resets WHERE user_id = ?', [reset.user_id]);
+        res.status(200).json({ message: '비밀번호가 변경되었습니다. 새 비밀번호로 로그인해주세요.' });
+    } catch (error) {
+        console.error('Password Reset Confirm Error:', error);
+        res.status(500).json({ error: '비밀번호 변경 중 오류가 발생했습니다.' });
+    }
+});
+
+// ✅ 회원 탈퇴 (Delete own account and all its data)
+// DELETE /api/auth/me
+router.delete('/me', requireAuth, async (req, res) => {
+    try {
+        await deleteUser(req.userId);
+        res.status(200).json({ message: '회원 탈퇴가 완료되었습니다.' });
+    } catch (error) {
+        console.error('Delete Account Error:', error);
+        res.status(500).json({ error: '회원 탈퇴 중 오류가 발생했습니다.' });
     }
 });
 

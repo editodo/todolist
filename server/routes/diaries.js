@@ -1,26 +1,28 @@
-
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// GET Diaries for a specific user and month (YYYY-MM) or specific date (YYYY-MM-DD)
+// All routes run behind requireAuth: the owner is always req.userId; client-sent user_id is ignored.
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const MONTH_RE = /^\d{4}-\d{2}$/;
+const MAX_CONTENT = 5000;
+
+// GET Diaries for the logged-in user, by month (YYYY-MM) or specific date (YYYY-MM-DD)
 router.get('/', async (req, res) => {
     try {
-        const { user_id, date, month } = req.query; // date: '2024-01-01', month: '2024-01'
-
-        if (!user_id) return res.status(400).json({ error: 'User ID required' });
+        const { date, month } = req.query;
 
         if (date) {
-            // Updated to return formatted date string
-            const [rows] = await db.query('SELECT user_id, DATE_FORMAT(date, "%Y-%m-%d") as date, content, emotion FROM diaries WHERE user_id = ? AND date = ?', [user_id, date]);
+            if (!DATE_RE.test(date)) return res.status(400).json({ error: '날짜 형식이 올바르지 않습니다.' });
+            const [rows] = await db.query('SELECT user_id, DATE_FORMAT(date, "%Y-%m-%d") as date, content, emotion FROM diaries WHERE user_id = ? AND date = ?', [req.userId, date]);
             return res.json(rows[0] || null);
         }
 
         if (month) {
-            // Updated to return formatted date string
+            if (!MONTH_RE.test(month)) return res.status(400).json({ error: '날짜 형식이 올바르지 않습니다.' });
             const [rows] = await db.query(
                 'SELECT DATE_FORMAT(date, "%Y-%m-%d") as date, emotion, content FROM diaries WHERE user_id = ? AND DATE_FORMAT(date, "%Y-%m") = ?',
-                [user_id, month]
+                [req.userId, month]
             );
             return res.json(rows);
         }
@@ -35,11 +37,14 @@ router.get('/', async (req, res) => {
 // POST/PUT Upsert Diary
 router.post('/', async (req, res) => {
     try {
-        const { user_id, date, content, emotion } = req.body;
-        console.log('Saving Diary:', { user_id, date, content, emotion });
+        const { date, content, emotion } = req.body;
 
-        if (!user_id || !date || !content || !emotion) {
+        if (!date || !content || !emotion) {
             return res.status(400).json({ error: 'Missing required fields' });
+        }
+        if (!DATE_RE.test(date)) return res.status(400).json({ error: '날짜 형식이 올바르지 않습니다.' });
+        if (typeof content !== 'string' || content.length > MAX_CONTENT) {
+            return res.status(400).json({ error: `일기는 ${MAX_CONTENT}자까지 입력할 수 있습니다.` });
         }
 
         // Upsert syntax for MySQL
@@ -48,21 +53,21 @@ router.post('/', async (req, res) => {
             VALUES (?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE content = VALUES(content), emotion = VALUES(emotion)
         `;
-        await db.query(query, [user_id, date, content, emotion]);
+        await db.query(query, [req.userId, date, content, emotion]);
         res.json({ success: true });
     } catch (error) {
         console.error('Save Diary Error:', error);
-        res.status(500).json({ error: 'Server Error', details: error.message });
+        res.status(500).json({ error: 'Server Error' });
     }
 });
 
 // DELETE Diary
 router.delete('/', async (req, res) => {
     try {
-        const { user_id, date } = req.query;
-        if (!user_id || !date) return res.status(400).json({ error: 'User ID and Date required' });
+        const { date } = req.query;
+        if (!date || !DATE_RE.test(date)) return res.status(400).json({ error: 'Date required' });
 
-        await db.query('DELETE FROM diaries WHERE user_id = ? AND date = ?', [user_id, date]);
+        await db.query('DELETE FROM diaries WHERE user_id = ? AND date = ?', [req.userId, date]);
         res.json({ success: true });
     } catch (error) {
         console.error('Delete Diary Error:', error);

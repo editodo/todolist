@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import { apiFetch } from '../config';
 
 export default function DiaryModal({ visible, date, onClose, onSaved, initialData, userId, apiUrl }) {
     const { theme } = useTheme();
@@ -57,7 +58,7 @@ export default function DiaryModal({ visible, date, onClose, onSaved, initialDat
 
     const fetchCompletedTodos = async () => {
         try {
-            const response = await fetch(`${apiUrl}/api/todos/${userId}?date=${date}`);
+            const response = await apiFetch(`${apiUrl}/api/todos/${userId}?date=${date}`);
             if (response.ok) {
                 const todos = await response.json();
                 const done = todos.filter(t => t.is_completed);
@@ -74,7 +75,7 @@ export default function DiaryModal({ visible, date, onClose, onSaved, initialDat
 
         setIsSaving(true);
         try {
-            const response = await fetch(`${apiUrl}/api/diaries`, {
+            const response = await apiFetch(`${apiUrl}/api/diaries`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -109,7 +110,7 @@ export default function DiaryModal({ visible, date, onClose, onSaved, initialDat
                 onPress: async () => {
                     setIsDeleting(true);
                     try {
-                        const response = await fetch(`${apiUrl}/api/diaries?user_id=${userId}&date=${date}`, {
+                        const response = await apiFetch(`${apiUrl}/api/diaries?user_id=${userId}&date=${date}`, {
                             method: 'DELETE'
                         });
                         if (response.ok) {

@@ -1,22 +1,36 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import { layout } from '../theme';
 import Button from '../components/Button';
 import { useTheme } from '../context/ThemeContext';
 import StepIndicator from '../components/StepIndicator';
 import ThemePreview from '../components/ThemePreview';
 import { useAuth } from '../context/AuthContext';
-import { API_URL } from '../config';
+import { API_URL, apiFetch } from '../config';
+import { permissionUndetermined, requestPermission, getSettings, saveSettings } from '../notifications';
 
 export default function Step04Screen({ navigation }) {
     const { theme, mode, themeStyle, palette } = useTheme();
     const { user } = useAuth();
+    // Morning reminder offer, shown only before the permission was ever asked
+    const [offerReminder, setOfferReminder] = useState(false);
+    const [wantReminder, setWantReminder] = useState(true);
+
+    useEffect(() => {
+        permissionUndetermined().then(setOfferReminder).catch(() => {});
+    }, []);
 
     const handleStart = async () => {
+        if (offerReminder) {
+            const granted = wantReminder && (await requestPermission());
+            const current = await getSettings();
+            await saveSettings({ ...current, morning: { ...current.morning, enabled: granted } }, user);
+        }
+
         try {
             // Save preferences to DB
             if (user?.id) {
-                await fetch(`${API_URL}/api/preferences`, {
+                await apiFetch(`${API_URL}/api/preferences`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -54,6 +68,18 @@ export default function Step04Screen({ navigation }) {
                     </View>
                 </View>
 
+                {offerReminder && (
+                    <TouchableOpacity
+                        style={styles.reminderRow}
+                        onPress={() => setWantReminder(!wantReminder)}
+                        accessibilityRole="checkbox"
+                        accessibilityState={{ checked: wantReminder }}
+                    >
+                        <View style={[styles.reminderBox, wantReminder && styles.reminderBoxOn]} />
+                        <Text style={styles.reminderText}>매일 아침 9시에 오늘 할 일을 알려드릴까요?</Text>
+                    </TouchableOpacity>
+                )}
+
                 <View style={styles.bottomBtnGroup}>
                     <View style={{ flexDirection: 'row', gap: 10 }}>
                         <Button
@@ -84,5 +110,9 @@ const getStyles = (theme) => StyleSheet.create({
 
     previewContainer: { flex: 1 },
 
+    reminderRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+    reminderBox: { width: 18, height: 18, borderRadius: 9, borderWidth: 1, borderColor: '#ccc', marginRight: 8 },
+    reminderBoxOn: { backgroundColor: theme.colors.main, borderColor: theme.colors.main },
+    reminderText: { flex: 1, fontSize: 13, color: theme.colors.text },
     bottomBtnGroup: { marginBottom: 20 }
 });

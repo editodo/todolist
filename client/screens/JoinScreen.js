@@ -10,9 +10,13 @@ export default function JoinScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
-    const [phone, setPhone] = useState('');
+    const [agreed, setAgreed] = useState(false);
 
     const handleJoin = async () => {
+        if (!agreed) {
+            Alert.alert('약관 동의', '이용약관과 개인정보처리방침에 동의해주세요.');
+            return;
+        }
         if (password !== passwordConfirm) {
             Alert.alert('비밀번호 불일치', '비밀번호와 비밀번호 확인이 다릅니다.');
             return;
@@ -25,8 +29,7 @@ export default function JoinScreen({ navigation }) {
                 body: JSON.stringify({
                     username: userId,
                     email: email,
-                    password: password,
-                    phone_number: phone
+                    password: password
                 })
             });
             const data = await response.json();
@@ -56,7 +59,7 @@ export default function JoinScreen({ navigation }) {
                 <ScrollView style={styles.formWrap} showsVerticalScrollIndicator={false}>
                     <Input
                         label="아이디"
-                        placeholder="8-16 자리 영문, 숫자 조합"
+                        placeholder="영문, 숫자, _ 조합 4~20자"
                         value={userId}
                         onChangeText={setUserId}
                     />
@@ -68,7 +71,7 @@ export default function JoinScreen({ navigation }) {
                     />
                     <Input
                         label="비밀번호"
-                        placeholder="8-16자리 영문,숫자 조합"
+                        placeholder="8자 이상"
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
@@ -80,18 +83,18 @@ export default function JoinScreen({ navigation }) {
                         onChangeText={setPasswordConfirm}
                         secureTextEntry
                     />
-                    <Input
-                        label="휴대폰번호"
-                        placeholder="휴대폰 번호 '-' 없이 입력"
-                        value={phone}
-                        onChangeText={setPhone}
-                    />
 
-                    {/* Terms Checkbox Simplified */}
                     <View style={styles.saveId}>
-                        <View style={styles.checkbox} />
+                        <TouchableOpacity
+                            onPress={() => setAgreed(!agreed)}
+                            style={[styles.checkbox, agreed && styles.checkboxOn]}
+                            accessibilityRole="checkbox"
+                            accessibilityState={{ checked: agreed }}
+                            accessibilityLabel="이용약관과 개인정보처리방침 동의"
+                        />
                         <Text style={styles.termsText}>
-                            이용약관과 개인정보처리방침에 동의합니다.
+                            <Text style={styles.termsLink} onPress={() => navigation.navigate('Terms')}>이용약관</Text>과{' '}
+                            <Text style={styles.termsLink} onPress={() => navigation.navigate('PrivacyPolicy')}>개인정보처리방침</Text>에 동의합니다. (만 14세 이상)
                         </Text>
                     </View>
                 </ScrollView>
@@ -155,8 +158,17 @@ const styles = StyleSheet.create({
         marginRight: 6,
     },
     termsText: {
+        flex: 1,
         fontSize: 13,
         color: '#666',
+    },
+    checkboxOn: {
+        backgroundColor: colors.main,
+        borderColor: colors.main,
+    },
+    termsLink: {
+        textDecorationLine: 'underline',
+        color: colors.text,
     },
     bottomBtnGroup: {
         marginBottom: 20,

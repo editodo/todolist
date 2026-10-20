@@ -1,10 +1,11 @@
 // server/db.js
 const mysql = require('mysql2');
-require('dotenv').config();
+// .env wins over stale PM2 env. Skipped under `node --test` so tests never touch the real database.
+if (!process.env.NODE_TEST_CONTEXT) require('dotenv').config({ path: require('path').join(__dirname, '.env'), override: true });
 
 // Create the real pool
 // Create the real pool - using environment variables
-// Local '.env' will drive Dev, 'ecosystem.config.js' will drive Prod
+// server/.env drives both Dev and Prod (never commit it)
 console.log(`🔌 DB Connection Config: Host=${process.env.DB_HOST || 'localhost'}, User=${process.env.DB_USER || 'root'}, Db=${process.env.DB_NAME || 'editodo'}`);
 
 const pool = mysql.createPool({
@@ -42,8 +43,7 @@ const wrappedPool = {
     query: async (sql, params) => {
         return await promisePool.query(sql, params);
     },
-    // re-export other methods if needed
-    getConnection: promisePool.getConnection
+    getConnection: () => promisePool.getConnection()
 };
 
 module.exports = wrappedPool;

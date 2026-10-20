@@ -13,11 +13,8 @@ module.exports = {
             },
             env_production: {
                 NODE_ENV: 'production',
-                PORT: 8080,
-                DB_HOST: '222.239.250.229', //'127.0.0.1', // Use IP to force TCP connection
-                DB_USER: 'editodo',
-                DB_PASSWORD: 'dbEdit0d0!@',
-                DB_NAME: 'editodo'
+                PORT: 8080
+                // DB_*, JWT_SECRET, SESSION_SECRET, ADMIN_* live in server/.env (not committed)
             }
         }
     ]

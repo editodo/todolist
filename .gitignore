@@ -27,3 +27,6 @@ Thumbs.db
 *.aab
 *.apk
 client/web-build/
+
+# Production env (secrets live only on the server)
+env_production

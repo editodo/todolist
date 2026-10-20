@@ -8,10 +8,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '20'
 
@@ -21,26 +21,38 @@ jobs:
         npm install
         npm run build:web
 
-    - name: Copy files via SCP
-      uses: appleboy/scp-action@master
+    # Check before copying anything, so a missing .env leaves the live site untouched
+    - name: Check server/.env exists
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         password: ${{ secrets.SERVER_PASSWORD }}
-        source: "./"
+        script: |
+          test -f /var/www/editodo/server/.env || { echo "server/.env is missing on the server (see server/.env.example)"; exit 1; }
+          node -e "process.exit(Number(process.versions.node.split('.')[0]) >= 18 ? 0 : 1)" || { echo "Node 18+ required on the server"; exit 1; }
+
+    - name: Copy files via SCP
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        password: ${{ secrets.SERVER_PASSWORD }}
+        source: "server,client/dist,nginx.conf"  # only what the server needs (no .git, no secrets)
         target: "/var/www/editodo"
         strip_components: 0
 
     - name: Execute Server Commands
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         password: ${{ secrets.SERVER_PASSWORD }}
         script: |
           cd /var/www/editodo/server
-          npm install --production
-          pm2 reload ecosystem.config.js --env production || pm2 start ecosystem.config.js --env production
+          npm install --omit=dev
+          pm2 reload ecosystem.config.js --env production --update-env || pm2 start ecosystem.config.js --env production
           pm2 save
           sudo cp /var/www/editodo/nginx.conf /etc/nginx/conf.d/00-editodo.conf
-          sudo systemctl restart nginx
+          sudo nginx -t   # a broken config stops here instead of taking the site down
+          sudo systemctl reload nginx
