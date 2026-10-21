@@ -279,7 +279,9 @@ function AuthWrapper() {
         initialRouteName={user ? "MainTabs" : "Onboarding"}
         screenOptions={{
           headerShown: false,
-          cardStyle: { backgroundColor: '#fff' }
+          // flex: 1 keeps each card at screen height on web; otherwise it grows with its content and,
+          // since Expo's web page doesn't scroll, long screens (privacy, terms) can't scroll at all
+          cardStyle: { backgroundColor: '#fff', flex: 1 }
         }}
       >
         <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ title: 'EdiTodo' }} />
