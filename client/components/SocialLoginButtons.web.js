@@ -6,6 +6,8 @@ import { useAuth } from '../context/AuthContext';
 import { GOOGLE_WEB_CLIENT_ID, APPLE_SERVICES_ID } from '../config';
 import { colors } from '../theme';
 import { t } from '../i18n';
+import KakaoButton from './KakaoButton';
+import { kakaoEnabled } from '../kakaoAuth';
 
 // Web version of the Apple/Google buttons (the native one uses the phone SDKs). Each provider's official
 // script is loaded only when its ID is configured; the server verifies the resulting ID token either way.
@@ -77,7 +79,7 @@ export default function SocialLoginButtons({ onDone }) {
         }
     };
 
-    if (!GOOGLE_WEB_CLIENT_ID && !APPLE_SERVICES_ID) return null;
+    if (!GOOGLE_WEB_CLIENT_ID && !APPLE_SERVICES_ID && !kakaoEnabled) return null;
 
     return (
         <View style={styles.wrap}>
@@ -86,6 +88,7 @@ export default function SocialLoginButtons({ onDone }) {
                 <Text style={styles.dividerText}>{t('또는')}</Text>
                 <View style={styles.line} />
             </View>
+            {kakaoEnabled ? <KakaoButton finish={finish} /> : null}
             {APPLE_SERVICES_ID ? (
                 <TouchableOpacity style={styles.appleBtn} onPress={appleReady ? handleApple : undefined} accessibilityRole="button" activeOpacity={0.85}>
                     <Ionicons name="logo-apple" size={18} color="#fff" />

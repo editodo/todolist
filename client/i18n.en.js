@@ -22,6 +22,8 @@ export default {
     // To-do list & calendar
     '하루 기록': 'Daily record', '할 일을 삭제했어요': 'To-do deleted', '되돌리기': 'Undo',
     '할 일을 저장하지 못했습니다.': "Couldn't save the to-do.",
+    '카카오로 계속하기': 'Continue with Kakao', '카카오 로그인을 완료하지 못했습니다.': "Couldn't finish Kakao login.",
+    '닫기': 'Close', '오늘': 'Today', '{n}월': '{n}', '연도·월 선택': 'Choose year and month',
     '이전 날': 'Previous day', '날짜 선택': 'Choose a date', '다음 날': 'Next day',
     '할 일을 입력하세요': 'Write a to-do', '입력 취소': 'Cancel', '날짜를 선택해주세요.': 'Pick a date.',
     '할 일 수정': 'Edit to-do', '눌러서 수정': 'Tap to edit', '{text} 삭제': 'Delete {text}',
@@ -36,6 +38,8 @@ export default {
     '투두리스트는 잘 지켜졌는지, 기분은 어떤지 적어봐요.': 'How did your to-dos go? How do you feel?',
     '오늘 하루 기록': "Today's record", '오늘 하루 요약 스티커': "Today's sticker",
     '저장 중...': 'Saving...', '기록 완료': 'Save record',
+    '기록 수정': 'Edit', '목록': 'List', '오늘 한 일': 'Done today', '시간': 'Time', '기록 보기': 'View record',
+    '이 날 완료한 할 일이 없어요.': 'No completed to-dos on this day.', '할 일을 불러오지 못했어요.': "Couldn't load your to-dos.",
 
     // Fonts & language
     '기본 글씨체': 'Default (Noto Sans KR)', '글꼴 변경': 'Font',

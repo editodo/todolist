@@ -8,6 +8,7 @@ import Button from '../components/Button';
 import { SUPPORT_EMAIL } from '../config';
 import { t } from '../i18n';
 import { useTheme } from '../context/ThemeContext';
+import BackButton from '../components/BackButton';
 
 export default function InquiryScreen({ navigation }) {
     const { colors } = useTheme().theme;
@@ -28,7 +29,7 @@ export default function InquiryScreen({ navigation }) {
         <SafeAreaView style={styles.container}>
             <Header
                 title={t('문의하기')}
-                leftButton={<TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.back}>{'<'}</Text></TouchableOpacity>}
+                leftButton={<BackButton onPress={() => navigation.goBack()} />}
             />
             <ScrollView style={styles.content} automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled">
                 <Text style={styles.label}>{t('문의 메일 주소')}</Text>

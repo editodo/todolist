@@ -8,6 +8,7 @@ import Input from '../components/Input';
 import { API_URL } from '../config';
 import { t } from '../i18n';
 import { useTheme } from '../context/ThemeContext';
+import BackButton from '../components/BackButton';
 
 export default function JoinScreen({ navigation }) {
     const { colors } = useTheme().theme;
@@ -57,9 +58,7 @@ export default function JoinScreen({ navigation }) {
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                        <Text style={{ fontSize: 24, color: colors.text }}>←</Text>
-                    </TouchableOpacity>
+                    <BackButton onPress={() => navigation.goBack()} />
                     <Text style={styles.headerTitle}>{t('회원가입')}</Text>
                     <View style={{ width: 30 }} />
                 </View>

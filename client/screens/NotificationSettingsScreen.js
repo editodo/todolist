@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { getSettings, saveSettings, requestPermission, hasPermission, DEFAULT_SETTINGS } from '../notifications';
 import { t } from '../i18n';
 import { useTheme } from '../context/ThemeContext';
+import BackButton from '../components/BackButton';
 
 const TIMES = Array.from({ length: 48 }, (_, i) => ({ hour: Math.floor(i / 2), minute: (i % 2) * 30 }));
 export const formatTime = ({ hour, minute }) =>
@@ -46,7 +47,7 @@ export default function NotificationSettingsScreen({ navigation }) {
         <SafeAreaView style={styles.container}>
             <Header
                 title={t('알림 설정')}
-                leftButton={<TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.back}>{'<'}</Text></TouchableOpacity>}
+                leftButton={<BackButton onPress={() => navigation.goBack()} />}
             />
             <ScrollView style={styles.content}>
                 {!allowed && (

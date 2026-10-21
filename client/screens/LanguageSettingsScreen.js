@@ -7,6 +7,7 @@ import Header from '../components/Header';
 import Button from '../components/Button';
 import { useTheme } from '../context/ThemeContext';
 import { t, LANGUAGES } from '../i18n';
+import BackButton from '../components/BackButton';
 
 // 언어: follow the device, or force 한국어 / English. Applying redraws every screen in the new language.
 export default function LanguageSettingsScreen({ navigation }) {
@@ -19,7 +20,7 @@ export default function LanguageSettingsScreen({ navigation }) {
         <SafeAreaView style={styles.container}>
             <Header
                 title={t('언어')}
-                leftButton={<TouchableOpacity onPress={() => navigation.goBack()} accessibilityLabel={t('뒤로')}><Text style={styles.back}>{'<'}</Text></TouchableOpacity>}
+                leftButton={<BackButton onPress={() => navigation.goBack()} />}
             />
             <View style={styles.body}>
                 {options.map((o) => {

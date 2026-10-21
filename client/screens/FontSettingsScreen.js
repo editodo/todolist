@@ -9,6 +9,7 @@ import Button from '../components/Button';
 import { useTheme } from '../context/ThemeContext';
 import { useT } from '../i18n';
 import { API_URL } from '../config';
+import BackButton from '../components/BackButton';
 
 const SAMPLE = '더 많은 테마는 E-T에서 열심히 준비 중이에요\n123456789!@#$%&*()_+-=\nThe quick brown fox';
 
@@ -49,7 +50,7 @@ export default function FontSettingsScreen({ navigation }) {
         <SafeAreaView style={styles.container}>
             <Header
                 title={t('글꼴 변경')}
-                leftButton={<TouchableOpacity onPress={() => navigation.goBack()} accessibilityLabel={t('뒤로')}><Text style={styles.back}>{'<'}</Text></TouchableOpacity>}
+                leftButton={<BackButton onPress={() => navigation.goBack()} />}
             />
             <View style={styles.body}>
                 <View style={styles.preview}>

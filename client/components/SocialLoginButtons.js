@@ -8,8 +8,10 @@ import { useAuth } from '../context/AuthContext';
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../config';
 import { colors } from '../theme';
 import { t } from '../i18n';
+import KakaoButton from './KakaoButton';
+import { kakaoEnabled } from '../kakaoAuth';
 
-// Apple: iOS only (App Store rule 4.8 requires it next to Google there). Google: Android + iOS once client IDs are set.
+// Kakao: everywhere once KAKAO_REST_API_KEY is set. Apple: iOS only (App Store rule 4.8 requires it next to Google there). Google: Android + iOS once client IDs are set.
 // Web keeps ID/password login. onDone({ isNew }) runs after the server accepted the sign-in.
 // Expo Go has no Google Sign-In native module, so the library is only loaded where it can run (dev/store builds)
 const isExpoGo = Constants.executionEnvironment === 'storeClient';
@@ -69,7 +71,7 @@ export default function SocialLoginButtons({ onDone }) {
         }
     };
 
-    if (!appleAvailable && !googleEnabled) return null;
+    if (!appleAvailable && !googleEnabled && !kakaoEnabled) return null;
 
     return (
         <View style={styles.wrap}>
@@ -79,6 +81,7 @@ export default function SocialLoginButtons({ onDone }) {
                 <View style={styles.line} />
             </View>
             {busy && <ActivityIndicator color={colors.main} style={{ marginBottom: 10 }} />}
+            {kakaoEnabled && <KakaoButton finish={finish} />}
             {appleAvailable && (
                 <AppleAuthentication.AppleAuthenticationButton
                     buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}

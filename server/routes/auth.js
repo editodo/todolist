@@ -241,12 +241,24 @@ router.post('/refresh', requireAuth, async (req, res) => {
     }
 });
 
-// ✅ SNS 로그인 (Sign in with Apple / Google)
-// POST /api/auth/social/:provider  apple: { identityToken, authorizationCode, fullName }  google: { idToken }
+// Kakao redirects the browser here after login. Pass the one-time code back unchanged: to the app's scheme
+// (state ends in ".app"), or to the web popup's opener on our own origin. The code alone is useless without
+// the PKCE verifier the app kept, and only POST /social/kakao (with our secret) can redeem it.
+router.get('/kakao/callback', (req, res) => {
+    const q = (k) => (typeof req.query[k] === 'string' ? req.query[k] : '');
+    const result = { code: q('code'), state: q('state'), error: q('error') };
+    if (result.state.endsWith('.app')) return res.redirect(`editodo://auth/kakao?${new URLSearchParams(result)}`);
+    const origin = process.env.KAKAO_WEB_ORIGIN || 'https://editodo.com';
+    const data = JSON.stringify({ type: 'kakao', ...result }).replace(/</g, '\\u003c');
+    res.type('html').send(`<!doctype html><meta charset="utf-8"><script>if (window.opener) window.opener.postMessage(${data}, ${JSON.stringify(origin)}); window.close();</script>`);
+});
+
+// ✅ SNS 로그인 (Sign in with Apple / Google / Kakao)
+// POST /api/auth/social/:provider  apple: { identityToken, authorizationCode, fullName }  google: { idToken }  kakao: { code, codeVerifier }
 // Order: existing link → logged-in guest keeps their data → same verified email links → new account.
 router.post('/social/:provider', async (req, res) => {
     const { provider } = req.params;
-    if (!['apple', 'google'].includes(provider)) return res.status(404).json({ error: '지원하지 않는 로그인 방식입니다.' });
+    if (!['apple', 'google', 'kakao'].includes(provider)) return res.status(404).json({ error: '지원하지 않는 로그인 방식입니다.' });
 
     let profile;
     try {

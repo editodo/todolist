@@ -8,6 +8,7 @@ import Input from '../components/Input';
 import { API_URL } from '../config';
 import { t } from '../i18n';
 import { useTheme } from '../context/ThemeContext';
+import BackButton from '../components/BackButton';
 
 // Two steps on one screen: 1) email → server mails the ID and a 6-digit code, 2) code + new password.
 export default function PasswordResetScreen({ navigation }) {
@@ -60,9 +61,7 @@ export default function PasswordResetScreen({ navigation }) {
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                        <Text style={{ fontSize: 24, color: colors.text }}>←</Text>
-                    </TouchableOpacity>
+                    <BackButton onPress={() => navigation.goBack()} />
                     <Text style={styles.headerTitle}>{t('아이디/비밀번호 찾기')}</Text>
                     <View style={{ width: 30 }} />
                 </View>

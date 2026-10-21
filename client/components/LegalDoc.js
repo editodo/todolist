@@ -5,6 +5,7 @@ import { Text } from './AppText';
 import { colors, layout } from '../theme';
 import Header from './Header';
 import { useTheme } from '../context/ThemeContext';
+import BackButton from './BackButton';
 
 // Shared layout for the privacy policy and terms: a back header plus titled sections.
 export default function LegalDoc({ navigation, title, effectiveDate, sections }) {
@@ -15,7 +16,7 @@ export default function LegalDoc({ navigation, title, effectiveDate, sections })
             <Header
                 title={title}
                 leftButton={navigation.canGoBack() ? (
-                    <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.back}>{'<'}</Text></TouchableOpacity>
+                    <BackButton onPress={() => navigation.goBack()} />
                 ) : null}
             />
             <ScrollView contentContainerStyle={styles.content}>

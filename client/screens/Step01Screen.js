@@ -8,6 +8,7 @@ import { useTheme } from '../context/ThemeContext';
 import StepIndicator from '../components/StepIndicator';
 import ThemePreview from '../components/ThemePreview';
 import { t } from '../i18n';
+import BackButton from '../components/BackButton';
 
 // Step 1 of 3 (design: 테마선택). Mode (light/dark/system) sits here too, per the design note
 // "white/black/system 모드 추가 - step1".
@@ -63,9 +64,7 @@ export default function Step01Screen({ navigation, route }) {
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
                 {fromSettings && (
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} accessibilityRole="button" accessibilityLabel={t('취소')}>
-                        <Text style={styles.backText}>←</Text>
-                    </TouchableOpacity>
+                    <BackButton onPress={() => navigation.goBack()} label={t('취소')} />
                 )}
                 <StepIndicator step={1} />
 

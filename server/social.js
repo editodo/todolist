@@ -41,8 +41,53 @@ async function verifyIdToken(provider, idToken) {
     return jwt.verify(idToken, key, options);
 }
 
+// Kakao: the app hands over the one-time authorization code (+ PKCE verifier); only the server can redeem it.
+const kakaoRedirectUri = () => process.env.KAKAO_REDIRECT_URI || 'https://editodo.com/api/auth/kakao/callback';
+
+async function verifyKakaoCode({ code, codeVerifier }) {
+    if (!process.env.KAKAO_REST_API_KEY) throw new Error('KAKAO_REST_API_KEY not set');
+    if (typeof code !== 'string' || !code) throw new Error('missing code');
+    const form = new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: process.env.KAKAO_REST_API_KEY,
+        redirect_uri: kakaoRedirectUri(),
+        code,
+    });
+    if (typeof codeVerifier === 'string') form.set('code_verifier', codeVerifier);
+    if (process.env.KAKAO_CLIENT_SECRET) form.set('client_secret', process.env.KAKAO_CLIENT_SECRET);
+    const tokenRes = await fetch('https://kauth.kakao.com/oauth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
+        body: form,
+    });
+    if (!tokenRes.ok) throw new Error(`kakao token ${tokenRes.status} ${await tokenRes.text()}`);
+    const { access_token: accessToken } = await tokenRes.json();
+    const meRes = await fetch('https://kapi.kakao.com/v2/user/me', { headers: { Authorization: `Bearer ${accessToken}` } });
+    if (!meRes.ok) throw new Error(`kakao me ${meRes.status}`);
+    const me = await meRes.json();
+    const account = me.kakao_account || {};
+    return {
+        sub: String(me.id),
+        email: account.email || null,
+        emailVerified: Boolean(account.is_email_valid && account.is_email_verified),
+        name: account.profile?.nickname || me.properties?.nickname || null,
+    };
+}
+
+// Account deletion: disconnect the app from the user's Kakao account. Needs the app's Admin key.
+async function unlinkKakao(kakaoUserId) {
+    if (!process.env.KAKAO_ADMIN_KEY) return;
+    const res = await fetch('https://kapi.kakao.com/v1/user/unlink', {
+        method: 'POST',
+        headers: { Authorization: `KakaoAK ${process.env.KAKAO_ADMIN_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
+        body: new URLSearchParams({ target_id_type: 'user_id', target_id: kakaoUserId }),
+    });
+    if (!res.ok) throw new Error(`kakao unlink ${res.status}`);
+}
+
 // Returns { sub, email, emailVerified, name } or throws when the token isn't genuine / not for this app.
 async function verifySocialToken(provider, body) {
+    if (provider === 'kakao') return verifyKakaoCode(body);
     if (provider === 'apple') {
         const claims = await verifyIdToken('apple', body.identityToken);
         const name = [body.fullName?.familyName, body.fullName?.givenName].filter(Boolean).join('') || null;
@@ -94,4 +139,4 @@ async function revokeAppleToken(refreshToken, clientId) {
     await appleForm('revoke', clientId || appleClientIds()[0], { token: refreshToken, token_type_hint: 'refresh_token' });
 }
 
-module.exports = { verifySocialToken, appleRefreshToken, revokeAppleToken };
+module.exports = { verifySocialToken, appleRefreshToken, revokeAppleToken, unlinkKakao };

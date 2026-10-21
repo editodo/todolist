@@ -7,6 +7,7 @@ import Header from '../components/Header';
 import { API_URL } from '../config';
 import { t } from '../i18n';
 import { useTheme } from '../context/ThemeContext';
+import BackButton from '../components/BackButton';
 
 if (Platform.OS === 'android') {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -58,7 +59,7 @@ export default function NoticeScreen({ navigation }) {
         <SafeAreaView style={styles.container}>
             <Header
                 title={t('공지사항')}
-                leftButton={<TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.back}>{'<'}</Text></TouchableOpacity>}
+                leftButton={<BackButton onPress={() => navigation.goBack()} />}
             />
             <ScrollView style={styles.list}>
                 {notices === null && <ActivityIndicator style={{ marginTop: 40 }} color={colors.main} />}

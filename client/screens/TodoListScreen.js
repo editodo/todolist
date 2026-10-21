@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { useDate } from '../context/DateContext';
 import TodoItem from '../components/TodoItem';
 import UndoToast, { useUndoDelete } from '../components/UndoToast';
+import DatePicker from '../components/DatePicker';
 import { API_URL, apiFetch } from '../config';
 import { t } from '../i18n';
 
@@ -154,6 +155,8 @@ export default function TodoListScreen({ navigation }) {
         }
     };
 
+    const [pickerOpen, setPickerOpen] = useState(false);
+
     const changeDate = (days) => {
         const d = new Date(selectedDate);
         d.setDate(d.getDate() + days);
@@ -166,11 +169,18 @@ export default function TodoListScreen({ navigation }) {
             {/* Design: ◀ 07.23(토) ▶ — tap the date to pick from a calendar */}
             <View style={styles.dateNav}>
                 <TouchableOpacity onPress={() => changeDate(-1)} style={styles.arrowBtn} accessibilityLabel={t('이전 날')}><Text style={styles.arrow}>◀</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Calendar')} accessibilityLabel={t('날짜 선택')}>
+                <TouchableOpacity onPress={() => setPickerOpen(true)} accessibilityLabel={t('날짜 선택')}>
                     <Text style={styles.dateText}>{formattedDate}({weekMap[dateObj.getDay()]})</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => changeDate(1)} style={styles.arrowBtn} accessibilityLabel={t('다음 날')}><Text style={styles.arrow}>▶</Text></TouchableOpacity>
             </View>
+
+            <DatePicker
+                visible={pickerOpen}
+                value={selectedDate}
+                onSelect={(d) => { setSelectedDate(d); setPickerOpen(false); }}
+                onClose={() => setPickerOpen(false)}
+            />
 
             <View style={styles.content}>
                 <View style={styles.contentInner}>

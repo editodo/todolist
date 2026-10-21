@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import TodoItem from '../components/TodoItem'; // Reusing TodoItem
 import UndoToast, { useUndoDelete } from '../components/UndoToast';
 import { STICKER_MAP } from '../components/stickers';
+import DatePicker from '../components/DatePicker';
 
 const EMOJI_MAP = STICKER_MAP;
 
@@ -54,6 +55,7 @@ export default function CalendarScreen({ navigation }) {
 
     const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
     const [monthData, setMonthData] = useState({});
+    const [pickerOpen, setPickerOpen] = useState(false);
     const [selectedTodos, setSelectedTodos] = useState([]);
     // Same delete-with-undo as the to-do tab
     const { pending: pendingDelete, remove: removeTodo, undo: undoDelete, flush: flushDelete } = useUndoDelete(setSelectedTodos, async (item) => {
@@ -187,11 +189,21 @@ export default function CalendarScreen({ navigation }) {
                     <TouchableOpacity onPress={handlePrevMonth} style={styles.arrowBtn}>
                         <Text style={styles.arrowText}>◀</Text>
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>{year}.{String(month + 1).padStart(2, '0')}</Text>
+                    <TouchableOpacity onPress={() => setPickerOpen(true)} accessibilityRole="button" accessibilityLabel={t('연도·월 선택')}>
+                        <Text style={styles.headerTitle}>{year}.{String(month + 1).padStart(2, '0')} ▾</Text>
+                    </TouchableOpacity>
                     <TouchableOpacity onPress={handleNextMonth} style={styles.arrowBtn}>
                         <Text style={styles.arrowText}>▶</Text>
                     </TouchableOpacity>
                 </View>
+
+                <DatePicker
+                    monthOnly
+                    visible={pickerOpen}
+                    value={`${year}-${String(month + 1).padStart(2, '0')}-01`}
+                    onSelect={(d) => { const [y, m] = d.split('-').map(Number); setCurrentDate(new Date(y, m - 1, 1)); setPickerOpen(false); }}
+                    onClose={() => setPickerOpen(false)}
+                />
 
                 {/* Calendar Grid */}
                 <View style={styles.calendarBox}>
@@ -205,7 +217,7 @@ export default function CalendarScreen({ navigation }) {
                         <View key={wIndex} style={styles.weekRow}>
                             {week.map((day, dIndex) => {
                                 const data = day ? monthData[day] : null;
-                                const isSelected = day === parseInt(selectedDate.split('-')[2]);
+                                const isSelected = !!day && selectedDate === `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                                 const hasMood = data && data.mood;
 
                                 return (
@@ -291,7 +303,7 @@ export default function CalendarScreen({ navigation }) {
                     activeOpacity={0.85}
                     accessibilityRole="button"
                 >
-                    <Text style={[styles.dailyBtnText, { color: c.base }]}>{t('하루 기록')}</Text>
+                    <Text style={[styles.dailyBtnText, { color: c.base }]}>{selectedDate.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`) && monthData[parseInt(selectedDate.split('-')[2])] ? t('기록 보기') : t('하루 기록')}</Text>
                 </TouchableOpacity>
             </View>
             <UndoToast visible={!!pendingDelete} message={t('할 일을 삭제했어요')} onUndo={undoDelete} />

@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import SocialLoginButtons from '../components/SocialLoginButtons';
 import { t } from '../i18n';
 import { useTheme } from '../context/ThemeContext';
+import BackButton from '../components/BackButton';
 
 export default function LoginScreen({ navigation }) {
     const { colors } = useTheme().theme;
@@ -46,9 +47,7 @@ export default function LoginScreen({ navigation }) {
             <View style={styles.container}>
                 {/* Header Area */}
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                        <Text style={{ fontSize: 24, color: colors.text }}>←</Text>
-                    </TouchableOpacity>
+                    <BackButton onPress={() => navigation.goBack()} />
                     <Text style={styles.headerTitle}>{t('로그인')}</Text>
                     <View style={{ width: 30 }} />
                 </View>

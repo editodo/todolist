@@ -8,6 +8,7 @@ import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
 import { t } from '../i18n';
 import { useTheme } from '../context/ThemeContext';
+import BackButton from '../components/BackButton';
 
 // Design: 회원정보 수정 — email is shown read-only, nickname can be changed.
 export default function UserModifyScreen({ navigation }) {
@@ -31,7 +32,7 @@ export default function UserModifyScreen({ navigation }) {
         <SafeAreaView style={styles.container}>
             <Header
                 title={t('회원정보 수정')}
-                leftButton={<TouchableOpacity onPress={() => navigation.goBack()} accessibilityLabel={t('뒤로')}><Text style={styles.back}>{'<'}</Text></TouchableOpacity>}
+                leftButton={<BackButton onPress={() => navigation.goBack()} />}
             />
             <View style={styles.body}>
                 <Text style={styles.label}>{user?.email ? t('이메일') : t('아이디')}</Text>
