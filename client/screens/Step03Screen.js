@@ -8,11 +8,11 @@ import StepIndicator from '../components/StepIndicator';
 import ThemePreview from '../components/ThemePreview';
 import { t } from '../i18n';
 
-export default function Step03Screen({ navigation }) {
+export default function Step03Screen({ navigation, route }) {
     const { palette, setPalette, theme } = useTheme();
 
     const handleNext = () => {
-        navigation.navigate('Step04');
+        navigation.navigate('Step04', route.params);
     }
 
     const palettes = [

@@ -11,7 +11,8 @@ import { API_URL, apiFetch } from '../config';
 import { permissionUndetermined, requestPermission, getSettings, saveSettings } from '../notifications';
 import { t } from '../i18n';
 
-export default function Step04Screen({ navigation }) {
+export default function Step04Screen({ navigation, route }) {
+    const fromSettings = route.params?.fromSettings;
     const { theme, mode, themeStyle, palette } = useTheme();
     const { user } = useAuth();
     // Morning reminder offer, shown only before the permission was ever asked
@@ -47,7 +48,11 @@ export default function Step04Screen({ navigation }) {
             console.error('Failed to save preferences:', e);
         }
 
-        // Reset navigation stack and go to MainTabs
+        if (fromSettings) {
+            navigation.navigate('MainTabs'); // back to My page, keeping the tab
+            return;
+        }
+        // First-run onboarding: start fresh on the main tabs
         navigation.reset({
             index: 0,
             routes: [{ name: 'MainTabs' }],
@@ -85,7 +90,7 @@ export default function Step04Screen({ navigation }) {
                 <View style={styles.bottomBtnGroup}>
                     <View style={{ flexDirection: 'row', gap: 10 }}>
                         <Button title={t('이전')} type="prev" onPress={() => navigation.goBack()} style={{ flex: 1 }} />
-                        <Button title={t('시작')} onPress={handleStart} style={{ flex: 1 }} />
+                        <Button title={fromSettings ? t('완료') : t('시작')} onPress={handleStart} style={{ flex: 1 }} />
                     </View>
                 </View>
             </View>

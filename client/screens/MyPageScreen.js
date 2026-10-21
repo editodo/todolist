@@ -120,7 +120,7 @@ export default function MyPageScreen({ navigation }) {
                 )}
 
                 <View style={styles.menuGroup}>
-                    <MenuItem title={t('테마 및 색상 변경')} onPress={() => navigation.navigate('Step01')} />
+                    <MenuItem title={t('테마 및 색상 변경')} onPress={() => navigation.navigate('Step01', { fromSettings: true, snapshot: { mode, themeStyle, palette } })} />
                     <MenuItem title={t('글꼴 변경')} onPress={() => navigation.navigate('FontSettings')} />
                     <MenuItem
                         title={t('언어')}

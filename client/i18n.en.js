@@ -3,7 +3,7 @@
 export default {
     // Tabs & navigation
     '투두리스트': 'To-do', '캘린더': 'Calendar', '마이페이지': 'My page', '홈': 'Home', '뒤로': 'Back',
-    '이전': 'Back', '다음': 'Next', '시작': 'Start', '확인': 'OK', '취소': 'Cancel', '삭제': 'Delete', '수정': 'Save',
+    '이전': 'Back', '다음': 'Next', '시작': 'Start', '완료': 'Done', '확인': 'OK', '취소': 'Cancel', '삭제': 'Delete', '수정': 'Save',
     '알림': 'Notice', '오류': 'Error', '실패': 'Failed', '성공': 'Done',
 
     // Weekdays

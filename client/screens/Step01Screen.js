@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import { Text } from '../components/AppText';
 import { layout } from '../theme';
@@ -43,13 +43,29 @@ function Chips({ options, value, onChange, styles }) {
     );
 }
 
-export default function Step01Screen({ navigation }) {
-    const { mode, setMode, themeStyle, setThemeStyle, theme } = useTheme();
+export default function Step01Screen({ navigation, route }) {
+    const { mode, setMode, themeStyle, setThemeStyle, setPalette, theme } = useTheme();
+    // Opened from My page: ← (or Android back / iOS swipe) cancels and puts the previous theme back,
+    // since choices preview live but are only saved on the last step
+    const fromSettings = route.params?.fromSettings;
+    useEffect(() => {
+        if (!fromSettings) return undefined;
+        return navigation.addListener('beforeRemove', (e) => {
+            if (!['GO_BACK', 'POP'].includes(e.data.action.type)) return; // finishing (완료) also removes this screen
+            const prev = route.params.snapshot;
+            if (prev) { setMode(prev.mode); setThemeStyle(prev.themeStyle); setPalette(prev.palette); }
+        });
+    }, [navigation, fromSettings]);
     const styles = getStyles(theme);
 
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
+                {fromSettings && (
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} accessibilityRole="button" accessibilityLabel={t('취소')}>
+                        <Text style={styles.backText}>←</Text>
+                    </TouchableOpacity>
+                )}
                 <StepIndicator step={1} />
 
                 <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -67,7 +83,7 @@ export default function Step01Screen({ navigation }) {
                 </ScrollView>
 
                 <View style={styles.bottomBtnGroup}>
-                    <Button title={t('다음')} onPress={() => navigation.navigate('Step03')} />
+                    <Button title={t('다음')} onPress={() => navigation.navigate('Step03', route.params)} />
                 </View>
             </View>
         </SafeAreaView>
@@ -95,4 +111,6 @@ const getStyles = (theme) => StyleSheet.create({
     chipText: { fontSize: 12, color: theme.colors.guideText },
     chipTextActive: { color: theme.colors.main, fontWeight: '600' },
     bottomBtnGroup: { marginBottom: 20 },
+    backBtn: { width: 40, height: 36, justifyContent: 'center', marginTop: -8 },
+    backText: { fontSize: 24, color: theme.colors.text },
 });
