@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Alert, ScrollView, Platform, Modal, Image, KeyboardAvoidingView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, ScrollView, Platform, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text, TextInput } from '../components/AppText';
+import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import SocialLoginButtons from '../components/SocialLoginButtons';
 import { isSupported as remindersSupported } from '../notifications';
 import { t, LANGUAGES } from '../i18n';
 
@@ -29,14 +28,11 @@ export default function MyPageScreen({ navigation }) {
     const { colors } = useTheme().theme;
     const styles = getStyles(colors);
     const { mode, themeStyle, palette, language } = useTheme();
-    const { user, logout, convertAccount, deleteAccount } = useAuth();
+    const { user, logout, deleteAccount } = useAuth();
 
     // Robust check for guest status
     const isGuest = user?.user_type === 'GUEST' || user?.username?.startsWith('guest_');
     const isExpired = user?.isExpired;
-    // Conversion Modal State
-    const [convertModalVisible, setConvertModalVisible] = useState(false);
-    const [convertData, setConvertData] = useState({ username: '', password: '', email: '', nickname: '' });
 
     // Expiration Calc
     const getDaysLeft = () => {
@@ -89,28 +85,13 @@ export default function MyPageScreen({ navigation }) {
         }
     };
 
-    const handleConvert = async () => {
-        if (!convertData.username || !convertData.password || !convertData.email) {
-            Alert.alert(t('오류'), t('아이디, 비밀번호, 이메일은 필수입니다.'));
-            return;
-        }
-
-        const result = await convertAccount(convertData);
-        if (result.success) {
-            Alert.alert(t('성공'), t('정회원으로 전환되었습니다!'));
-            setConvertModalVisible(false);
-        } else {
-            Alert.alert(t('실패'), result.error || t('계정 전환에 실패했습니다.'));
-        }
-    };
-
     return (
         <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
             <ScrollView style={styles.content}>
                 {/* Design: name header. Member → edit profile; guest → keep data by converting */}
                 <TouchableOpacity
                     style={styles.infoBar}
-                    onPress={() => (isGuest ? setConvertModalVisible(true) : navigation.navigate('UserModify'))}
+                    onPress={() => (isGuest ? navigation.navigate('Join', { convert: true }) : navigation.navigate('UserModify'))}
                     accessibilityRole="button"
                 >
                     <Text style={styles.infoName}>{isGuest ? t('로그인/회원가입') : (user?.nickname || user?.username)}</Text>
@@ -118,7 +99,7 @@ export default function MyPageScreen({ navigation }) {
                 </TouchableOpacity>
 
                 {isGuest && (
-                    <TouchableOpacity style={styles.trialBox} onPress={() => setConvertModalVisible(true)}>
+                    <TouchableOpacity style={styles.trialBox} onPress={() => navigation.navigate('Join', { convert: true })}>
                         <Text style={[styles.trialText, daysLeft <= 0 && styles.expired]}>
                             {daysLeft > 0 ? t('체험 기간 {n}일 남음', { n: daysLeft }) : t('체험 기간이 끝났어요')}
                         </Text>
@@ -163,66 +144,6 @@ export default function MyPageScreen({ navigation }) {
                 </TouchableOpacity>
             </ScrollView>
 
-            {/* Conversion Modal */}
-            <Modal
-                visible={convertModalVisible}
-                animationType="slide"
-                transparent={true}
-                onRequestClose={() => setConvertModalVisible(false)}
-            >
-                <KeyboardAvoidingView style={styles.modalOverlay} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>{t('정회원 전환')}</Text>
-                        <Text style={styles.modalSubtitle}>{t('체험 계정의 데이터를 그대로 유지합니다.')}</Text>
-
-                        <TextInput
-                            style={styles.input}
-                            placeholder={t('사용할 아이디')}
-                            value={convertData.username}
-                            onChangeText={t => setConvertData({ ...convertData, username: t })}
-                            autoCapitalize="none"
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder={t('사용할 닉네임 (선택)')}
-                            value={convertData.nickname}
-                            onChangeText={t => setConvertData({ ...convertData, nickname: t })}
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder={t('비밀번호')}
-                            secureTextEntry
-                            value={convertData.password}
-                            onChangeText={t => setConvertData({ ...convertData, password: t })}
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder={t('이메일')}
-                            keyboardType="email-address"
-                            value={convertData.email}
-                            onChangeText={t => setConvertData({ ...convertData, email: t })}
-                            autoCapitalize="none"
-                        />
-
-                        <View style={styles.modalButtons}>
-                            <TouchableOpacity style={[styles.modalBtn, styles.cancelBtn]} onPress={() => setConvertModalVisible(false)}>
-                                <Text style={styles.cancelText}>{t('취소')}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.modalBtn, styles.confirmBtn]} onPress={handleConvert}>
-                                <Text style={styles.confirmText}>{t('전환하기')}</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* Apple/Google: the server sees the guest token and keeps this account's data */}
-                        <SocialLoginButtons
-                            onDone={() => {
-                                setConvertModalVisible(false);
-                                Alert.alert(t('성공'), t('정회원으로 전환되었습니다!'));
-                            }}
-                        />
-                    </View>
-                </KeyboardAvoidingView>
-            </Modal>
         </SafeAreaView>
     );
 }
@@ -383,54 +304,4 @@ const getStyles = (colors) => StyleSheet.create({
     logoutText: { color: colors.subText, fontSize: 14 },
     withdrawText: { color: colors.guideText, fontSize: 12, textDecorationLine: 'underline' },
 
-    // Modal
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalContent: {
-        width: '85%',
-        backgroundColor: colors.body,
-        borderRadius: 15,
-        padding: 20,
-        maxWidth: 400,
-    },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    modalSubtitle: {
-        fontSize: 14,
-        color: colors.subText,
-        marginBottom: 20,
-        textAlign: 'center',
-    },
-    input: {
-        backgroundColor: colors.mypageColor,
-        borderWidth: 1,
-        borderColor: colors.border,
-        borderRadius: 8,
-        padding: 12,
-        marginBottom: 12,
-        fontSize: 14,
-    },
-    modalButtons: {
-        flexDirection: 'row',
-        marginTop: 10,
-        gap: 10,
-    },
-    modalBtn: {
-        flex: 1,
-        padding: 12,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    cancelBtn: { backgroundColor: colors.border },
-    confirmBtn: { backgroundColor: colors.main },
-    cancelText: { color: colors.calendarColr },
-    confirmText: { color: colors.body, fontWeight: 'bold' },
 });

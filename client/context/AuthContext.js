@@ -136,7 +136,9 @@ export const AuthProvider = ({ children }) => {
             // Update local user state to REGULAR
             const updatedUser = {
                 ...user,
-                ...conversionData,
+                username: conversionData.username,
+                email: conversionData.email,
+                nickname: conversionData.nickname || user.nickname,
                 user_type: 'REGULAR',
                 expires_at: null,
                 isExpired: false

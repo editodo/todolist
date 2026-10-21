@@ -9,8 +9,13 @@ import { API_URL } from '../config';
 import { t } from '../i18n';
 import { useTheme } from '../context/ThemeContext';
 import BackButton from '../components/BackButton';
+import SocialLoginButtons from '../components/SocialLoginButtons';
+import { useAuth } from '../context/AuthContext';
 
-export default function JoinScreen({ navigation }) {
+// Also the 정회원 전환 screen (route.params.convert): same form, but the guest account and its data are kept.
+export default function JoinScreen({ navigation, route }) {
+    const convert = !!route.params?.convert;
+    const { convertAccount } = useAuth();
     const { colors } = useTheme().theme;
     const styles = getStyles(colors);
     const [userId, setUserId] = useState('');
@@ -28,6 +33,13 @@ export default function JoinScreen({ navigation }) {
         if (password !== passwordConfirm) {
             Alert.alert(t('비밀번호 불일치'), t('비밀번호와 비밀번호 확인이 다릅니다.'));
             return;
+        }
+
+        if (convert) {
+            const result = await convertAccount({ username: userId, email, password, nickname: nickname.trim() || undefined });
+            if (!result.success) return Alert.alert(t('실패'), result.error || t('계정 전환에 실패했습니다.'));
+            navigation.goBack();
+            return Alert.alert(t('성공'), t('정회원으로 전환되었습니다!'));
         }
 
         try {
@@ -59,11 +71,12 @@ export default function JoinScreen({ navigation }) {
             <View style={styles.container}>
                 <View style={styles.header}>
                     <BackButton onPress={() => navigation.goBack()} />
-                    <Text style={styles.headerTitle}>{t('회원가입')}</Text>
+                    <Text style={styles.headerTitle}>{convert ? t('정회원 전환') : t('회원가입')}</Text>
                     <View style={{ width: 30 }} />
                 </View>
 
                 <ScrollView style={styles.formWrap} showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled">
+                    {convert && <Text style={styles.convertNote}>{t('체험 계정의 데이터를 그대로 유지합니다.')}</Text>}
                     <Input
                         label={t('아이디')}
                         placeholder={t('영문, 숫자, _ 조합 4~20자')}
@@ -114,11 +127,23 @@ export default function JoinScreen({ navigation }) {
                             <Text style={styles.termsLink} onPress={() => navigation.navigate('PrivacyPolicy')}>{t('개인정보처리방침')}</Text>{t('에 동의합니다. (만 14세 이상)')}
                         </Text>
                     </View>
+
+                    {/* SNS: the server sees the guest token and keeps this account's data */}
+                    {convert && (
+                        <View style={{ marginBottom: 20 }}>
+                            <SocialLoginButtons
+                                onDone={() => {
+                                    navigation.goBack();
+                                    Alert.alert(t('성공'), t('정회원으로 전환되었습니다!'));
+                                }}
+                            />
+                        </View>
+                    )}
                 </ScrollView>
 
                 <View style={styles.bottomBtnGroup}>
                     <Button
-                        title={t('가입')}
+                        title={convert ? t('전환하기') : t('가입')}
                         type="main"
                         onPress={handleJoin}
                     />
@@ -174,6 +199,7 @@ const getStyles = (colors) => StyleSheet.create({
         borderRadius: 9,
         marginRight: 6,
     },
+    convertNote: { fontSize: 13, color: colors.guideText, marginBottom: 16 },
     fieldError: { marginTop: -10, marginBottom: 14, fontSize: 12, color: colors.danger },
     termsText: {
         flex: 1,
