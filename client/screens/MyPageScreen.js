@@ -28,10 +28,7 @@ export default function MyPageScreen({ navigation }) {
     const { colors } = useTheme().theme;
     const styles = getStyles(colors);
     const { mode, themeStyle, palette, language } = useTheme();
-    const { user, logout, deleteAccount } = useAuth();
-
-    // Robust check for guest status
-    const isGuest = user?.user_type === 'GUEST' || user?.username?.startsWith('guest_');
+    const { user, logout, deleteAccount, isGuest } = useAuth(); // isGuest = not signed in (server user_type)
 
     const handleLogout = () => {
         const logoutAction = async () => {

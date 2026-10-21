@@ -289,8 +289,8 @@ router.post('/social/:provider', async (req, res) => {
                 userId = guest[0].id;
                 const [emailTaken] = profile.email ? await db.query('SELECT id FROM users WHERE email = ? AND id != ?', [profile.email, userId]) : [[]];
                 await db.query(
-                    "UPDATE users SET user_type = 'REGULAR', expires_at = NULL, email = ?, nickname = COALESCE(?, nickname) WHERE id = ?",
-                    [emailTaken.length ? null : profile.email, profile.name, userId]
+                    "UPDATE users SET user_type = 'REGULAR', expires_at = NULL, username = ?, email = ?, nickname = COALESCE(?, nickname) WHERE id = ?",
+                    [`${provider}_${crypto.randomBytes(8).toString('hex')}`, emailTaken.length ? null : profile.email, profile.name, userId]
                 );
             } else if (sameEmail.length > 0) {
                 userId = sameEmail[0].id;

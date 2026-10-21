@@ -42,7 +42,7 @@ db.query = async (sql, p) => {
     if (sql.includes("WHERE email = ? AND user_type = 'REGULAR'")) return [users.filter((u) => u.email === p[0] && u.user_type === 'REGULAR')];
     if (sql.startsWith('SELECT id FROM users WHERE email = ? AND id != ?')) return [users.filter((u) => u.email === p[0] && u.id !== p[1])];
     if (sql.startsWith('SELECT id FROM users WHERE email = ?')) return [users.filter((u) => u.email === p[0])];
-    if (sql.startsWith("UPDATE users SET user_type = 'REGULAR'")) { Object.assign(users.find((u) => u.id === p[2]), { user_type: 'REGULAR', expires_at: null, email: p[0], nickname: p[1] ?? users.find((u) => u.id === p[2]).nickname }); return [{}]; }
+    if (sql.startsWith("UPDATE users SET user_type = 'REGULAR'")) { const u = users.find((x) => x.id === p[3]); Object.assign(u, { user_type: 'REGULAR', expires_at: null, username: p[0], email: p[1], nickname: p[2] ?? u.nickname }); return [{}]; }
     if (sql.startsWith('INSERT INTO users')) { const id = users.length + 1; users.push({ id, username: p[0], nickname: p[1], email: p[2], user_type: 'REGULAR' }); return [{ insertId: id }]; }
     if (sql.startsWith('INSERT INTO social_accounts')) { links.push({ provider: p[0], sub: p[1], user_id: p[2] }); return [{}]; }
     if (sql.startsWith('SELECT * FROM users WHERE id = ?')) return [users.filter((u) => u.id === p[0])];
@@ -97,6 +97,7 @@ test('guest signing in with Google keeps their account and data', async () => {
     assert.strictEqual(r.status, 200);
     assert.strictEqual(data.user.id, 1);
     assert.strictEqual(data.user.user_type, 'REGULAR');
+    assert.match(data.user.username, /^google_[0-9a-f]{16}$/); // no longer looks like a guest ID
     assert.strictEqual(data.isNew, false);
     assert.ok(data.token);
 });
