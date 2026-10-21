@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Text } from './AppText';
 import { colors, layout } from '../theme';
 import Header from './Header';
 

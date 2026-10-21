@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, Text, Platform } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
+import { TextInput, Text } from './AppText';
 import { colors } from '../theme';
 
 export default function Input({ value, onChangeText, placeholder, secureTextEntry, label }) {

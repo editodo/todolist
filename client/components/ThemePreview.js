@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
+import { Text } from './AppText';
+import { t } from '../i18n';
 
 export default function ThemePreview({ theme }) {
     // theme object comes from ThemeContext structure:
@@ -59,7 +61,7 @@ export default function ThemePreview({ theme }) {
                             styles.text,
                             item.completed && { textDecorationLine: 'line-through', opacity: 0.6 }
                         ]}>
-                            {item.text}
+                            {t(item.text)}
                         </Text>
 
                         {(isSkitch || isKitsch) && !item.completed && (

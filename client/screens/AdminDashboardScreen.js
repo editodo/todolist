@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert, Modal, ScrollView, Platform } from 'react-native';
+import { View, TouchableOpacity, FlatList, StyleSheet, Alert, Modal, ScrollView, Platform } from 'react-native';
+import { Text, TextInput } from '../components/AppText';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme';
+import AdminFonts from '../components/AdminFonts';
 
 export default function AdminDashboardScreen() {
     const navigation = useNavigation();
-    const [activeTab, setActiveTab] = useState('notices'); // notices | users
+    const [activeTab, setActiveTab] = useState('notices'); // notices | users | fonts
     const [loading, setLoading] = useState(false);
 
     // Data
@@ -40,6 +42,7 @@ export default function AdminDashboardScreen() {
     const fetchData = async () => {
         setLoading(true);
         try {
+            if (activeTab === 'fonts') return; // AdminFonts loads its own list
             if (activeTab === 'notices') {
                 const res = await fetch('/api/admin/notices');
                 const data = await res.json();
@@ -197,6 +200,12 @@ export default function AdminDashboardScreen() {
                 >
                     <Text style={[styles.tabText, activeTab === 'users' && styles.activeTabText]}>Users</Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.tab, activeTab === 'fonts' && styles.activeTab]}
+                    onPress={() => setActiveTab('fonts')}
+                >
+                    <Text style={[styles.tabText, activeTab === 'fonts' && styles.activeTabText]}>Fonts</Text>
+                </TouchableOpacity>
             </View>
 
             {/* Content */}
@@ -218,6 +227,8 @@ export default function AdminDashboardScreen() {
                             contentContainerStyle={{ paddingBottom: 20 }}
                         />
                     </>
+                ) : activeTab === 'fonts' ? (
+                    <AdminFonts />
                 ) : (
                     <>
                         <View style={styles.toolbar}>

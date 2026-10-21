@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert, ScrollView, Platform, Modal, TextInput, Image } from 'react-native';
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, Alert, ScrollView, Platform, Modal, Image } from 'react-native';
+import { Text, TextInput } from '../components/AppText';
 import { colors, layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import SocialLoginButtons from '../components/SocialLoginButtons';
 import { isSupported as remindersSupported } from '../notifications';
+import { t, LANGUAGES } from '../i18n';
 
 const MenuItem = ({ title, onPress, value }) => (
     <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -19,7 +21,7 @@ const MenuItem = ({ title, onPress, value }) => (
 );
 
 export default function MyPageScreen({ navigation }) {
-    const { mode, themeStyle, palette } = useTheme();
+    const { mode, themeStyle, palette, language } = useTheme();
     const { user, logout, convertAccount, deleteAccount } = useAuth();
 
     // Robust check for guest status
@@ -46,19 +48,19 @@ export default function MyPageScreen({ navigation }) {
         };
 
         if (Platform.OS === 'web') {
-            if (window.confirm(isGuest ? '체험계정을 종료하시겠습니까? 데이터가 유실될 수 있습니다.' : '로그아웃 하시겠습니까?')) {
+            if (window.confirm(isGuest ? t('체험계정을 종료하시겠습니까? 데이터가 유실될 수 있습니다.') : t('로그아웃 하시겠습니까?'))) {
                 logoutAction();
             }
         } else {
-            Alert.alert('로그아웃', isGuest ? '체험계정을 종료하면 데이터가 삭제될 수 있습니다. 계속하시겠습니까?' : '로그아웃 하시겠습니까?', [
-                { text: '취소', style: 'cancel' },
-                { text: '확인', style: 'destructive', onPress: logoutAction }
+            Alert.alert(t('로그아웃'), isGuest ? t('체험계정을 종료하면 데이터가 삭제될 수 있습니다. 계속하시겠습니까?') : t('로그아웃 하시겠습니까?'), [
+                { text: t('취소'), style: 'cancel' },
+                { text: t('확인'), style: 'destructive', onPress: logoutAction }
             ]);
         }
     };
 
     const handleDeleteAccount = () => {
-        const message = '계정과 모든 할 일, 일기, 설정이 즉시 삭제되며 복구할 수 없습니다. 탈퇴하시겠습니까?';
+        const message = t('계정과 모든 할 일, 일기, 설정이 즉시 삭제되며 복구할 수 없습니다. 탈퇴하시겠습니까?');
         const deleteAction = async () => {
             const result = await deleteAccount();
             if (result.success) {
@@ -66,32 +68,32 @@ export default function MyPageScreen({ navigation }) {
             } else if (Platform.OS === 'web') {
                 window.alert(result.error);
             } else {
-                Alert.alert('실패', result.error);
+                Alert.alert(t('실패'), result.error);
             }
         };
 
         if (Platform.OS === 'web') {
             if (window.confirm(message)) deleteAction();
         } else {
-            Alert.alert('회원 탈퇴', message, [
-                { text: '취소', style: 'cancel' },
-                { text: '탈퇴', style: 'destructive', onPress: deleteAction }
+            Alert.alert(t('회원 탈퇴'), message, [
+                { text: t('취소'), style: 'cancel' },
+                { text: t('탈퇴'), style: 'destructive', onPress: deleteAction }
             ]);
         }
     };
 
     const handleConvert = async () => {
         if (!convertData.username || !convertData.password || !convertData.email) {
-            Alert.alert('오류', '아이디, 비밀번호, 이메일은 필수입니다.');
+            Alert.alert(t('오류'), t('아이디, 비밀번호, 이메일은 필수입니다.'));
             return;
         }
 
         const result = await convertAccount(convertData);
         if (result.success) {
-            Alert.alert('성공', '정회원으로 전환되었습니다!');
+            Alert.alert(t('성공'), t('정회원으로 전환되었습니다!'));
             setConvertModalVisible(false);
         } else {
-            Alert.alert('실패', result.error || '계정 전환에 실패했습니다.');
+            Alert.alert(t('실패'), result.error || t('계정 전환에 실패했습니다.'));
         }
     };
 
@@ -104,47 +106,53 @@ export default function MyPageScreen({ navigation }) {
                     onPress={() => (isGuest ? setConvertModalVisible(true) : navigation.navigate('UserModify'))}
                     accessibilityRole="button"
                 >
-                    <Text style={styles.infoName}>{isGuest ? '로그인/회원가입' : (user?.nickname || user?.username)}</Text>
+                    <Text style={styles.infoName}>{isGuest ? t('로그인/회원가입') : (user?.nickname || user?.username)}</Text>
                     <Ionicons name="chevron-forward" size={18} color={colors.text} />
                 </TouchableOpacity>
 
                 {isGuest && (
                     <TouchableOpacity style={styles.trialBox} onPress={() => setConvertModalVisible(true)}>
                         <Text style={[styles.trialText, daysLeft <= 0 && styles.expired]}>
-                            {daysLeft > 0 ? `체험 기간 ${daysLeft}일 남음` : '체험 기간이 끝났어요'}
+                            {daysLeft > 0 ? t('체험 기간 {n}일 남음', { n: daysLeft }) : t('체험 기간이 끝났어요')}
                         </Text>
-                        <Text style={styles.trialSub}>정회원으로 전환하면 지금까지의 기록이 그대로 유지돼요</Text>
+                        <Text style={styles.trialSub}>{t('정회원으로 전환하면 지금까지의 기록이 그대로 유지돼요')}</Text>
                     </TouchableOpacity>
                 )}
 
                 <View style={styles.menuGroup}>
-                    <MenuItem title="테마 및 색상 변경" onPress={() => navigation.navigate('Step01')} />
-                    {remindersSupported && <MenuItem title="알림 설정" onPress={() => navigation.navigate('NotificationSettings')} />}
+                    <MenuItem title={t('테마 및 색상 변경')} onPress={() => navigation.navigate('Step01')} />
+                    <MenuItem title={t('글꼴 변경')} onPress={() => navigation.navigate('FontSettings')} />
+                    <MenuItem
+                        title={t('언어')}
+                        value={(LANGUAGES.find((l) => l.id === language) || {}).label || t('휴대폰 설정 따르기')}
+                        onPress={() => navigation.navigate('LanguageSettings')}
+                    />
+                    {remindersSupported && <MenuItem title={t('알림 설정')} onPress={() => navigation.navigate('NotificationSettings')} />}
                 </View>
 
                 <View style={styles.menuGroup}>
-                    <MenuItem title="공지사항" onPress={() => navigation.navigate('Notice')} />
-                    <MenuItem title="이용약관" onPress={() => navigation.navigate('Terms')} />
-                    <MenuItem title="개인정보 정책" onPress={() => navigation.navigate('PrivacyPolicy')} />
-                    <MenuItem title="문의하기" onPress={() => navigation.navigate('Inquiry')} />
+                    <MenuItem title={t('공지사항')} onPress={() => navigation.navigate('Notice')} />
+                    <MenuItem title={t('이용약관')} onPress={() => navigation.navigate('Terms')} />
+                    <MenuItem title={t('개인정보 정책')} onPress={() => navigation.navigate('PrivacyPolicy')} />
+                    <MenuItem title={t('문의하기')} onPress={() => navigation.navigate('Inquiry')} />
                 </View>
 
                 <View style={styles.menuGroup}>
                     <View style={styles.menuItem}>
-                        <Text style={styles.menuText}>버전 정보</Text>
+                        <Text style={styles.menuText}>{t('버전 정보')}</Text>
                         <Text style={styles.menuValue}>{Constants.expoConfig?.version}</Text>
                     </View>
                 </View>
 
                 <View style={styles.menuGroup}>
                     <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-                        <Text style={styles.menuText}>{isGuest ? '체험 종료 (로그아웃)' : '로그아웃'}</Text>
+                        <Text style={styles.menuText}>{isGuest ? t('체험 종료 (로그아웃)') : t('로그아웃')}</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Store rule: account deletion must stay reachable (static design: small underlined link) */}
                 <TouchableOpacity style={styles.leaveBtn} onPress={handleDeleteAccount}>
-                    <Text style={styles.withdrawText}>회원 탈퇴</Text>
+                    <Text style={styles.withdrawText}>{t('회원 탈퇴')}</Text>
                 </TouchableOpacity>
             </ScrollView>
 
@@ -157,32 +165,32 @@ export default function MyPageScreen({ navigation }) {
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>정회원 전환</Text>
-                        <Text style={styles.modalSubtitle}>체험 계정의 데이터를 그대로 유지합니다.</Text>
+                        <Text style={styles.modalTitle}>{t('정회원 전환')}</Text>
+                        <Text style={styles.modalSubtitle}>{t('체험 계정의 데이터를 그대로 유지합니다.')}</Text>
 
                         <TextInput
                             style={styles.input}
-                            placeholder="사용할 아이디"
+                            placeholder={t('사용할 아이디')}
                             value={convertData.username}
                             onChangeText={t => setConvertData({ ...convertData, username: t })}
                             autoCapitalize="none"
                         />
                         <TextInput
                             style={styles.input}
-                            placeholder="사용할 닉네임 (선택)"
+                            placeholder={t('사용할 닉네임 (선택)')}
                             value={convertData.nickname}
                             onChangeText={t => setConvertData({ ...convertData, nickname: t })}
                         />
                         <TextInput
                             style={styles.input}
-                            placeholder="비밀번호"
+                            placeholder={t('비밀번호')}
                             secureTextEntry
                             value={convertData.password}
                             onChangeText={t => setConvertData({ ...convertData, password: t })}
                         />
                         <TextInput
                             style={styles.input}
-                            placeholder="이메일"
+                            placeholder={t('이메일')}
                             keyboardType="email-address"
                             value={convertData.email}
                             onChangeText={t => setConvertData({ ...convertData, email: t })}
@@ -191,10 +199,10 @@ export default function MyPageScreen({ navigation }) {
 
                         <View style={styles.modalButtons}>
                             <TouchableOpacity style={[styles.modalBtn, styles.cancelBtn]} onPress={() => setConvertModalVisible(false)}>
-                                <Text style={styles.cancelText}>취소</Text>
+                                <Text style={styles.cancelText}>{t('취소')}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.modalBtn, styles.confirmBtn]} onPress={handleConvert}>
-                                <Text style={styles.confirmText}>전환하기</Text>
+                                <Text style={styles.confirmText}>{t('전환하기')}</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -202,7 +210,7 @@ export default function MyPageScreen({ navigation }) {
                         <SocialLoginButtons
                             onDone={() => {
                                 setConvertModalVisible(false);
-                                Alert.alert('성공', '정회원으로 전환되었습니다!');
+                                Alert.alert(t('성공'), t('정회원으로 전환되었습니다!'));
                             }}
                         />
                     </View>

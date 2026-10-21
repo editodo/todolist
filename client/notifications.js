@@ -6,6 +6,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { API_URL, apiFetch } from './config';
+import { t } from './i18n';
 
 const SETTINGS_KEY = 'notificationSettings';
 const DAYS_AHEAD = 14; // iOS keeps at most 64 pending; 2 per day x 14 = 28
@@ -40,7 +41,7 @@ export async function saveSettings(settings, user) {
 async function ensureChannel() {
     if (Platform.OS !== 'android') return;
     await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-        name: '할 일 알림',
+        name: t('할 일 알림'),
         importance: Notifications.AndroidImportance.DEFAULT,
     });
 }
@@ -88,9 +89,9 @@ async function fetchToday(user) {
 }
 
 function morningContent(today, isToday) {
-    if (!isToday || !today) return { title: '좋은 아침이에요 ☀️', body: '오늘의 할 일을 확인해보세요 ✏️' };
-    if (today.total === 0) return { title: '좋은 아침이에요 ☀️', body: '오늘 할 일을 적어볼까요?' };
-    return { title: '좋은 아침이에요 ☀️', body: `오늘 할 일이 ${today.open}개 있어요. 하나씩 해볼까요? ✏️` };
+    if (!isToday || !today) return { title: t('좋은 아침이에요 ☀️'), body: t('오늘의 할 일을 확인해보세요 ✏️') };
+    if (today.total === 0) return { title: t('좋은 아침이에요 ☀️'), body: t('오늘 할 일을 적어볼까요?') };
+    return { title: t('좋은 아침이에요 ☀️'), body: t('오늘 할 일이 {n}개 있어요. 하나씩 해볼까요? ✏️', { n: today.open }) };
 }
 
 // Pure schedule: [{ date, content }] for the next DAYS_AHEAD days. today = { total, open, diaryWritten } or null.
@@ -106,7 +107,7 @@ export function planReminders(settings, today, now) {
         }
         const diaryDoneToday = isToday && today?.diaryWritten;
         if (settings.evening.enabled && !diaryDoneToday && at(settings.evening) > now) {
-            plan.push({ date: at(settings.evening), content: { title: '오늘 하루는 어땠나요?', body: '기분을 남겨보세요 🙂', data: { screen: 'Daily' } } });
+            plan.push({ date: at(settings.evening), content: { title: t('오늘 하루는 어땠나요?'), body: t('기분을 남겨보세요 🙂'), data: { screen: 'Daily' } } });
         }
     }
     return plan;

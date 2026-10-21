@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { Text } from '../components/AppText';
 import { layout } from '../theme';
 import Button from '../components/Button';
 import { useTheme } from '../context/ThemeContext';
 import StepIndicator from '../components/StepIndicator';
 import ThemePreview from '../components/ThemePreview';
+import { t } from '../i18n';
 
 export default function Step03Screen({ navigation }) {
     const { palette, setPalette, theme } = useTheme();
@@ -14,11 +16,11 @@ export default function Step03Screen({ navigation }) {
     }
 
     const palettes = [
-        { id: 'simple', label: '심플', c1: '#f5f5f5', c2: '#222' },
-        { id: 'mincho', label: '민초', c1: '#D8F0EF', c2: '#997B6A' },
-        { id: 'lemon', label: '레몬', c1: '#FFF3CA', c2: '#F3637D' },
-        { id: 'green', label: '그린', c1: '#E9FFDF', c2: '#228262' },
-        { id: 'pinky', label: '핑키', c1: '#FFD8E7', c2: '#FA6EA5' },
+        { id: 'simple', label: t('심플'), c1: '#f5f5f5', c2: '#222' },
+        { id: 'mincho', label: t('민초'), c1: '#D8F0EF', c2: '#997B6A' },
+        { id: 'lemon', label: t('레몬'), c1: '#FFF3CA', c2: '#F3637D' },
+        { id: 'green', label: t('그린'), c1: '#E9FFDF', c2: '#228262' },
+        { id: 'pinky', label: t('핑키'), c1: '#FFD8E7', c2: '#FA6EA5' },
     ];
 
     const currentPaletteLabel = palettes.find(p => p.id === palette)?.label;
@@ -32,13 +34,9 @@ export default function Step03Screen({ navigation }) {
 
                 <View style={styles.content}>
                     <Text style={styles.title}>
-                        <Text style={{ color: theme.colors.main }}>{currentPaletteLabel}</Text> 테마의 추천 색상!{'\n'}
-                        좋아하는 색상으로 골라봐요 :)
+                        <Text style={{ color: theme.colors.main }}>{currentPaletteLabel}</Text>{t(' 테마의 추천 색상!\n좋아하는 색상으로 골라봐요 :)')}
                     </Text>
-                    <Text style={styles.subtitle}>
-                        나중에 마이페이지에서 수정할 수 있어요.{'\n'}
-                        [배경색/포인트색] 원하는 색상을 아래에서 골라봐요!
-                    </Text>
+                    <Text style={styles.subtitle}>{t('나중에 마이페이지에서 수정할 수 있어요.\n[배경색/포인트색] 원하는 색상을 아래에서 골라봐요!')}</Text>
 
                     <View style={styles.optionsRow}>
                         {palettes.map((p) => (
@@ -55,16 +53,16 @@ export default function Step03Screen({ navigation }) {
 
                     {/* Preview Area */}
                     <View style={styles.previewContainer}>
-                        <Text style={styles.caption}>테마 미리보기</Text>
+                        <Text style={styles.caption}>{t('테마 미리보기')}</Text>
                         <ThemePreview theme={theme} />
                     </View>
                 </View>
 
                 <View style={styles.bottomBtnGroup}>
                     <View style={{ flexDirection: 'row', gap: 10 }}>
-                        <Button title="이전" type="prev" onPress={() => navigation.goBack()} style={{ flex: 1 }} />
+                        <Button title={t('이전')} type="prev" onPress={() => navigation.goBack()} style={{ flex: 1 }} />
                         <Button
-                            title="다음"
+                            title={t('다음')}
                             onPress={handleNext}
                             style={{ flex: 1 }}
                         />

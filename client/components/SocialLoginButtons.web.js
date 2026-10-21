@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Text } from './AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { GOOGLE_WEB_CLIENT_ID, APPLE_SERVICES_ID } from '../config';
 import { colors } from '../theme';
+import { t } from '../i18n';
 
 // Web version of the Apple/Google buttons (the native one uses the phone SDKs). Each provider's official
 // script is loaded only when its ID is configured; the server verifies the resulting ID token either way.
@@ -28,7 +30,7 @@ export default function SocialLoginButtons({ onDone }) {
     const finish = async (provider, payload) => {
         const result = await socialLogin(provider, payload);
         if (result.success) onDoneRef.current?.({ isNew: result.isNew });
-        else Alert.alert('로그인 실패', result.error);
+        else Alert.alert(t('로그인 실패'), result.error);
     };
 
     useEffect(() => {
@@ -70,7 +72,7 @@ export default function SocialLoginButtons({ onDone }) {
             });
         } catch (e) {
             if (e?.error !== 'popup_closed_by_user' && e?.error !== 'user_cancelled_authorize') {
-                Alert.alert('로그인 실패', 'Apple 로그인을 완료하지 못했습니다.');
+                Alert.alert(t('로그인 실패'), t('Apple 로그인을 완료하지 못했습니다.'));
             }
         }
     };
@@ -81,13 +83,13 @@ export default function SocialLoginButtons({ onDone }) {
         <View style={styles.wrap}>
             <View style={styles.dividerRow}>
                 <View style={styles.line} />
-                <Text style={styles.dividerText}>또는</Text>
+                <Text style={styles.dividerText}>{t('또는')}</Text>
                 <View style={styles.line} />
             </View>
             {APPLE_SERVICES_ID ? (
                 <TouchableOpacity style={styles.appleBtn} onPress={appleReady ? handleApple : undefined} accessibilityRole="button" activeOpacity={0.85}>
                     <Ionicons name="logo-apple" size={18} color="#fff" />
-                    <Text style={styles.appleText}>Apple로 계속하기</Text>
+                    <Text style={styles.appleText}>{t('Apple로 계속하기')}</Text>
                 </TouchableOpacity>
             ) : null}
             {GOOGLE_WEB_CLIENT_ID ? <View ref={googleBox} style={styles.googleBox} /> : null}

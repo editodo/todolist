@@ -121,4 +121,47 @@ router.delete('/users/:id', isAdmin, async (req, res) => {
     }
 });
 
+// --- Fonts (글꼴 변경 catalog) ---
+const fonts = require('./fonts');
+
+// Add a web font: { name, url } where url is a direct https link to a font file
+router.post('/fonts', isAdmin, async (req, res) => {
+    const { name, url } = req.body;
+    if (!fonts.validName(name)) return res.status(400).json({ error: '글꼴 이름은 1~30자로 입력해주세요.' });
+    const urlError = fonts.checkWebFontUrl(url);
+    if (urlError) return res.status(400).json({ error: urlError });
+    try {
+        const [r] = await db.query("INSERT INTO fonts (name, url, source) VALUES (?, ?, 'web')", [name.trim(), url]);
+        res.json({ success: true, id: r.insertId });
+    } catch (error) {
+        console.error('Admin Error:', error);
+        res.status(500).json({ error: 'Server Error' });
+    }
+});
+
+// Upload a font file: raw bytes in the body; name and original file name in headers (URI-encoded)
+router.post('/fonts/upload', isAdmin, express.raw({ type: '*/*', limit: fonts.MAX_BYTES }), async (req, res) => {
+    try {
+        const name = decodeURIComponent(req.get('x-font-name') || '');
+        const fileName = decodeURIComponent(req.get('x-file-name') || '');
+        const result = await fonts.saveUploadedFont(name, fileName, req.body);
+        if (result.error) return res.status(400).json({ error: result.error });
+        res.json({ success: true, id: result.id });
+    } catch (error) {
+        console.error('Admin Error:', error);
+        res.status(500).json({ error: 'Server Error' });
+    }
+});
+
+router.delete('/fonts/:id', isAdmin, async (req, res) => {
+    try {
+        const ok = await fonts.deleteFont(Number(req.params.id));
+        if (!ok) return res.status(404).json({ error: '글꼴을 찾을 수 없습니다.' });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Admin Error:', error);
+        res.status(500).json({ error: 'Server Error' });
+    }
+});
+
 module.exports = router;

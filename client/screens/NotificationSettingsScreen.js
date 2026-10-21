@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Switch, Modal, ScrollView, Linking } from 'react-native';
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, Switch, Modal, ScrollView, Linking } from 'react-native';
+import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Header from '../components/Header';
 import { useAuth } from '../context/AuthContext';
 import { getSettings, saveSettings, requestPermission, hasPermission, DEFAULT_SETTINGS } from '../notifications';
+import { t } from '../i18n';
 
 const TIMES = Array.from({ length: 48 }, (_, i) => ({ hour: Math.floor(i / 2), minute: (i % 2) * 30 }));
 export const formatTime = ({ hour, minute }) =>
-    `${hour < 12 ? '오전' : '오후'} ${hour % 12 === 0 ? 12 : hour % 12}:${String(minute).padStart(2, '0')}`;
+    `${hour < 12 ? t('오전') : t('오후')} ${hour % 12 === 0 ? 12 : hour % 12}:${String(minute).padStart(2, '0')}`;
 
 const ROWS = [
     { key: 'morning', title: '아침 할 일 알림', desc: '오늘 남은 할 일 개수를 알려드려요. 다 끝낸 날은 울리지 않아요.' },
@@ -39,15 +41,15 @@ export default function NotificationSettingsScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             <Header
-                title="알림 설정"
+                title={t('알림 설정')}
                 leftButton={<TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.back}>{'<'}</Text></TouchableOpacity>}
             />
             <ScrollView style={styles.content}>
                 {!allowed && (
                     <View style={styles.blocked}>
-                        <Text style={styles.blockedText}>휴대폰 설정에서 EdiTodo 알림이 꺼져 있어요. 알림을 받으려면 설정에서 켜주세요.</Text>
+                        <Text style={styles.blockedText}>{t('휴대폰 설정에서 EdiTodo 알림이 꺼져 있어요. 알림을 받으려면 설정에서 켜주세요.')}</Text>
                         <TouchableOpacity onPress={() => Linking.openSettings()} style={styles.blockedBtn}>
-                            <Text style={styles.blockedBtnText}>설정 열기</Text>
+                            <Text style={styles.blockedBtnText}>{t('설정 열기')}</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -55,15 +57,15 @@ export default function NotificationSettingsScreen({ navigation }) {
                 {ROWS.map(({ key, title, desc }) => (
                     <View key={key} style={styles.row}>
                         <View style={styles.rowTop}>
-                            <Text style={styles.title}>{title}</Text>
+                            <Text style={styles.title}>{t(title)}</Text>
                             <Switch
                                 value={allowed && settings[key].enabled}
                                 onValueChange={(enabled) => update(key, { enabled })}
                                 trackColor={{ true: colors.main }}
-                                accessibilityLabel={title}
+                                accessibilityLabel={t(title)}
                             />
                         </View>
-                        <Text style={styles.desc}>{desc}</Text>
+                        <Text style={styles.desc}>{t(desc)}</Text>
                         <TouchableOpacity
                             style={styles.timeBtn}
                             onPress={() => setPicking(key)}
@@ -74,13 +76,13 @@ export default function NotificationSettingsScreen({ navigation }) {
                         </TouchableOpacity>
                     </View>
                 ))}
-                <Text style={styles.note}>알림은 이 기기에만 적용돼요. 앱을 2주 넘게 열지 않으면 알림이 멈추고, 다시 열면 이어서 울려요.</Text>
+                <Text style={styles.note}>{t('알림은 이 기기에만 적용돼요. 앱을 2주 넘게 열지 않으면 알림이 멈추고, 다시 열면 이어서 울려요.')}</Text>
             </ScrollView>
 
             <Modal visible={picking !== null} transparent animationType="slide" onRequestClose={() => setPicking(null)}>
                 <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => setPicking(null)}>
                     <View style={styles.sheet}>
-                        <Text style={styles.sheetTitle}>알림 시간</Text>
+                        <Text style={styles.sheetTitle}>{t('알림 시간')}</Text>
                         <ScrollView style={{ maxHeight: 360 }}>
                             {TIMES.map((t) => {
                                 const selected = picking && settings[picking].hour === t.hour && settings[picking].minute === t.minute;

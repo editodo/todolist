@@ -1,5 +1,6 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
+import { Text } from './AppText';
 import { colors } from '../theme';
 
 // type: 'main' (teal) | 'sub' (teal outline) | 'dark' | 'prev' (light gray, the design's 이전 button)

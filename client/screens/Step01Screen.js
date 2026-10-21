@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { Text } from '../components/AppText';
 import { layout } from '../theme';
 import Button from '../components/Button';
 import { useTheme } from '../context/ThemeContext';
 import StepIndicator from '../components/StepIndicator';
 import ThemePreview from '../components/ThemePreview';
+import { t } from '../i18n';
 
 // Step 1 of 3 (design: 테마선택). Mode (light/dark/system) sits here too, per the design note
 // "white/black/system 모드 추가 - step1".
@@ -33,7 +35,7 @@ function Chips({ options, value, onChange, styles }) {
                         accessibilityRole="radio"
                         accessibilityState={{ selected: active }}
                     >
-                        <Text style={[styles.chipText, active && styles.chipTextActive]}>{opt.label}</Text>
+                        <Text style={[styles.chipText, active && styles.chipTextActive]}>{t(opt.label)}</Text>
                     </TouchableOpacity>
                 );
             })}
@@ -51,24 +53,21 @@ export default function Step01Screen({ navigation }) {
                 <StepIndicator step={1} />
 
                 <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                    <Text style={styles.title}>내 마음에 드는{'\n'}테마를 골라볼까요?</Text>
-                    <Text style={styles.subtitle}>
-                        나중에 마이페이지에서 수정할 수 있어요.{'\n'}
-                        더 많은 테마는 E-T에서 열심히 준비 중이에요!
-                    </Text>
+                    <Text style={styles.title}>{t('내 마음에 드는\n테마를 골라볼까요?')}</Text>
+                    <Text style={styles.subtitle}>{t('나중에 마이페이지에서 수정할 수 있어요.\n더 많은 테마는 E-T에서 열심히 준비 중이에요!')}</Text>
 
-                    <Text style={styles.caption}>화면 모드</Text>
+                    <Text style={styles.caption}>{t('화면 모드')}</Text>
                     <Chips options={MODES} value={mode} onChange={setMode} styles={styles} />
 
-                    <Text style={styles.caption}>테마</Text>
+                    <Text style={styles.caption}>{t('테마')}</Text>
                     <Chips options={THEMES} value={themeStyle} onChange={setThemeStyle} styles={styles} />
 
-                    <Text style={styles.caption}>테마 미리보기</Text>
+                    <Text style={styles.caption}>{t('테마 미리보기')}</Text>
                     <ThemePreview theme={theme} />
                 </ScrollView>
 
                 <View style={styles.bottomBtnGroup}>
-                    <Button title="다음" onPress={() => navigation.navigate('Step03')} />
+                    <Button title={t('다음')} onPress={() => navigation.navigate('Step03')} />
                 </View>
             </View>
         </SafeAreaView>

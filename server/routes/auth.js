@@ -172,12 +172,15 @@ router.post('/join', async (req, res) => {
         }
         const invalid = validateAccount(username, password);
         if (invalid) return res.status(400).json({ error: invalid });
+        if (nickname !== undefined && (typeof nickname !== 'string' || nickname.trim().length > 20)) {
+            return res.status(400).json({ error: '닉네임은 20자까지 입력할 수 있습니다.' });
+        }
 
         const [existing] = await db.query('SELECT id FROM users WHERE username = ? OR email = ?', [username, email]);
         if (existing.length > 0) return res.status(409).json({ error: '이미 존재하는 아이디 혹은 이메일입니다.' });
 
         const hash = await bcrypt.hash(password, 10);
-        const finalNickname = nickname || generateRandomNickname(); // Default nickname if none
+        const finalNickname = (typeof nickname === 'string' && nickname.trim()) || generateRandomNickname(); // Default nickname if none
 
         const [result] = await db.query(
             'INSERT INTO users (username, email, password_hash, phone_number, nickname, user_type) VALUES (?, ?, ?, ?, ?, ?)',

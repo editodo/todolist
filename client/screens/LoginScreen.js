@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, TextInput, Platform } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, Alert, Platform } from 'react-native';
+import { Text, TextInput } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Button from '../components/Button';
 import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import SocialLoginButtons from '../components/SocialLoginButtons';
+import { t } from '../i18n';
 
 export default function LoginScreen({ navigation }) {
     const { login } = useAuth();
@@ -24,13 +26,13 @@ export default function LoginScreen({ navigation }) {
                 const loggedInUser = data.user;
 
                 await login({ ...loggedInUser, token: data.token }); // Save user + token to context
-                Alert.alert('로그인 성공', `환영합니다 ${loggedInUser.username}님!`);
+                Alert.alert(t('로그인 성공'), t('환영합니다 {name}님!', { name: loggedInUser.nickname || loggedInUser.username }));
                 navigation.navigate('MainTabs'); // Navigate to main app
             } else {
-                Alert.alert('로그인 실패', data.error);
+                Alert.alert(t('로그인 실패'), data.error);
             }
         } catch (e) {
-            Alert.alert('오류', '서버 연결에 실패했습니다.');
+            Alert.alert(t('오류'), t('서버 연결에 실패했습니다.'));
             console.log(e);
         }
     };
@@ -43,7 +45,7 @@ export default function LoginScreen({ navigation }) {
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
                         <Text style={{ fontSize: 24, color: colors.text }}>←</Text>
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>로그인</Text>
+                    <Text style={styles.headerTitle}>{t('로그인')}</Text>
                     <View style={{ width: 30 }} />
                 </View>
 
@@ -52,28 +54,28 @@ export default function LoginScreen({ navigation }) {
                     {/* Design: ID and password joined into one box */}
                     <TextInput
                         style={[styles.input, styles.inputTop]}
-                        placeholder="아이디"
+                        placeholder={t('아이디')}
                         placeholderTextColor={colors.guideText}
                         value={username}
                         onChangeText={setUsername}
                         autoCapitalize="none"
-                        accessibilityLabel="아이디"
+                        accessibilityLabel={t('아이디')}
                     />
                     <TextInput
                         style={[styles.input, styles.inputBottom]}
-                        placeholder="비밀번호"
+                        placeholder={t('비밀번호')}
                         placeholderTextColor={colors.guideText}
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
                         onSubmitEditing={handleLogin}
-                        accessibilityLabel="비밀번호"
+                        accessibilityLabel={t('비밀번호')}
                     />
 
                     {/* Find ID/PW by emailed code (login already persists on the device, so no 'save ID') */}
                     <View style={[styles.loginUtil, { justifyContent: 'flex-end' }]}>
                         <TouchableOpacity onPress={() => navigation.navigate('PasswordReset')}>
-                            <Text style={styles.utilText}>아이디/비밀번호 찾기</Text>
+                            <Text style={styles.utilText}>{t('아이디/비밀번호 찾기')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -81,12 +83,12 @@ export default function LoginScreen({ navigation }) {
                 {/* Bottom Buttons */}
                 <View style={styles.bottomBtnGroup}>
                     <Button
-                        title="로그인"
+                        title={t('로그인')}
                         type="main"
                         onPress={handleLogin}
                     />
                     <Button
-                        title="회원가입"
+                        title={t('회원가입')}
                         type="sub"
                         onPress={() => navigation.navigate('Join')}
                     />

@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, TextInput, TouchableOpacity, Alert, Modal } from 'react-native';
+import { View, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, Alert, Modal } from 'react-native';
+import { Text, TextInput } from '../components/AppText';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { colors as staticColors, layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
@@ -9,6 +10,7 @@ import { useDate } from '../context/DateContext';
 import TodoItem from '../components/TodoItem';
 import UndoToast, { useUndoDelete } from '../components/UndoToast';
 import { API_URL, apiFetch } from '../config';
+import { t } from '../i18n';
 
 // Configure Calendar Locale (Korean)
 LocaleConfig.locales['ko'] = {
@@ -47,7 +49,7 @@ export default function TodoListScreen({ navigation }) {
     const [selY, selM, selD] = selectedDate.split('-').map(Number);
     const dateObj = new Date(selY, selM - 1, selD);
     const formattedDate = `${String(selM).padStart(2, '0')}.${String(selD).padStart(2, '0')}`;
-    const weekMap = ['일', '월', '화', '수', '목', '금', '토'];
+    const weekMap = [t('일'), t('월'), t('화'), t('수'), t('목'), t('금'), t('토')];
 
     // Initial Fetch
     useEffect(() => {
@@ -158,7 +160,7 @@ export default function TodoListScreen({ navigation }) {
             }
         } catch (e) {
             console.error('Create failed', e);
-            Alert.alert('오류', '할 일을 저장하지 못했습니다.');
+            Alert.alert(t('오류'), t('할 일을 저장하지 못했습니다.'));
         }
     };
 
@@ -178,11 +180,11 @@ export default function TodoListScreen({ navigation }) {
         <SafeAreaView style={styles.container}>
             {/* Design: ◀ 07.23(토) ▶ — tap the date to pick from a calendar */}
             <View style={styles.dateNav}>
-                <TouchableOpacity onPress={() => changeDate(-1)} style={styles.arrowBtn} accessibilityLabel="이전 날"><Text style={styles.arrow}>◀</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setIsCalendarVisible(true)} accessibilityLabel="날짜 선택">
+                <TouchableOpacity onPress={() => changeDate(-1)} style={styles.arrowBtn} accessibilityLabel={t('이전 날')}><Text style={styles.arrow}>◀</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setIsCalendarVisible(true)} accessibilityLabel={t('날짜 선택')}>
                     <Text style={styles.dateText}>{formattedDate}({weekMap[dateObj.getDay()]})</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => changeDate(1)} style={styles.arrowBtn} accessibilityLabel="다음 날"><Text style={styles.arrow}>▶</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => changeDate(1)} style={styles.arrowBtn} accessibilityLabel={t('다음 날')}><Text style={styles.arrow}>▶</Text></TouchableOpacity>
             </View>
 
             <View style={styles.content}>
@@ -209,13 +211,13 @@ export default function TodoListScreen({ navigation }) {
                                         style={styles.input}
                                         value={newTodoText}
                                         onChangeText={setNewTodoText}
-                                        placeholder="할 일을 입력하세요"
+                                        placeholder={t('할 일을 입력하세요')}
                                         placeholderTextColor={theme.colors.dominant}
                                         autoFocus
                                         onSubmitEditing={handleAddSubmit}
                                         returnKeyType="done"
                                     />
-                                    <TouchableOpacity onPress={() => setIsWriting(false)} style={styles.cancelBtn} accessibilityLabel="입력 취소">
+                                    <TouchableOpacity onPress={() => setIsWriting(false)} style={styles.cancelBtn} accessibilityLabel={t('입력 취소')}>
                                         <View style={styles.cancelIconCircle}>
                                             <Text style={styles.cancelIconText}>×</Text>
                                         </View>
@@ -239,7 +241,7 @@ export default function TodoListScreen({ navigation }) {
                 activeOpacity={0.85}
                 accessibilityRole="button"
             >
-                <Text style={styles.dailyBtnText}>하루 기록</Text>
+                <Text style={styles.dailyBtnText}>{t('하루 기록')}</Text>
             </TouchableOpacity>
 
             {/* Calendar Modal */}
@@ -286,7 +288,7 @@ export default function TodoListScreen({ navigation }) {
                     </View>
                 </TouchableOpacity>
             </Modal>
-            <UndoToast visible={!!pendingDelete} message="할 일을 삭제했어요" onUndo={undoDelete} />
+            <UndoToast visible={!!pendingDelete} message={t('할 일을 삭제했어요')} onUndo={undoDelete} />
         </SafeAreaView>
     );
 }

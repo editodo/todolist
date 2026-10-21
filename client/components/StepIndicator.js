@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Text } from './AppText';
 import { useTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
 
 export default function StepIndicator({ step }) {
     const { theme } = useTheme();
     const { colors } = theme;
-    const steps = ['테마선택', '색상선택', '선택확인'];
+    const steps = [t('테마선택'), t('색상선택'), t('선택확인')];
 
     const styles = getStyles(theme);
 

@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import {
-    View, Text, StyleSheet, SafeAreaView, TouchableOpacity, TextInput, ScrollView,
-    Image, KeyboardAvoidingView, Platform, Alert, ActivityIndicator,
-} from 'react-native';
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Image, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import { Text, TextInput } from '../components/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
 import Button from '../components/Button';
 import { API_URL, apiFetch } from '../config';
 import { STICKERS } from '../components/stickers';
+import { t } from '../i18n';
 
 const todayStr = () => {
     const d = new Date();
@@ -48,8 +47,8 @@ export default function DailyWriteScreen({ navigation, route }) {
     }, [date]);
 
     const handleSave = async () => {
-        if (!content.trim()) return Alert.alert('알림', '오늘의 이야기를 들려주세요!');
-        if (!emotion) return Alert.alert('알림', '오늘 하루 요약 스티커를 골라주세요!');
+        if (!content.trim()) return Alert.alert(t('알림'), t('오늘의 이야기를 들려주세요!'));
+        if (!emotion) return Alert.alert(t('알림'), t('오늘 하루 요약 스티커를 골라주세요!'));
         setSaving(true);
         try {
             const res = await apiFetch(`${API_URL}/api/diaries`, {
@@ -57,26 +56,26 @@ export default function DailyWriteScreen({ navigation, route }) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ date, content, emotion }),
             });
-            if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || '저장 실패');
+            if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || t('저장 실패'));
             navigation.goBack();
         } catch (e) {
-            Alert.alert('오류', `저장하지 못했습니다: ${e.message}`);
+            Alert.alert(t('오류'), t('저장하지 못했습니다: {msg}', { msg: e.message }));
         } finally {
             setSaving(false);
         }
     };
 
     const handleDelete = () => {
-        Alert.alert('기록 삭제', '이 날의 기록을 지울까요?', [
-            { text: '취소', style: 'cancel' },
+        Alert.alert(t('기록 삭제'), t('이 날의 기록을 지울까요?'), [
+            { text: t('취소'), style: 'cancel' },
             {
-                text: '삭제', style: 'destructive', onPress: async () => {
+                text: t('삭제'), style: 'destructive', onPress: async () => {
                     try {
                         const res = await apiFetch(`${API_URL}/api/diaries?date=${date}`, { method: 'DELETE' });
                         if (!res.ok) throw new Error();
                         navigation.goBack();
                     } catch (e) {
-                        Alert.alert('오류', '삭제하지 못했습니다.');
+                        Alert.alert(t('오류'), t('삭제하지 못했습니다.'));
                     }
                 },
             },
@@ -87,12 +86,12 @@ export default function DailyWriteScreen({ navigation, route }) {
         <SafeAreaView style={styles.safeArea}>
             <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn} accessibilityLabel="뒤로">
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn} accessibilityLabel={t('뒤로')}>
                         <Ionicons name="arrow-back" size={22} color={colors.text} />
                     </TouchableOpacity>
                     {exists && (
-                        <TouchableOpacity onPress={handleDelete} style={styles.headerBtn} accessibilityLabel="기록 삭제">
-                            <Text style={styles.deleteText}>삭제</Text>
+                        <TouchableOpacity onPress={handleDelete} style={styles.headerBtn} accessibilityLabel={t('기록 삭제')}>
+                            <Text style={styles.deleteText}>{t('삭제')}</Text>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -102,23 +101,23 @@ export default function DailyWriteScreen({ navigation, route }) {
                 ) : (
                     <>
                         <ScrollView style={styles.body} keyboardShouldPersistTaps="handled">
-                            <Text style={styles.title}>오늘 하루를 기록해요</Text>
+                            <Text style={styles.title}>{t('오늘 하루를 기록해요')}</Text>
                             <Text style={styles.dateText}>{date.replace(/-/g, '.')}</Text>
                             <TextInput
                                 style={styles.textarea}
                                 multiline
                                 value={content}
                                 onChangeText={setContent}
-                                placeholder="투두리스트는 잘 지켜졌는지, 기분은 어떤지 적어봐요."
+                                placeholder={t('투두리스트는 잘 지켜졌는지, 기분은 어떤지 적어봐요.')}
                                 placeholderTextColor={colors.guideText}
                                 textAlignVertical="top"
                                 maxLength={5000}
-                                accessibilityLabel="오늘 하루 기록"
+                                accessibilityLabel={t('오늘 하루 기록')}
                             />
                         </ScrollView>
 
                         <View style={styles.footer}>
-                            <Text style={styles.stickerLabel}>오늘 하루 요약 스티커</Text>
+                            <Text style={styles.stickerLabel}>{t('오늘 하루 요약 스티커')}</Text>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stickerRow}>
                                 {STICKERS.map((s) => {
                                     const selected = emotion === s.id;
@@ -140,7 +139,7 @@ export default function DailyWriteScreen({ navigation, route }) {
                                     );
                                 })}
                             </ScrollView>
-                            <Button title={saving ? '저장 중...' : '기록 완료'} onPress={saving ? undefined : handleSave} />
+                            <Button title={saving ? t('저장 중...') : t('기록 완료')} onPress={saving ? undefined : handleSave} />
                         </View>
                     </>
                 )}

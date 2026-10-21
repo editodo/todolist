@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Text } from '../components/AppText';
 import { layout } from '../theme';
 import Button from '../components/Button';
 import { useTheme } from '../context/ThemeContext';
@@ -8,6 +9,7 @@ import ThemePreview from '../components/ThemePreview';
 import { useAuth } from '../context/AuthContext';
 import { API_URL, apiFetch } from '../config';
 import { permissionUndetermined, requestPermission, getSettings, saveSettings } from '../notifications';
+import { t } from '../i18n';
 
 export default function Step04Screen({ navigation }) {
     const { theme, mode, themeStyle, palette } = useTheme();
@@ -60,7 +62,7 @@ export default function Step04Screen({ navigation }) {
                 <StepIndicator step={3} />
 
                 <View style={styles.content}>
-                    <Text style={styles.title}>나만의 Todolist 생성 완료!{'\n'}아래의 테마가 맞는지 확인해 주세요.</Text>
+                    <Text style={styles.title}>{t('나만의 Todolist 생성 완료!\n아래의 테마가 맞는지 확인해 주세요.')}</Text>
 
                     {/* Final Preview */}
                     <View style={styles.previewContainer}>
@@ -76,14 +78,14 @@ export default function Step04Screen({ navigation }) {
                         accessibilityState={{ checked: wantReminder }}
                     >
                         <View style={[styles.reminderBox, wantReminder && styles.reminderBoxOn]} />
-                        <Text style={styles.reminderText}>매일 아침 9시에 오늘 할 일을 알려드릴까요?</Text>
+                        <Text style={styles.reminderText}>{t('매일 아침 9시에 오늘 할 일을 알려드릴까요?')}</Text>
                     </TouchableOpacity>
                 )}
 
                 <View style={styles.bottomBtnGroup}>
                     <View style={{ flexDirection: 'row', gap: 10 }}>
-                        <Button title="이전" type="prev" onPress={() => navigation.goBack()} style={{ flex: 1 }} />
-                        <Button title="시작" onPress={handleStart} style={{ flex: 1 }} />
+                        <Button title={t('이전')} type="prev" onPress={() => navigation.goBack()} style={{ flex: 1 }} />
+                        <Button title={t('시작')} onPress={handleStart} style={{ flex: 1 }} />
                     </View>
                 </View>
             </View>

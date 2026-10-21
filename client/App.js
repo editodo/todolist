@@ -4,7 +4,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Platform, AppState, Alert } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Platform, AppState, Alert } from 'react-native';
+import { Text } from './components/AppText';
 import { Ionicons } from '@expo/vector-icons';
 import { wrapApp } from './sentry';
 import { syncReminders, onReminderTap } from './notifications';
@@ -37,6 +38,9 @@ import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
 import TermsScreen from './screens/TermsScreen';
 import PasswordResetScreen from './screens/PasswordResetScreen';
 import NotificationSettingsScreen from './screens/NotificationSettingsScreen';
+import FontSettingsScreen from './screens/FontSettingsScreen';
+import LanguageSettingsScreen from './screens/LanguageSettingsScreen';
+import { t } from './i18n';
 
 // react-native-web's Alert.alert does nothing, so on the web every login/join error and confirm vanished.
 // Map it to the browser's alert/confirm: a cancel button + an action becomes OK/Cancel.
@@ -135,9 +139,9 @@ function MainTabNavigator() {
       tabBar={props => <CustomTabBar {...props} />}
       screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen name="Todolist" component={TodoListScreen} options={{ tabBarLabel: '투두리스트' }} />
-      <Tab.Screen name="Calendar" component={CalendarScreen} options={{ tabBarLabel: '캘린더' }} />
-      <Tab.Screen name="MyPage" component={MyPageScreen} options={{ tabBarLabel: '마이페이지' }} />
+      <Tab.Screen name="Todolist" component={TodoListScreen} options={{ tabBarLabel: t('투두리스트') }} />
+      <Tab.Screen name="Calendar" component={CalendarScreen} options={{ tabBarLabel: t('캘린더') }} />
+      <Tab.Screen name="MyPage" component={MyPageScreen} options={{ tabBarLabel: t('마이페이지') }} />
     </Tab.Navigator>
   );
 }
@@ -155,7 +159,7 @@ function DrawerNavigator() {
         name="Home"
         component={MainTabNavigator}
         options={{
-          drawerLabel: '홈',
+          drawerLabel: t('홈'),
           drawerIcon: ({ color }) => <Ionicons name="home-outline" size={22} color={color} />
         }}
       />
@@ -215,6 +219,7 @@ const navigationRef = createNavigationContainerRef();
 
 function AuthWrapper() {
   const { user, isLoading } = useAuth();
+  const { effectiveLanguage } = useTheme();
   const pendingScreen = useRef(null); // reminder tapped before navigation was ready
 
   // Keep reminders current: after login and whenever the user leaves the app (to-dos/diary may have changed)
@@ -276,6 +281,7 @@ function AuthWrapper() {
 
   return (
     <NavigationContainer
+      key={effectiveLanguage} // language change: remount so every screen re-reads t()
       ref={navigationRef}
       linking={linking}
       onReady={() => {
@@ -308,6 +314,8 @@ function AuthWrapper() {
         <Stack.Screen name="UserModify" component={UserModifyScreen} />
         <Stack.Screen name="PasswordReset" component={PasswordResetScreen} />
         <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
+        <Stack.Screen name="FontSettings" component={FontSettingsScreen} />
+        <Stack.Screen name="LanguageSettings" component={LanguageSettingsScreen} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

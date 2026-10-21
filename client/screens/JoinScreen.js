@@ -1,24 +1,27 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, Alert, ScrollView } from 'react-native';
+import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import { API_URL } from '../config';
+import { t } from '../i18n';
 
 export default function JoinScreen({ navigation }) {
     const [userId, setUserId] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
+    const [nickname, setNickname] = useState('');
     const [agreed, setAgreed] = useState(false);
 
     const handleJoin = async () => {
         if (!agreed) {
-            Alert.alert('약관 동의', '이용약관과 개인정보처리방침에 동의해주세요.');
+            Alert.alert(t('약관 동의'), t('이용약관과 개인정보처리방침에 동의해주세요.'));
             return;
         }
         if (password !== passwordConfirm) {
-            Alert.alert('비밀번호 불일치', '비밀번호와 비밀번호 확인이 다릅니다.');
+            Alert.alert(t('비밀번호 불일치'), t('비밀번호와 비밀번호 확인이 다릅니다.'));
             return;
         }
 
@@ -29,19 +32,20 @@ export default function JoinScreen({ navigation }) {
                 body: JSON.stringify({
                     username: userId,
                     email: email,
-                    password: password
+                    password: password,
+                    nickname: nickname.trim() || undefined // empty → server picks a random one
                 })
             });
             const data = await response.json();
 
             if (response.ok) {
-                Alert.alert('가입 성공', '회원가입이 완료되었습니다.');
+                Alert.alert(t('가입 성공'), t('회원가입이 완료되었습니다.'));
                 navigation.navigate('Login');
             } else {
-                Alert.alert('가입 실패', data.error);
+                Alert.alert(t('가입 실패'), data.error);
             }
         } catch (e) {
-            Alert.alert('오류', '서버 연결에 실패했습니다.');
+            Alert.alert(t('오류'), t('서버 연결에 실패했습니다.'));
         }
     };
 
@@ -52,36 +56,46 @@ export default function JoinScreen({ navigation }) {
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
                         <Text style={{ fontSize: 24, color: colors.text }}>←</Text>
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>회원가입</Text>
+                    <Text style={styles.headerTitle}>{t('회원가입')}</Text>
                     <View style={{ width: 30 }} />
                 </View>
 
                 <ScrollView style={styles.formWrap} showsVerticalScrollIndicator={false}>
                     <Input
-                        label="아이디"
-                        placeholder="영문, 숫자, _ 조합 4~20자"
+                        label={t('아이디')}
+                        placeholder={t('영문, 숫자, _ 조합 4~20자')}
                         value={userId}
                         onChangeText={setUserId}
                     />
                     <Input
-                        label="이메일"
-                        placeholder="email@emai.com"
+                        label={t('이메일')}
+                        placeholder="email@example.com"
                         value={email}
                         onChangeText={setEmail}
                     />
                     <Input
-                        label="비밀번호"
-                        placeholder="8자 이상"
+                        label={t('비밀번호')}
+                        placeholder={t('8자 이상')}
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
                     />
                     <Input
-                        label="비밀번호 확인"
+                        label={t('비밀번호 확인')}
                         placeholder=""
                         value={passwordConfirm}
                         onChangeText={setPasswordConfirm}
                         secureTextEntry
+                    />
+                    {/* Design: inline mismatch message under the confirm field */}
+                    {passwordConfirm.length > 0 && password !== passwordConfirm && (
+                        <Text style={styles.fieldError}>{t('비밀번호가 일치하지 않습니다.')}</Text>
+                    )}
+                    <Input
+                        label={t('닉네임 (선택)')}
+                        placeholder={t('비워두면 자동으로 만들어져요')}
+                        value={nickname}
+                        onChangeText={setNickname}
                     />
 
                     <View style={styles.saveId}>
@@ -90,18 +104,18 @@ export default function JoinScreen({ navigation }) {
                             style={[styles.checkbox, agreed && styles.checkboxOn]}
                             accessibilityRole="checkbox"
                             accessibilityState={{ checked: agreed }}
-                            accessibilityLabel="이용약관과 개인정보처리방침 동의"
+                            accessibilityLabel={t('이용약관과 개인정보처리방침 동의')}
                         />
                         <Text style={styles.termsText}>
-                            <Text style={styles.termsLink} onPress={() => navigation.navigate('Terms')}>이용약관</Text>과{' '}
-                            <Text style={styles.termsLink} onPress={() => navigation.navigate('PrivacyPolicy')}>개인정보처리방침</Text>에 동의합니다. (만 14세 이상)
+                            <Text style={styles.termsLink} onPress={() => navigation.navigate('Terms')}>{t('이용약관')}</Text>{t('과')}{' '}
+                            <Text style={styles.termsLink} onPress={() => navigation.navigate('PrivacyPolicy')}>{t('개인정보처리방침')}</Text>{t('에 동의합니다. (만 14세 이상)')}
                         </Text>
                     </View>
                 </ScrollView>
 
                 <View style={styles.bottomBtnGroup}>
                     <Button
-                        title="가입"
+                        title={t('가입')}
                         type="main"
                         onPress={handleJoin}
                     />
@@ -157,6 +171,7 @@ const styles = StyleSheet.create({
         borderRadius: 9,
         marginRight: 6,
     },
+    fieldError: { marginTop: -10, marginBottom: 14, fontSize: 12, color: colors.danger },
     termsText: {
         flex: 1,
         fontSize: 13,

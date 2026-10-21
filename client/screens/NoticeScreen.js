@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, LayoutAnimation, Platform, UIManager, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, LayoutAnimation, Platform, UIManager, ActivityIndicator } from 'react-native';
+import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Header from '../components/Header';
 import { API_URL } from '../config';
+import { t } from '../i18n';
 
 if (Platform.OS === 'android') {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -49,12 +51,12 @@ export default function NoticeScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             <Header
-                title="공지사항"
+                title={t('공지사항')}
                 leftButton={<TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.back}>{'<'}</Text></TouchableOpacity>}
             />
             <ScrollView style={styles.list}>
                 {notices === null && <ActivityIndicator style={{ marginTop: 40 }} color={colors.main} />}
-                {notices?.length === 0 && <Text style={styles.empty}>등록된 공지사항이 없습니다.</Text>}
+                {notices?.length === 0 && <Text style={styles.empty}>{t('등록된 공지사항이 없습니다.')}</Text>}
                 {notices?.map((n) => (
                     <NoticeItem
                         key={n.id}

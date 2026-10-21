@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Alert, Image } from 'react-native';
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Alert, Image } from 'react-native';
+import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +17,7 @@ const EMOJI_MAP = STICKER_MAP;
 import { useAuth } from '../context/AuthContext';
 import { useDate } from '../context/DateContext';
 import { API_URL, apiFetch } from '../config';
+import { t } from '../i18n';
 
 function generateCalendar(year, month) {
     const firstDay = new Date(year, month, 1);
@@ -193,7 +195,7 @@ export default function CalendarScreen({ navigation }) {
                 {/* Calendar Grid */}
                 <View style={styles.calendarBox}>
                     <View style={styles.weekRow}>
-                        {['일', '월', '화', '수', '목', '금', '토'].map((d, i) => (
+                        {[t('일'), t('월'), t('화'), t('수'), t('목'), t('금'), t('토')].map((d, i) => (
                             <Text key={i} style={styles.weekText}>{d}</Text>
                         ))}
                     </View>
@@ -275,7 +277,7 @@ export default function CalendarScreen({ navigation }) {
                                 />
                             ))
                         ) : (
-                            <Text style={{ textAlign: 'center', color: c.guideText, marginTop: 20 }}>날짜를 선택해주세요.</Text>
+                            <Text style={{ textAlign: 'center', color: c.guideText, marginTop: 20 }}>{t('날짜를 선택해주세요.')}</Text>
                         )}
                     </ScrollView>
 
@@ -288,10 +290,10 @@ export default function CalendarScreen({ navigation }) {
                     activeOpacity={0.85}
                     accessibilityRole="button"
                 >
-                    <Text style={[styles.dailyBtnText, { color: c.base }]}>하루 기록</Text>
+                    <Text style={[styles.dailyBtnText, { color: c.base }]}>{t('하루 기록')}</Text>
                 </TouchableOpacity>
             </View>
-            <UndoToast visible={!!pendingDelete} message="할 일을 삭제했어요" onUndo={undoDelete} />
+            <UndoToast visible={!!pendingDelete} message={t('할 일을 삭제했어요')} onUndo={undoDelete} />
         </SafeAreaView>
     );
 }
