@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "test": "node --test auth.test.js reset.test.js social.test.js"
+    "test": "node --test auth.test.js reset.test.js social.test.js fonts.test.js"
   },
   "keywords": [],
   "author": "",

@@ -1,25 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, TextInput, TouchableOpacity, Alert, Modal } from 'react-native';
-import { Calendar, LocaleConfig } from 'react-native-calendars';
+import { View, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, TextInput } from '../components/AppText';
 import { colors as staticColors, layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useDate } from '../context/DateContext';
 import TodoItem from '../components/TodoItem';
 import UndoToast, { useUndoDelete } from '../components/UndoToast';
-import Header from '../components/Header';
+import DatePicker from '../components/DatePicker';
 import { API_URL, apiFetch } from '../config';
-
-// Configure Calendar Locale (Korean)
-LocaleConfig.locales['ko'] = {
-    monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-    monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-    dayNames: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
-    dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
-    today: '오늘'
-};
-LocaleConfig.defaultLocale = 'ko';
+import { t } from '../i18n';
 
 export default function TodoListScreen({ navigation }) {
     const { theme } = useTheme();
@@ -41,12 +33,14 @@ export default function TodoListScreen({ navigation }) {
     });
     const [isWriting, setIsWriting] = useState(false);
     const [newTodoText, setNewTodoText] = useState('');
-    const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     // Date Logic
-    const dateObj = new Date(selectedDate);
-    const formattedDate = selectedDate.replace(/-/g, '.');
-    const weekMap = ['일', '월', '화', '수', '목', '금', '토'];
+    // Local date (new Date('YYYY-MM-DD') is UTC and can land on the previous day)
+    const [selY, selM, selD] = selectedDate.split('-').map(Number);
+    const dateObj = new Date(selY, selM - 1, selD);
+    const formattedDate = `${String(selM).padStart(2, '0')}.${String(selD).padStart(2, '0')}`;
+    const weekMap = [t('일'), t('월'), t('화'), t('수'), t('목'), t('금'), t('토')];
 
     // Initial Fetch
     useEffect(() => {
@@ -157,9 +151,11 @@ export default function TodoListScreen({ navigation }) {
             }
         } catch (e) {
             console.error('Create failed', e);
-            Alert.alert('오류', '할 일을 저장하지 못했습니다.');
+            Alert.alert(t('오류'), t('할 일을 저장하지 못했습니다.'));
         }
     };
+
+    const [pickerOpen, setPickerOpen] = useState(false);
 
     const changeDate = (days) => {
         const d = new Date(selectedDate);
@@ -168,29 +164,33 @@ export default function TodoListScreen({ navigation }) {
         setSelectedDate(nextDate);
     };
 
-    const handleDayPress = (day) => {
-        setSelectedDate(day.dateString);
-        setIsCalendarVisible(false);
-    };
-
     return (
-        <SafeAreaView style={styles.container}>
-            <Header title="투두리스트" showMenu={true} />
-
-            {/* Date Navigation Sub-Header */}
+        <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
+            {/* Design: ◀ 07.23(토) ▶ — tap the date to pick from a calendar */}
             <View style={styles.dateNav}>
-                <TouchableOpacity onPress={() => changeDate(-1)}><Text style={styles.arrow}>◀</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setIsCalendarVisible(true)}>
-                    <Text style={styles.dateText}>{formattedDate} ({weekMap[isNaN(dateObj.getDay()) ? 0 : dateObj.getDay()]})</Text>
+                <TouchableOpacity onPress={() => changeDate(-1)} style={styles.arrowBtn} accessibilityLabel={t('이전 날')}><Text style={styles.arrow}>◀</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setPickerOpen(true)} accessibilityLabel={t('날짜 선택')}>
+                    <Text style={styles.dateText}>{formattedDate}({weekMap[dateObj.getDay()]})</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => changeDate(1)}><Text style={styles.arrow}>▶</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => changeDate(1)} style={styles.arrowBtn} accessibilityLabel={t('다음 날')}><Text style={styles.arrow}>▶</Text></TouchableOpacity>
             </View>
+
+            <DatePicker
+                visible={pickerOpen}
+                value={selectedDate}
+                onSelect={(d) => { setSelectedDate(d); setPickerOpen(false); }}
+                onClose={() => setPickerOpen(false)}
+            />
 
             <View style={styles.content}>
                 <View style={styles.contentInner}>
                     <FlatList
+                        automaticallyAdjustKeyboardInsets // iOS: keep the new-todo input above the keyboard
+                        refreshing={refreshing}
+                        onRefresh={async () => { setRefreshing(true); await fetchTodos(); setRefreshing(false); }}
+                        keyboardShouldPersistTaps="handled"
                         data={todos}
-                        contentContainerStyle={{ paddingBottom: 20 }}
+                        contentContainerStyle={{ padding: 6, paddingBottom: 20 }}
                         keyExtractor={item => item.id.toString()}
                         renderItem={({ item }) => (
                             <TodoItem
@@ -210,76 +210,40 @@ export default function TodoListScreen({ navigation }) {
                                         style={styles.input}
                                         value={newTodoText}
                                         onChangeText={setNewTodoText}
-                                        placeholder="할 일을 입력하세요"
+                                        placeholder={t('할 일을 입력하세요')}
                                         placeholderTextColor={theme.colors.dominant}
                                         autoFocus
                                         onSubmitEditing={handleAddSubmit}
                                         returnKeyType="done"
                                     />
-                                    <TouchableOpacity onPress={() => setIsWriting(false)} style={styles.cancelBtn}>
+                                    <TouchableOpacity onPress={() => setIsWriting(false)} style={styles.cancelBtn} accessibilityLabel={t('입력 취소')}>
                                         <View style={styles.cancelIconCircle}>
                                             <Text style={styles.cancelIconText}>×</Text>
                                         </View>
                                     </TouchableOpacity>
                                 </View>
-                            ) : null
+                            ) : (
+                                // Design: "+ new todo" pill inside the card, palette accent color
+                                <TouchableOpacity style={styles.newTodoBtn} onPress={handleAddStart} accessibilityRole="button">
+                                    <Text style={styles.newTodoText}>+ new todo</Text>
+                                </TouchableOpacity>
+                            )
                         }
                     />
                 </View>
             </View>
 
-            {/* Floating Action Button (FAB) (Always visible) */}
-            {!isWriting && (
-                <TouchableOpacity style={styles.fab} onPress={handleAddStart}>
-                    <Text style={styles.fabText}>+</Text>
-                </TouchableOpacity>
-            )}
-
-            {/* Calendar Modal */}
-            <Modal
-                transparent={true}
-                visible={isCalendarVisible}
-                animationType="fade"
-                onRequestClose={() => setIsCalendarVisible(false)}
+            {/* Design: 하루 기록 button opens the daily record for this date */}
+            <TouchableOpacity
+                style={styles.dailyBtn}
+                onPress={() => navigation.navigate('DailyWrite', { date: selectedDate })}
+                activeOpacity={0.85}
+                accessibilityRole="button"
             >
-                <TouchableOpacity
-                    style={styles.modalOverlay}
-                    activeOpacity={1}
-                    onPress={() => setIsCalendarVisible(false)}
-                >
-                    <View style={styles.calendarContainer}>
-                        <Calendar
-                            current={selectedDate}
-                            onDayPress={handleDayPress}
-                            markedDates={{
-                                [selectedDate]: { selected: true, selectedColor: colors.main }
-                            }}
-                            theme={{
-                                backgroundColor: colors.base,
-                                calendarBackground: colors.base,
-                                textSectionTitleColor: colors.text,
-                                selectedDayBackgroundColor: colors.main,
-                                selectedDayTextColor: '#ffffff',
-                                todayTextColor: colors.main,
-                                dayTextColor: colors.text,
-                                textDisabledColor: colors.guideText,
-                                dotColor: colors.main,
-                                selectedDotColor: '#ffffff',
-                                arrowColor: colors.main,
-                                monthTextColor: colors.text,
-                                indicatorColor: colors.main,
-                                textDayFontWeight: '300',
-                                textMonthFontWeight: 'bold',
-                                textDayHeaderFontWeight: '300',
-                                textDayFontSize: 16,
-                                textMonthFontSize: 18,
-                                textDayHeaderFontSize: 14
-                            }}
-                        />
-                    </View>
-                </TouchableOpacity>
-            </Modal>
-            <UndoToast visible={!!pendingDelete} message="할 일을 삭제했어요" onUndo={undoDelete} />
+                <Text style={styles.dailyBtnText}>{t('하루 기록')}</Text>
+            </TouchableOpacity>
+
+            <UndoToast visible={!!pendingDelete} message={t('할 일을 삭제했어요')} onUndo={undoDelete} />
         </SafeAreaView>
     );
 }
@@ -293,55 +257,62 @@ const getStyles = (theme) => StyleSheet.create({
         alignSelf: 'center',
     },
     dateNav: {
+        height: 50,
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 15,
+        paddingHorizontal: 18,
         backgroundColor: theme.colors.body,
     },
     dateText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginHorizontal: 20,
+        fontSize: 15,
+        fontWeight: '600',
         color: theme.colors.text,
     },
+    arrowBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' }, // 44pt touch target
     arrow: {
-        fontSize: 14,
-        color: theme.colors.guideText,
-        padding: 10
+        fontSize: 10,
+        color: theme.colors.calendarColr,
     },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    calendarContainer: {
-        backgroundColor: theme.colors.base,
-        borderRadius: 15,
-        padding: 10,
-        width: '90%',
-        maxWidth: 400,
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
-
     content: {
         flex: 1,
         paddingHorizontal: 18,
     },
+    // Design: paper card in the palette color with a soft shadow
     contentInner: {
         flex: 1,
+        marginTop: 10,
         backgroundColor: theme.colors.base,
         borderRadius: theme.style.borderRadius,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        marginBottom: 70,
+        paddingVertical: 14,
+        paddingHorizontal: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 2, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 2,
     },
+    newTodoBtn: {
+        alignSelf: 'center',
+        marginTop: 14,
+        height: 30,
+        paddingHorizontal: 14,
+        borderRadius: 15,
+        justifyContent: 'center',
+        backgroundColor: theme.colors.accent,
+    },
+    newTodoText: { fontSize: 13, color: theme.colors.base },
+    dailyBtn: {
+        height: 50,
+        marginTop: 12,
+        marginHorizontal: 18,
+        marginBottom: 12,
+        borderRadius: 6,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: theme.colors.accent,
+    },
+    dailyBtnText: { fontSize: 16, fontWeight: '500', letterSpacing: -0.33, color: theme.colors.base },
     writeRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -351,9 +322,8 @@ const getStyles = (theme) => StyleSheet.create({
         marginBottom: 10,
         borderBottomWidth: 2,
         borderBottomColor: theme.colors.dominant,
-        backgroundColor: theme.colors.body,
-        borderRadius: 8,
-        paddingHorizontal: 10,
+        backgroundColor: 'transparent',
+        paddingHorizontal: 4,
     },
     input: {
         flex: 1,
@@ -380,26 +350,4 @@ const getStyles = (theme) => StyleSheet.create({
         fontWeight: 'bold',
         marginTop: -2
     },
-    fab: {
-        position: 'absolute',
-        bottom: 80,
-        right: 20,
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: theme.colors.main,
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4.65,
-        elevation: 8,
-        zIndex: 999
-    },
-    fabText: {
-        fontSize: 32,
-        color: '#fff',
-        marginTop: -4
-    }
 });

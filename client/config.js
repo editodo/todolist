@@ -38,6 +38,11 @@ export const SUPPORT_EMAIL = 'hello@codemodo.kr';
 export const GOOGLE_WEB_CLIENT_ID = '';
 export const GOOGLE_IOS_CLIENT_ID = '';
 
+// Sign in with Apple on the web: the Services ID (Apple Developer → Identifiers → Services IDs). Empty = no Apple button on web.
+// Kakao login: the app's REST API key from developers.kakao.com (a public client ID; the secret stays on the server).
+export const KAKAO_REST_API_KEY = '';
+export const APPLE_SERVICES_ID = '';
+
 // Login token, set by AuthContext. Every API call goes through apiFetch so the server knows who is asking.
 let authToken = null;
 export const setAuthToken = (token) => { authToken = token || null; };

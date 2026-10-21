@@ -142,7 +142,12 @@ router.post('/convert', requireAuth, async (req, res) => {
 router.put('/user/:id', requireAuth, async (req, res) => {
     const userId = req.userId;
     if (Number(req.params.id) !== userId) return res.status(403).json({ error: '권한이 없습니다.' });
-    const { nickname, profile_image } = req.body;
+    const nickname = typeof req.body.nickname === 'string' ? req.body.nickname.trim() : '';
+    const { profile_image } = req.body;
+    if (!nickname || nickname.length > 20) return res.status(400).json({ error: '닉네임은 1~20자로 입력해주세요.' });
+    if (profile_image != null && (typeof profile_image !== 'string' || profile_image.length > 255)) {
+        return res.status(400).json({ error: '프로필 이미지 주소가 올바르지 않습니다.' });
+    }
 
     try {
         await db.query(
@@ -167,12 +172,15 @@ router.post('/join', async (req, res) => {
         }
         const invalid = validateAccount(username, password);
         if (invalid) return res.status(400).json({ error: invalid });
+        if (nickname !== undefined && (typeof nickname !== 'string' || nickname.trim().length > 20)) {
+            return res.status(400).json({ error: '닉네임은 20자까지 입력할 수 있습니다.' });
+        }
 
         const [existing] = await db.query('SELECT id FROM users WHERE username = ? OR email = ?', [username, email]);
         if (existing.length > 0) return res.status(409).json({ error: '이미 존재하는 아이디 혹은 이메일입니다.' });
 
         const hash = await bcrypt.hash(password, 10);
-        const finalNickname = nickname || generateRandomNickname(); // Default nickname if none
+        const finalNickname = (typeof nickname === 'string' && nickname.trim()) || generateRandomNickname(); // Default nickname if none
 
         const [result] = await db.query(
             'INSERT INTO users (username, email, password_hash, phone_number, nickname, user_type) VALUES (?, ?, ?, ?, ?, ?)',
@@ -233,12 +241,24 @@ router.post('/refresh', requireAuth, async (req, res) => {
     }
 });
 
-// ✅ SNS 로그인 (Sign in with Apple / Google)
-// POST /api/auth/social/:provider  apple: { identityToken, authorizationCode, fullName }  google: { idToken }
+// Kakao redirects the browser here after login. Pass the one-time code back unchanged: to the app's scheme
+// (state ends in ".app"), or to the web popup's opener on our own origin. The code alone is useless without
+// the PKCE verifier the app kept, and only POST /social/kakao (with our secret) can redeem it.
+router.get('/kakao/callback', (req, res) => {
+    const q = (k) => (typeof req.query[k] === 'string' ? req.query[k] : '');
+    const result = { code: q('code'), state: q('state'), error: q('error') };
+    if (result.state.endsWith('.app')) return res.redirect(`editodo://auth/kakao?${new URLSearchParams(result)}`);
+    const origin = process.env.KAKAO_WEB_ORIGIN || 'https://editodo.com';
+    const data = JSON.stringify({ type: 'kakao', ...result }).replace(/</g, '\\u003c');
+    res.type('html').send(`<!doctype html><meta charset="utf-8"><script>if (window.opener) window.opener.postMessage(${data}, ${JSON.stringify(origin)}); window.close();</script>`);
+});
+
+// ✅ SNS 로그인 (Sign in with Apple / Google / Kakao)
+// POST /api/auth/social/:provider  apple: { identityToken, authorizationCode, fullName }  google: { idToken }  kakao: { code, codeVerifier }
 // Order: existing link → logged-in guest keeps their data → same verified email links → new account.
 router.post('/social/:provider', async (req, res) => {
     const { provider } = req.params;
-    if (!['apple', 'google'].includes(provider)) return res.status(404).json({ error: '지원하지 않는 로그인 방식입니다.' });
+    if (!['apple', 'google', 'kakao'].includes(provider)) return res.status(404).json({ error: '지원하지 않는 로그인 방식입니다.' });
 
     let profile;
     try {
@@ -286,9 +306,9 @@ router.post('/social/:provider', async (req, res) => {
 
         if (provider === 'apple' && req.body.authorizationCode) {
             try {
-                const refreshToken = await appleRefreshToken(req.body.authorizationCode);
+                const refreshToken = await appleRefreshToken(req.body.authorizationCode, profile.clientId);
                 if (refreshToken) {
-                    await db.query("UPDATE social_accounts SET apple_refresh_token = ? WHERE provider = 'apple' AND provider_user_id = ?", [refreshToken, profile.sub]);
+                    await db.query("UPDATE social_accounts SET apple_refresh_token = ?, apple_client_id = ? WHERE provider = 'apple' AND provider_user_id = ?", [refreshToken, profile.clientId, profile.sub]);
                 }
             } catch (e) {
                 console.error('Apple token exchange failed:', e.message); // login still succeeds; only revocation is affected

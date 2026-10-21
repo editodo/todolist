@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { API_URL, apiFetch, setAuthToken } from '../config';
 import { cancelAll as cancelReminders } from '../notifications';
+import { t } from '../i18n';
 
 const AuthContext = createContext();
 
@@ -79,7 +80,7 @@ export const AuthProvider = ({ children }) => {
                 body: JSON.stringify(payload),
             });
             const data = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(data.error || '로그인에 실패했습니다.');
+            if (!response.ok) throw new Error(data.error || t('로그인에 실패했습니다.'));
             await login({ ...data.user, token: data.token });
             return { success: true, isNew: data.isNew };
         } catch (e) {
@@ -135,7 +136,9 @@ export const AuthProvider = ({ children }) => {
             // Update local user state to REGULAR
             const updatedUser = {
                 ...user,
-                ...conversionData,
+                username: conversionData.username,
+                email: conversionData.email,
+                nickname: conversionData.nickname || user.nickname,
                 user_type: 'REGULAR',
                 expires_at: null,
                 isExpired: false
@@ -172,7 +175,7 @@ export const AuthProvider = ({ children }) => {
             const response = await apiFetch(`${API_URL}/api/auth/me`, { method: 'DELETE' });
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || '회원 탈퇴에 실패했습니다.');
+                throw new Error(errorData.error || t('회원 탈퇴에 실패했습니다.'));
             }
             await logout();
             return { success: true };

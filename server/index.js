@@ -70,10 +70,16 @@ const startServer = async () => {
         provider_user_id VARCHAR(255) NOT NULL,
         user_id INT NOT NULL,
         apple_refresh_token TEXT NULL,
+        apple_client_id VARCHAR(255) NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (provider, provider_user_id),
         KEY idx_social_user (user_id)
       )`);
+    // Added after first release: which Apple client (iOS bundle / web Services ID) issued the token
+    await db.query('ALTER TABLE social_accounts ADD COLUMN IF NOT EXISTS apple_client_id VARCHAR(255) NULL AFTER apple_refresh_token');
+    // 글꼴 변경 / 언어 settings
+    await db.query('ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS font_id INT NULL, ADD COLUMN IF NOT EXISTS language VARCHAR(5) NULL');
+    await require('./routes/fonts').ensureFontTables();
   } catch (e) {
     console.error('⚠️  Could not ensure password_resets/social_accounts tables:', e.code || e.message);
   }
@@ -92,6 +98,7 @@ const startServer = async () => {
   app.use('/api/diaries', requireAuth, diaryRoutes);
   app.use('/api/preferences', requireAuth, preferenceRoutes);
   app.use('/api/admin', adminRoutes); // Mount Admin Routes
+  app.use('/api/fonts', require('./routes/fonts').router); // public font catalog + uploaded font files
 
   // Public read-only notices for the app (managed from the admin dashboard)
   app.get('/api/notices', async (req, res) => {

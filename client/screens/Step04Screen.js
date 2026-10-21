@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text } from '../components/AppText';
 import { layout } from '../theme';
 import Button from '../components/Button';
 import { useTheme } from '../context/ThemeContext';
@@ -8,8 +10,10 @@ import ThemePreview from '../components/ThemePreview';
 import { useAuth } from '../context/AuthContext';
 import { API_URL, apiFetch } from '../config';
 import { permissionUndetermined, requestPermission, getSettings, saveSettings } from '../notifications';
+import { t } from '../i18n';
 
-export default function Step04Screen({ navigation }) {
+export default function Step04Screen({ navigation, route }) {
+    const fromSettings = route.params?.fromSettings;
     const { theme, mode, themeStyle, palette } = useTheme();
     const { user } = useAuth();
     // Morning reminder offer, shown only before the permission was ever asked
@@ -45,7 +49,11 @@ export default function Step04Screen({ navigation }) {
             console.error('Failed to save preferences:', e);
         }
 
-        // Reset navigation stack and go to MainTabs
+        if (fromSettings) {
+            navigation.navigate('MainTabs'); // back to My page, keeping the tab
+            return;
+        }
+        // First-run onboarding: start fresh on the main tabs
         navigation.reset({
             index: 0,
             routes: [{ name: 'MainTabs' }],
@@ -57,10 +65,10 @@ export default function Step04Screen({ navigation }) {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
-                <StepIndicator step={4} />
+                <StepIndicator step={3} />
 
                 <View style={styles.content}>
-                    <Text style={styles.title}>나만의 Todolist 생성 완료!{'\n'}아래의 테마가 맞는지 확인해 주세요.</Text>
+                    <Text style={styles.title}>{t('나만의 Todolist 생성 완료!\n아래의 테마가 맞는지 확인해 주세요.')}</Text>
 
                     {/* Final Preview */}
                     <View style={styles.previewContainer}>
@@ -76,24 +84,14 @@ export default function Step04Screen({ navigation }) {
                         accessibilityState={{ checked: wantReminder }}
                     >
                         <View style={[styles.reminderBox, wantReminder && styles.reminderBoxOn]} />
-                        <Text style={styles.reminderText}>매일 아침 9시에 오늘 할 일을 알려드릴까요?</Text>
+                        <Text style={styles.reminderText}>{t('매일 아침 9시에 오늘 할 일을 알려드릴까요?')}</Text>
                     </TouchableOpacity>
                 )}
 
                 <View style={styles.bottomBtnGroup}>
                     <View style={{ flexDirection: 'row', gap: 10 }}>
-                        <Button
-                            title="이전"
-                            type="sub"
-                            onPress={() => navigation.goBack()}
-                            style={{ flex: 1, backgroundColor: '#EEEEEE', borderColor: '#EEE' }}
-                            textStyle={{ color: '#888' }}
-                        />
-                        <Button
-                            title="시작"
-                            onPress={handleStart}
-                            style={{ flex: 2 }}
-                        />
+                        <Button title={t('이전')} type="prev" onPress={() => navigation.goBack()} style={{ flex: 1 }} />
+                        <Button title={fromSettings ? t('완료') : t('시작')} onPress={handleStart} style={{ flex: 1 }} />
                     </View>
                 </View>
             </View>
@@ -106,7 +104,7 @@ const getStyles = (theme) => StyleSheet.create({
     container: { flex: 1, padding: 18, maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center' },
 
     content: { flex: 1, marginTop: 20 },
-    title: { fontSize: 22, fontWeight: 'bold', marginBottom: 30, color: theme.colors.text, lineHeight: 30 },
+    title: { fontSize: 18, fontWeight: '700', marginBottom: 30, color: theme.colors.text, lineHeight: 26, letterSpacing: -0.33 },
 
     previewContainer: { flex: 1 },
 

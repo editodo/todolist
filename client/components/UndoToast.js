@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, AppState } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, AppState } from 'react-native';
+import { Text } from './AppText';
+import { t } from '../i18n';
 
 const UNDO_MS = 4000;
 
@@ -53,13 +55,13 @@ export function useUndoDelete(setItems, commitDelete) {
     return { pending, remove, undo, flush };
 }
 
-export default function UndoToast({ visible, message, onUndo, bottom = 80 }) {
+export default function UndoToast({ visible, message, onUndo, bottom = 16 }) {
     if (!visible) return null;
     return (
         <View style={[styles.toast, { bottom }]} accessibilityLiveRegion="polite">
             <Text style={styles.message}>{message}</Text>
             <TouchableOpacity onPress={onUndo} accessibilityRole="button" style={styles.undoBtn}>
-                <Text style={styles.undoText}>되돌리기</Text>
+                <Text style={styles.undoText}>{t('되돌리기')}</Text>
             </TouchableOpacity>
         </View>
     );

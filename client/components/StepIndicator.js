@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Text } from './AppText';
 import { useTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
 
 export default function StepIndicator({ step }) {
     const { theme } = useTheme();
     const { colors } = theme;
-    const steps = ['모드선택', '테마선택', '색상선택', '선택확인'];
+    const steps = [t('테마선택'), t('색상선택'), t('선택확인')];
 
     const styles = getStyles(theme);
 
@@ -15,7 +17,7 @@ export default function StepIndicator({ step }) {
             <View style={styles.lineBackground} />
 
             {/* Active Progress Line */}
-            <View style={[styles.lineActive, { width: `${(step - 1) * 33.33}%` }]} />
+            <View style={[styles.lineActive, { width: `${(step - 1) * 50}%` }]} />
 
             {/* Steps */}
             <View style={styles.stepWrapper}>
@@ -31,11 +33,11 @@ export default function StepIndicator({ step }) {
                                 (isActive || isCompleted) && styles.circleActive,
                                 isCompleted && styles.circleCompleted
                             ]}>
-                                {isCompleted && <Text style={styles.checkMark}>✓</Text>}
+                                <Text style={styles.checkMark}>✓</Text>
                             </View>
                             <Text style={[
                                 styles.label,
-                                (isActive || isCompleted) && styles.labelActive
+                                isActive && styles.labelActive
                             ]}>
                                 {label}
                             </Text>
@@ -85,9 +87,9 @@ const getStyles = (theme) => StyleSheet.create({
         width: 60,
     },
     circle: {
-        width: 15,
-        height: 15,
-        borderRadius: 7.5,
+        width: 14,
+        height: 14,
+        borderRadius: 7,
         backgroundColor: '#D9D9D9',
         justifyContent: 'center',
         alignItems: 'center',
@@ -105,12 +107,12 @@ const getStyles = (theme) => StyleSheet.create({
         fontWeight: 'bold',
     },
     label: {
-        fontSize: 12,
+        fontSize: 11,
         color: '#aaa',
         marginTop: -3,
     },
     labelActive: {
         color: theme.colors.text,
-        fontWeight: 'bold',
+        fontWeight: '600',
     }
 });

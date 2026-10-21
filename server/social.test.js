@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken');
 
 process.env.JWT_SECRET = 'test-secret';
 process.env.GOOGLE_CLIENT_IDS = 'web-client.apps.googleusercontent.com';
+process.env.APPLE_SERVICES_ID = 'com.editodo.web';
+process.env.KAKAO_REST_API_KEY = 'kakao-rest';
 
 // Act as Apple and Google: our own key pair, published through a stubbed JWKS endpoint
 const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
@@ -14,6 +16,15 @@ const realFetch = global.fetch;
 global.fetch = async (url, opts) => {
     if (/appleid\.apple\.com\/auth\/keys|googleapis\.com\/oauth2\/v3\/certs/.test(String(url))) {
         return { ok: true, json: async () => ({ keys: [jwk] }) };
+    }
+    // Act as Kakao: only the code 'good' with its verifier redeems, for our REST key
+    if (String(url) === 'https://kauth.kakao.com/oauth/token') {
+        const f = opts.body;
+        const ok = f.get('code') === 'good' && f.get('code_verifier') === 'v1' && f.get('client_id') === 'kakao-rest';
+        return { ok, status: ok ? 200 : 400, text: async () => 'bad', json: async () => ({ access_token: 'at' }) };
+    }
+    if (String(url) === 'https://kapi.kakao.com/v2/user/me') {
+        return { ok: true, json: async () => ({ id: 42, kakao_account: { email: 'k@kakao.com', is_email_valid: true, is_email_verified: true, profile: { nickname: '카카오' } } }) };
     }
     return realFetch(url, opts);
 };
@@ -45,6 +56,13 @@ test('genuine Apple and Google tokens are accepted', async () => {
     assert.strictEqual((await verifySocialToken('apple', { identityToken: appleToken() })).sub, 'apple-1');
     const g = await verifySocialToken('google', { idToken: googleToken() });
     assert.deepStrictEqual([g.sub, g.email, g.emailVerified, g.name], ['g-1', 'minji@gmail.com', true, '민지']);
+});
+
+test('Apple web sign-in (Services ID) is accepted and remembers which client issued it', async () => {
+    const web = await verifySocialToken('apple', { identityToken: appleToken({ aud: 'com.editodo.web' }) });
+    assert.strictEqual(web.clientId, 'com.editodo.web');
+    const ios = await verifySocialToken('apple', { identityToken: appleToken() });
+    assert.strictEqual(ios.clientId, 'com.editodo.app');
 });
 
 test('tokens for another app, forged, or expired are rejected', async () => {
@@ -95,5 +113,23 @@ test('new Apple user gets a new account and goes through onboarding', async () =
 
 test('bad token gets 401, unknown provider 404', async () => {
     assert.strictEqual((await post('/google', { idToken: 'not-a-token' })).status, 401);
-    assert.strictEqual((await post('/kakao', {})).status, 404);
+    assert.strictEqual((await post('/naver', {})).status, 404);
+});
+
+test('Kakao code + PKCE verifier signs in; a wrong verifier is rejected', async () => {
+    const k = await verifySocialToken('kakao', { code: 'good', codeVerifier: 'v1' });
+    assert.deepStrictEqual([k.sub, k.email, k.emailVerified, k.name], ['42', 'k@kakao.com', true, '카카오']);
+    await assert.rejects(verifySocialToken('kakao', { code: 'good', codeVerifier: 'stolen-code-no-verifier' }));
+    const r = await post('/kakao', { code: 'good', codeVerifier: 'v1' });
+    assert.strictEqual(r.status, 200);
+    assert.strictEqual((await r.json()).user.nickname, '카카오');
+});
+
+test('Kakao callback hands the code to the app scheme, or to the web opener without breaking out of the script', async () => {
+    const cb = base.replace('/social', '/kakao/callback');
+    const app = await realFetch(`${cb}?code=c1&state=s.app`, { redirect: 'manual' });
+    assert.strictEqual(app.headers.get('location'), 'editodo://auth/kakao?code=c1&state=s.app&error=');
+    const web = await (await realFetch(`${cb}?code=${encodeURIComponent('</script><script>x')}&state=s.web`)).text();
+    assert.ok(!web.includes('</script><script>x'));
+    assert.ok(web.includes('"https://editodo.com"'));
 });

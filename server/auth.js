@@ -1,7 +1,7 @@
 // server/auth.js
 const jwt = require('jsonwebtoken');
 const db = require('./db');
-const { revokeAppleToken } = require('./social');
+const { revokeAppleToken, unlinkKakao } = require('./social');
 
 // shortcut: long-lived token with no refresh/revocation (deleting the user revokes it); add refresh tokens if sessions need to be shorter
 const TOKEN_TTL = '90d';
@@ -50,10 +50,16 @@ function userIdFromHeader(req) {
 async function deleteUser(userId) {
     // Apple requires revoking Sign in with Apple tokens on account deletion; a failure here must not block deletion
     try {
-        const [apple] = await db.query("SELECT apple_refresh_token FROM social_accounts WHERE user_id = ? AND provider = 'apple'", [userId]);
-        for (const row of apple) await revokeAppleToken(row.apple_refresh_token);
+        const [apple] = await db.query("SELECT apple_refresh_token, apple_client_id FROM social_accounts WHERE user_id = ? AND provider = 'apple'", [userId]);
+        for (const row of apple) await revokeAppleToken(row.apple_refresh_token, row.apple_client_id);
     } catch (e) {
         console.error('Apple revoke failed:', e.message);
+    }
+    try {
+        const [kakao] = await db.query("SELECT provider_user_id FROM social_accounts WHERE user_id = ? AND provider = 'kakao'", [userId]);
+        for (const row of kakao) await unlinkKakao(row.provider_user_id);
+    } catch (e) {
+        console.error('Kakao unlink failed:', e.message);
     }
 
     const conn = await db.getConnection();

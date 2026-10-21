@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Platform, Alert, ActivityIndicator } from 'react-native';
+import { Text } from './AppText';
 import { Ionicons } from '@expo/vector-icons';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import Constants from 'expo-constants';
 import { useAuth } from '../context/AuthContext';
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../config';
 import { colors } from '../theme';
+import { t } from '../i18n';
+import KakaoButton from './KakaoButton';
+import { kakaoEnabled } from '../kakaoAuth';
 
-// Apple: iOS only (App Store rule 4.8 requires it next to Google there). Google: Android + iOS once client IDs are set.
+// Kakao: everywhere once KAKAO_REST_API_KEY is set. Apple: iOS only (App Store rule 4.8 requires it next to Google there). Google: Android + iOS once client IDs are set.
 // Web keeps ID/password login. onDone({ isNew }) runs after the server accepted the sign-in.
 // Expo Go has no Google Sign-In native module, so the library is only loaded where it can run (dev/store builds)
 const isExpoGo = Constants.executionEnvironment === 'storeClient';
@@ -29,7 +33,7 @@ export default function SocialLoginButtons({ onDone }) {
     const finish = async (provider, payload) => {
         const result = await socialLogin(provider, payload);
         if (result.success) onDone?.({ isNew: result.isNew });
-        else Alert.alert('로그인 실패', result.error);
+        else Alert.alert(t('로그인 실패'), result.error);
     };
 
     const handleApple = async () => {
@@ -47,7 +51,7 @@ export default function SocialLoginButtons({ onDone }) {
                 fullName: credential.fullName, // Apple sends the name only on the very first sign-in
             });
         } catch (e) {
-            if (e.code !== 'ERR_REQUEST_CANCELED') Alert.alert('로그인 실패', 'Apple 로그인을 완료하지 못했습니다.');
+            if (e.code !== 'ERR_REQUEST_CANCELED') Alert.alert(t('로그인 실패'), t('Apple 로그인을 완료하지 못했습니다.'));
         } finally {
             setBusy(false);
         }
@@ -61,22 +65,23 @@ export default function SocialLoginButtons({ onDone }) {
             if (Google.isSuccessResponse(response)) await finish('google', { idToken: response.data.idToken });
         } catch (e) {
             const cancelled = Google.isErrorWithCode(e) && [Google.statusCodes.SIGN_IN_CANCELLED, Google.statusCodes.IN_PROGRESS].includes(e.code);
-            if (!cancelled) Alert.alert('로그인 실패', 'Google 로그인을 완료하지 못했습니다.');
+            if (!cancelled) Alert.alert(t('로그인 실패'), t('Google 로그인을 완료하지 못했습니다.'));
         } finally {
             setBusy(false);
         }
     };
 
-    if (!appleAvailable && !googleEnabled) return null;
+    if (!appleAvailable && !googleEnabled && !kakaoEnabled) return null;
 
     return (
         <View style={styles.wrap}>
             <View style={styles.dividerRow}>
                 <View style={styles.line} />
-                <Text style={styles.dividerText}>또는</Text>
+                <Text style={styles.dividerText}>{t('또는')}</Text>
                 <View style={styles.line} />
             </View>
             {busy && <ActivityIndicator color={colors.main} style={{ marginBottom: 10 }} />}
+            {kakaoEnabled && <KakaoButton finish={finish} />}
             {appleAvailable && (
                 <AppleAuthentication.AppleAuthenticationButton
                     buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
@@ -89,7 +94,7 @@ export default function SocialLoginButtons({ onDone }) {
             {googleEnabled && (
                 <TouchableOpacity style={styles.googleBtn} onPress={busy ? undefined : handleGoogle} activeOpacity={0.8} accessibilityRole="button">
                     <Ionicons name="logo-google" size={18} color="#4285F4" />
-                    <Text style={styles.googleText}>Google로 계속하기</Text>
+                    <Text style={styles.googleText}>{t('Google로 계속하기')}</Text>
                 </TouchableOpacity>
             )}
         </View>

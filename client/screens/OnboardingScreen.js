@@ -1,9 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Alert, Animated, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Alert, Animated, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
 import Svg, { Path } from 'react-native-svg';
+import { t } from '../i18n';
+import { useTheme } from '../context/ThemeContext';
 
 // ET 에어리언 SVG 컴포넌트
 const AlienIcon = () => (
@@ -22,6 +26,8 @@ const AlienIcon = () => (
 
 // 체크 말풍선 SVG 컴포넌트
 const CheckBubble = ({ animatedValue }) => {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const animatedStyle = {
         opacity: animatedValue,
         transform: [
@@ -47,6 +53,8 @@ const CheckBubble = ({ animatedValue }) => {
 };
 
 export default function OnboardingScreen({ navigation }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const { startGuestMode } = useAuth();
     const checkBubbleAnim = useRef(new Animated.Value(0)).current;
 
@@ -69,7 +77,7 @@ export default function OnboardingScreen({ navigation }) {
                 navigation.replace('MainTabs');
             }
         } else {
-            Alert.alert('오류', '체험판 시작에 실패했습니다.');
+            Alert.alert(t('오류'), t('체험판 시작에 실패했습니다.'));
         }
     };
 
@@ -82,17 +90,17 @@ export default function OnboardingScreen({ navigation }) {
                         <CheckBubble animatedValue={checkBubbleAnim} />
                     </View>
 
-                    <Text style={styles.tit}>반가워요!</Text>
+                    <Text style={styles.tit}>{t('반가워요!')}</Text>
 
                     <Text style={styles.txt}>
-                        쉽게 <Text style={styles.bold}>1분</Text>만 투자해서,{'\n'}
-                        <Text style={styles.bold}>취향 저격</Text>인 <Text style={styles.mainColor}>나만의 EdiTodo</Text> 제작!
+                        {t('쉽게 ')}<Text style={styles.bold}>{t('1분')}</Text>{t('만 투자해서,')}{'\n'}
+                        <Text style={styles.bold}>{t('취향 저격')}</Text>{t('인')} <Text style={styles.mainColor}>{t('나만의 EdiTodo')}</Text>{t(' 제작!')}
                     </Text>
                 </View>
 
                 <View style={styles.bottomBtnGroup}>
                     <Button
-                        title="취향저격 투두리스트 체험판"
+                        title={t('취향저격 투두리스트 체험판')}
                         type="main"
                         onPress={handleStartGuest}
                     />
@@ -100,7 +108,7 @@ export default function OnboardingScreen({ navigation }) {
                         style={styles.loginLink}
                         onPress={() => navigation.navigate('Login')}
                     >
-                        <Text style={styles.loginLinkText}>아이디가 있다면? <Text style={styles.loginLinkActive}>로그인하기</Text></Text>
+                        <Text style={styles.loginLinkText}>{t('아이디가 있다면?')} <Text style={styles.loginLinkActive}>{t('로그인하기')}</Text></Text>
                     </TouchableOpacity>
                     <Text style={styles.copyright}>Copyright © 2026 Codemodo. All rights reserved.</Text>
                 </View>
@@ -109,7 +117,7 @@ export default function OnboardingScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: colors.body,
@@ -182,7 +190,7 @@ const styles = StyleSheet.create({
     copyright: {
         marginTop: 20,
         textAlign: 'center',
-        color: '#ccc',
+        color: colors.fnb,
         fontSize: 10,
     }
 });

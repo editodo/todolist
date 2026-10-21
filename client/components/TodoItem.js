@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import { Text, TextInput } from './AppText';
 import { useTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
 
 // Standard to-do row: checkbox toggles done, tapping the text edits it in place, ✕ deletes
 // (the screen shows an undo toast instead of a confirm dialog). No menus, modals or dimmed backdrops.
@@ -76,7 +79,10 @@ export default function TodoItem({ id, text, isCompleted, onToggle, onEdit, onDe
         <View style={[styles.container, { borderBottomColor: colors.border, backgroundColor: colors.base }]}>
             <TouchableOpacity
                 style={styles.checkboxHit}
-                onPress={() => onToggle(id)}
+                onPress={() => {
+                    if (Platform.OS !== 'web') Haptics.selectionAsync().catch(() => {}); // light tick on check
+                    onToggle(id);
+                }}
                 activeOpacity={0.8}
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: isCompleted }}
@@ -95,10 +101,10 @@ export default function TodoItem({ id, text, isCompleted, onToggle, onEdit, onDe
                     autoFocus
                     returnKeyType="done"
                     maxLength={500}
-                    accessibilityLabel="할 일 수정"
+                    accessibilityLabel={t('할 일 수정')}
                 />
             ) : (
-                <TouchableOpacity style={styles.textWrapper} onPress={startEdit} activeOpacity={0.6} accessibilityHint="눌러서 수정">
+                <TouchableOpacity style={styles.textWrapper} onPress={startEdit} activeOpacity={0.6} accessibilityHint={t('눌러서 수정')}>
                     <Text style={[
                         styles.text,
                         { color: colors.text },
@@ -120,7 +126,7 @@ export default function TodoItem({ id, text, isCompleted, onToggle, onEdit, onDe
             )}
 
             {!isEditing && (
-                <TouchableOpacity style={styles.deleteBtn} onPress={() => onDelete(id)} accessibilityRole="button" accessibilityLabel={`${text} 삭제`}>
+                <TouchableOpacity style={styles.deleteBtn} onPress={() => onDelete(id)} accessibilityRole="button" accessibilityLabel={t('{text} 삭제', { text })}>
                     <Text style={[styles.deleteText, { color: colors.guideText }]}>✕</Text>
                 </TouchableOpacity>
             )}

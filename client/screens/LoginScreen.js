@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, TextInput } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Button from '../components/Button';
-import Input from '../components/Input';
 import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import SocialLoginButtons from '../components/SocialLoginButtons';
+import { t } from '../i18n';
+import { useTheme } from '../context/ThemeContext';
+import BackButton from '../components/BackButton';
 
 export default function LoginScreen({ navigation }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const { login } = useAuth();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -25,13 +31,13 @@ export default function LoginScreen({ navigation }) {
                 const loggedInUser = data.user;
 
                 await login({ ...loggedInUser, token: data.token }); // Save user + token to context
-                Alert.alert('로그인 성공', `환영합니다 ${loggedInUser.username}님!`);
+                Alert.alert(t('로그인 성공'), t('환영합니다 {name}님!', { name: loggedInUser.nickname || loggedInUser.username }));
                 navigation.navigate('MainTabs'); // Navigate to main app
             } else {
-                Alert.alert('로그인 실패', data.error);
+                Alert.alert(t('로그인 실패'), data.error);
             }
         } catch (e) {
-            Alert.alert('오류', '서버 연결에 실패했습니다.');
+            Alert.alert(t('오류'), t('서버 연결에 실패했습니다.'));
             console.log(e);
         }
     };
@@ -41,31 +47,38 @@ export default function LoginScreen({ navigation }) {
             <View style={styles.container}>
                 {/* Header Area */}
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                        <Text style={{ fontSize: 24, color: colors.text }}>←</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>로그인</Text>
+                    <BackButton onPress={() => navigation.goBack()} />
+                    <Text style={styles.headerTitle}>{t('로그인')}</Text>
                     <View style={{ width: 30 }} />
                 </View>
 
                 {/* Form Area */}
                 <View style={styles.formWrap}>
-                    <Input
-                        placeholder="아이디"
+                    {/* Design: ID and password joined into one box */}
+                    <TextInput
+                        style={[styles.input, styles.inputTop]}
+                        placeholder={t('아이디')}
+                        placeholderTextColor={colors.guideText}
                         value={username}
                         onChangeText={setUsername}
+                        autoCapitalize="none"
+                        accessibilityLabel={t('아이디')}
                     />
-                    <Input
-                        placeholder="비밀번호"
+                    <TextInput
+                        style={[styles.input, styles.inputBottom]}
+                        placeholder={t('비밀번호')}
+                        placeholderTextColor={colors.guideText}
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
+                        onSubmitEditing={handleLogin}
+                        accessibilityLabel={t('비밀번호')}
                     />
 
                     {/* Find ID/PW by emailed code (login already persists on the device, so no 'save ID') */}
                     <View style={[styles.loginUtil, { justifyContent: 'flex-end' }]}>
                         <TouchableOpacity onPress={() => navigation.navigate('PasswordReset')}>
-                            <Text style={styles.utilText}>아이디/비밀번호 찾기</Text>
+                            <Text style={styles.utilText}>{t('아이디/비밀번호 찾기')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -73,12 +86,12 @@ export default function LoginScreen({ navigation }) {
                 {/* Bottom Buttons */}
                 <View style={styles.bottomBtnGroup}>
                     <Button
-                        title="로그인"
+                        title={t('로그인')}
                         type="main"
                         onPress={handleLogin}
                     />
                     <Button
-                        title="회원가입"
+                        title={t('회원가입')}
                         type="sub"
                         onPress={() => navigation.navigate('Join')}
                     />
@@ -92,7 +105,7 @@ export default function LoginScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: colors.body,
@@ -122,9 +135,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     formWrap: {
-        marginTop: 20,
-        flex: 1,
+        paddingTop: 20,
     },
+    input: {
+        height: 44,
+        borderWidth: 1,
+        borderColor: colors.border,
+        paddingHorizontal: 16,
+        fontSize: Platform.OS === 'web' ? 16 : 14,
+        color: colors.text,
+        backgroundColor: colors.body,
+    },
+    inputTop: { borderTopLeftRadius: 5, borderTopRightRadius: 5 },
+    inputBottom: { marginTop: -1, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 },
     loginUtil: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -139,15 +162,17 @@ const styles = StyleSheet.create({
         width: 18,
         height: 18,
         borderWidth: 1,
-        borderColor: '#ccc', // var(--fnb)
+        borderColor: colors.fnb, // var(--fnb)
         borderRadius: 9, // Circle
         marginRight: 6,
     },
     utilText: {
-        fontSize: 13,
-        color: '#666', // var(--calendar-colr)
+        fontSize: 12,
+        fontWeight: '500',
+        color: colors.guideText,
     },
     bottomBtnGroup: {
+        marginTop: 20,
         marginBottom: 40,
     }
 });
