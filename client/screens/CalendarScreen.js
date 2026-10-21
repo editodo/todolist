@@ -234,7 +234,7 @@ export default function CalendarScreen({ navigation }) {
                                         {day && (
                                             <Text style={[
                                                 styles.dayText,
-                                                isSelected && { fontWeight: '700' }
+                                                isSelected && { color: theme.colors.main, fontWeight: '700' }
                                             ]}>
                                                 {day}
                                             </Text>
@@ -325,8 +325,9 @@ const getStyles = (theme) => StyleSheet.create({
     weekRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
     weekText: { width: 40, textAlign: 'center', fontSize: 14, color: theme.colors.fnbText, fontWeight: '600', paddingVertical: 8 },
 
-    dayCell: { width: 40, height: 46, alignItems: 'center', justifyContent: 'flex-start', paddingTop: 4 },
-    selectedDayCell: { borderWidth: 1, borderColor: theme.colors.text },
+    // Selected day: rounded pill outline (pre-redesign style), tall enough to clear the sticker
+    dayCell: { width: 40, height: 52, alignItems: 'center', justifyContent: 'flex-start', paddingTop: 6, borderRadius: 20, borderWidth: 1, borderColor: 'transparent' },
+    selectedDayCell: { borderColor: theme.colors.main },
     dayText: { fontSize: 13, fontWeight: '500', color: theme.colors.text, marginBottom: 3 },
     statusCircle: { width: 20, height: 20, borderRadius: 10, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
     emojiText: { fontSize: 16 },
