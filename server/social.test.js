@@ -133,3 +133,10 @@ test('Kakao callback hands the code to the app scheme, or to the web opener with
     assert.ok(!web.includes('</script><script>x'));
     assert.ok(web.includes('"https://editodo.com"'));
 });
+
+test('guest converting with an SNS account that already belongs to a member is refused, guest kept', async () => {
+    users.push({ id: 99, username: 'guest_xyz', nickname: '졸린토끼', email: null, user_type: 'GUEST' });
+    const r = await post('/google', { idToken: googleToken() }, jwt.sign({ userId: 99 }, process.env.JWT_SECRET)); // g-1 is linked to user 1
+    assert.strictEqual(r.status, 409);
+    assert.strictEqual(users.find((u) => u.id === 99).user_type, 'GUEST');
+});

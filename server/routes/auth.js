@@ -273,6 +273,18 @@ router.post('/social/:provider', async (req, res) => {
         let userId;
         const [linked] = await db.query('SELECT user_id FROM social_accounts WHERE provider = ? AND provider_user_id = ?', [provider, profile.sub]);
 
+        // A guest converting with an SNS account that already belongs to another member: switching accounts
+        // would silently leave the guest's records behind, so refuse and let them choose.
+        if (linked.length > 0) {
+            const callerId = userIdFromHeader(req);
+            if (callerId && callerId !== linked[0].user_id) {
+                const [caller] = await db.query("SELECT id FROM users WHERE id = ? AND user_type = 'GUEST'", [callerId]);
+                if (caller.length > 0) {
+                    return res.status(409).json({ error: '이미 EdiTodo에 가입된 계정이에요. 체험 기록을 옮기려면 다른 계정으로 전환하거나, 아이디로 전환해 주세요.' });
+                }
+            }
+        }
+
         if (linked.length > 0) {
             userId = linked[0].user_id;
         } else {
