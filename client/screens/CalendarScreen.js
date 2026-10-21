@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Alert, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Alert, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
@@ -180,7 +181,7 @@ export default function CalendarScreen({ navigation }) {
     const handleDelete = (id) => removeTodo(selectedTodos, id);
 
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
             <View style={styles.container}>
                 <View style={styles.monthNav}>
                     <TouchableOpacity onPress={handlePrevMonth} style={styles.arrowBtn}>
@@ -262,7 +263,7 @@ export default function CalendarScreen({ navigation }) {
 
                 {/* Bottom Sheet - Selected Day Todos */}
                 <View style={[styles.bottomSheet, { backgroundColor: c.base }]}>
-                    <ScrollView contentContainerStyle={styles.todoList}>
+                    <ScrollView contentContainerStyle={styles.todoList} automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled">
                         {selectedDate ? (
                             selectedTodos.map((todo) => (
                                 <TodoItem
@@ -300,12 +301,12 @@ export default function CalendarScreen({ navigation }) {
 
 const getStyles = (theme) => StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: theme.colors.body },
-    container: { flex: 1, maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center', paddingHorizontal: 18, paddingBottom: 70 },
+    container: { flex: 1, maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center', paddingHorizontal: 18, paddingBottom: 12 },
 
     // Design: ◀ 2022.07 ▶ month header (50 high, 15 bold)
     monthNav: { height: 50, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     headerTitle: { fontSize: 15, fontWeight: '600', color: theme.colors.text },
-    arrowBtn: { width: 30, height: 30, justifyContent: 'center', alignItems: 'center' },
+    arrowBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' }, // 44pt touch target
     arrowText: { fontSize: 10, color: theme.colors.calendarColr },
 
     calendarBox: { marginBottom: 10 },

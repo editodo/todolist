@@ -2,17 +2,19 @@ import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Text } from './AppText';
 import { colors } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 
 // type: 'main' (teal) | 'sub' (teal outline) | 'dark' | 'prev' (light gray, the design's 이전 button)
-const TYPES = {
-    main: { bg: colors.main, border: colors.main, text: colors.white },
-    sub: { bg: colors.white, border: colors.main, text: colors.main },
-    dark: { bg: colors.dark, border: colors.dark, text: colors.white },
-    prev: { bg: colors.lightGray, border: colors.lightGray, text: '#888888' },
-};
+const types = (c) => ({
+    main: { bg: c.main, border: c.main, text: c.white },
+    sub: { bg: c.body, border: c.main, text: c.main },
+    dark: { bg: c.dark, border: c.dark, text: c.white },
+    prev: { bg: c.border, border: c.border, text: c.guideText },
+});
 
 export default function Button({ title, type = 'main', onPress, style, textStyle }) {
-    const t = TYPES[type] || TYPES.main;
+    const themeColors = useTheme()?.theme?.colors || { ...colors, body: colors.white, border: colors.lightGray, guideText: '#888888' };
+    const t = types(themeColors)[type] || types(themeColors).main;
     const backgroundColor = t.bg;
     const borderColor = t.border;
     const textColor = t.text;

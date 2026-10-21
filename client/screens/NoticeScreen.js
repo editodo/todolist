@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, LayoutAnimation, Platform, UIManager, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, LayoutAnimation, Platform, UIManager, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Header from '../components/Header';
 import { API_URL } from '../config';
 import { t } from '../i18n';
+import { useTheme } from '../context/ThemeContext';
 
 if (Platform.OS === 'android') {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -13,6 +15,8 @@ if (Platform.OS === 'android') {
 }
 
 const NoticeItem = ({ title, date, content }) => {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const [expanded, setExpanded] = useState(false);
 
     const toggleExpand = () => {
@@ -39,6 +43,8 @@ const NoticeItem = ({ title, date, content }) => {
 };
 
 export default function NoticeScreen({ navigation }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const [notices, setNotices] = useState(null); // null = loading
 
     useEffect(() => {
@@ -70,7 +76,7 @@ export default function NoticeScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.body,
@@ -80,12 +86,12 @@ const styles = StyleSheet.create({
     },
     back: { fontSize: 24, padding: 5, color: colors.text },
     list: { padding: 18 },
-    itemContainer: { marginBottom: 15, borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 15 },
+    itemContainer: { marginBottom: 15, borderBottomWidth: 1, borderBottomColor: colors.border, paddingBottom: 15 },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     title: { fontSize: 15, fontWeight: 'bold', color: colors.text, marginBottom: 5 },
     date: { fontSize: 12, color: colors.guideText },
     arrow: { fontSize: 12, color: colors.subText },
-    body: { marginTop: 15, padding: 10, backgroundColor: '#f9f9f9', borderRadius: 5 },
+    body: { marginTop: 15, padding: 10, backgroundColor: colors.mypageColor, borderRadius: 5 },
     content: { fontSize: 14, color: colors.subText, lineHeight: 20 },
     empty: { marginTop: 40, textAlign: 'center', color: colors.subText }
 });

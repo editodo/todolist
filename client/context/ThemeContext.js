@@ -14,7 +14,7 @@ export const ThemeProvider = ({ children }) => {
     const systemScheme = useColorScheme(); // 'light' | 'dark' from the phone/browser setting; updates live
 
     // Mode: 'light', 'dark', 'system'
-    const [mode, setMode] = useState('light'); // Default to light for consistent preview
+    const [mode, setMode] = useState('system'); // follow the device until the user picks (and before login)
     // Theme: 'simple', 'round', 'skitch', 'kitsch'
     const [themeStyle, setThemeStyle] = useState('simple');
     // Palette: 'simple', 'mincho', 'lemon', 'green', 'pinky'

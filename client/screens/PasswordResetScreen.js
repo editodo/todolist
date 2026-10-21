@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import { API_URL } from '../config';
 import { t } from '../i18n';
+import { useTheme } from '../context/ThemeContext';
 
 // Two steps on one screen: 1) email → server mails the ID and a 6-digit code, 2) code + new password.
 export default function PasswordResetScreen({ navigation }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const [email, setEmail] = useState('');
     const [codeSent, setCodeSent] = useState(false);
     const [code, setCode] = useState('');
@@ -63,7 +67,7 @@ export default function PasswordResetScreen({ navigation }) {
                     <View style={{ width: 30 }} />
                 </View>
 
-                <ScrollView style={styles.formWrap} showsVerticalScrollIndicator={false}>
+                <ScrollView style={styles.formWrap} showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled">
                     <Text style={styles.guide}>{t('가입한 이메일로 아이디와 인증 코드를 보내드립니다. 코드를 입력하면 새 비밀번호를 정할 수 있습니다.')}</Text>
                     {notice && <Text style={[styles.notice, notice.error && styles.noticeError]}>{notice.text}</Text>}
                     {done ? (
@@ -95,7 +99,7 @@ export default function PasswordResetScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: colors.body },
     container: { flex: 1, maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center', paddingHorizontal: 18 },
     header: { height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },

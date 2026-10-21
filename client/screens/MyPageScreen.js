@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, SafeAreaView, TouchableOpacity, Alert, ScrollView, Platform, Modal, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, ScrollView, Platform, Modal, Image, KeyboardAvoidingView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TextInput } from '../components/AppText';
 import { colors, layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
@@ -10,7 +11,10 @@ import SocialLoginButtons from '../components/SocialLoginButtons';
 import { isSupported as remindersSupported } from '../notifications';
 import { t, LANGUAGES } from '../i18n';
 
-const MenuItem = ({ title, onPress, value }) => (
+const MenuItem = ({ title, onPress, value }) => {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
+    return (
     <TouchableOpacity style={styles.menuItem} onPress={onPress}>
         <Text style={styles.menuText}>{title}</Text>
         <View style={styles.menuRight}>
@@ -18,9 +22,12 @@ const MenuItem = ({ title, onPress, value }) => (
             <Ionicons name="chevron-forward" size={12} color="#cccccc" />
         </View>
     </TouchableOpacity>
-);
+    );
+};
 
 export default function MyPageScreen({ navigation }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const { mode, themeStyle, palette, language } = useTheme();
     const { user, logout, convertAccount, deleteAccount } = useAuth();
 
@@ -98,7 +105,7 @@ export default function MyPageScreen({ navigation }) {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
             <ScrollView style={styles.content}>
                 {/* Design: name header. Member → edit profile; guest → keep data by converting */}
                 <TouchableOpacity
@@ -163,7 +170,7 @@ export default function MyPageScreen({ navigation }) {
                 transparent={true}
                 onRequestClose={() => setConvertModalVisible(false)}
             >
-                <View style={styles.modalOverlay}>
+                <KeyboardAvoidingView style={styles.modalOverlay} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>{t('정회원 전환')}</Text>
                         <Text style={styles.modalSubtitle}>{t('체험 계정의 데이터를 그대로 유지합니다.')}</Text>
@@ -214,16 +221,16 @@ export default function MyPageScreen({ navigation }) {
                             }}
                         />
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </Modal>
         </SafeAreaView>
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f7f8f9', // design: mypage gray between groups
+        backgroundColor: colors.mypageColor, // design: mypage gray between groups
         maxWidth: layout.maxWidth,
         width: '100%',
         alignSelf: 'center',
@@ -231,16 +238,16 @@ const styles = StyleSheet.create({
     content: { flex: 1 },
     infoBar: {
         height: 60, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16,
-        backgroundColor: colors.white, borderBottomWidth: 1, borderBottomColor: colors.lightGray,
+        backgroundColor: colors.body, borderBottomWidth: 1, borderBottomColor: colors.border,
     },
     infoName: { fontSize: 20, fontWeight: '600', color: colors.text, letterSpacing: -0.33 },
-    trialBox: { backgroundColor: colors.white, paddingHorizontal: 16, paddingBottom: 14 },
+    trialBox: { backgroundColor: colors.body, paddingHorizontal: 16, paddingBottom: 14 },
     trialText: { fontSize: 13, fontWeight: '600', color: colors.main },
     trialSub: { fontSize: 12, color: colors.guideText, marginTop: 2 },
-    leaveBtn: { alignSelf: 'flex-end', marginTop: 14, marginRight: 18, marginBottom: 90, padding: 4 },
+    leaveBtn: { alignSelf: 'flex-end', marginTop: 14, marginRight: 18, marginBottom: 24, padding: 4 },
 
     profileSection: {
-        backgroundColor: '#fff',
+        backgroundColor: colors.body,
         borderRadius: 15,
         padding: 20,
         marginBottom: 20,
@@ -266,7 +273,7 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 30,
-        backgroundColor: '#ddd',
+        backgroundColor: colors.border,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -286,7 +293,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1.5,
-        borderColor: '#fff',
+        borderColor: colors.body,
     },
     profileInfo: {
         flex: 1,
@@ -334,7 +341,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     convertBtnText: {
-        color: '#fff',
+        color: colors.body,
         fontWeight: 'bold',
         fontSize: 14,
     },
@@ -342,9 +349,9 @@ const styles = StyleSheet.create({
     // Design: white groups separated by 10px of gray, rows 45 high
     menuGroup: {
         marginTop: 10,
-        backgroundColor: '#fff',
+        backgroundColor: colors.body,
         borderBottomWidth: 1,
-        borderBottomColor: colors.lightGray,
+        borderBottomColor: colors.border,
     },
     menuItem: {
         height: 45,
@@ -356,7 +363,7 @@ const styles = StyleSheet.create({
     menuText: { fontSize: 14, color: colors.subText },
     menuRight: { flexDirection: 'row', alignItems: 'center' },
     menuValue: { marginRight: 8, color: colors.guideText, fontSize: 13 },
-    arrow: { fontSize: 16, color: '#ccc' },
+    arrow: { fontSize: 16, color: colors.fnb },
 
     infoRow: {
         flexDirection: 'row',
@@ -371,7 +378,7 @@ const styles = StyleSheet.create({
         padding: 15,
         alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: '#f5f5f5',
+        borderTopColor: colors.border,
     },
     logoutText: { color: colors.subText, fontSize: 14 },
     withdrawText: { color: colors.guideText, fontSize: 12, textDecorationLine: 'underline' },
@@ -385,7 +392,7 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         width: '85%',
-        backgroundColor: '#fff',
+        backgroundColor: colors.body,
         borderRadius: 15,
         padding: 20,
         maxWidth: 400,
@@ -403,9 +410,9 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     input: {
-        backgroundColor: '#f9f9f9',
+        backgroundColor: colors.mypageColor,
         borderWidth: 1,
-        borderColor: '#eee',
+        borderColor: colors.border,
         borderRadius: 8,
         padding: 12,
         marginBottom: 12,
@@ -422,8 +429,8 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         alignItems: 'center',
     },
-    cancelBtn: { backgroundColor: '#f0f0f0' },
+    cancelBtn: { backgroundColor: colors.border },
     confirmBtn: { backgroundColor: colors.main },
-    cancelText: { color: '#666' },
-    confirmText: { color: '#fff', fontWeight: 'bold' },
+    cancelText: { color: colors.calendarColr },
+    confirmText: { color: colors.body, fontWeight: 'bold' },
 });

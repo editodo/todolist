@@ -2,11 +2,9 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from './AppText';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 
-export default function Header({ title, leftButton, rightButton, showMenu }) {
-    const navigation = useNavigation();
+export default function Header({ title, leftButton, rightButton }) {
     const { theme } = useTheme();
     const { colors } = theme;
 
@@ -15,13 +13,7 @@ export default function Header({ title, leftButton, rightButton, showMenu }) {
     return (
         <View style={styles.container}>
             <View style={styles.leftContainer}>
-                {showMenu ? (
-                    <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.menuBtn}>
-                        <Ionicons name="menu" size={24} color={theme.colors.text} />
-                    </TouchableOpacity>
-                ) : (
-                    leftButton
-                )}
+                {leftButton}
             </View>
             <Text style={styles.title}>{title}</Text>
             <View style={styles.rightContainer}>

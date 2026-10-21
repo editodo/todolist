@@ -1,11 +1,15 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from './AppText';
 import { colors, layout } from '../theme';
 import Header from './Header';
+import { useTheme } from '../context/ThemeContext';
 
 // Shared layout for the privacy policy and terms: a back header plus titled sections.
 export default function LegalDoc({ navigation, title, effectiveDate, sections }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     return (
         <SafeAreaView style={styles.container}>
             <Header
@@ -28,17 +32,17 @@ export default function LegalDoc({ navigation, title, effectiveDate, sections })
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: colors.body,
         maxWidth: layout.maxWidth,
         width: '100%',
         alignSelf: 'center',
     },
     back: { fontSize: 24, padding: 5, color: colors.text },
     content: { padding: 20 },
-    date: { fontSize: 13, color: '#666', marginBottom: 10 },
+    date: { fontSize: 13, color: colors.calendarColr, marginBottom: 10 },
     sectionTitle: { fontSize: 16, fontWeight: 'bold', marginTop: 24, marginBottom: 8, color: colors.main },
-    paragraph: { fontSize: 14, lineHeight: 22, color: '#444' },
+    paragraph: { fontSize: 14, lineHeight: 22, color: colors.subText },
 });

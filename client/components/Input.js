@@ -2,8 +2,11 @@ import React from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { TextInput, Text } from './AppText';
 import { colors } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Input({ value, onChangeText, placeholder, secureTextEntry, label }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     return (
         <View style={styles.container}>
             {label && <Text style={styles.label}>{label}</Text>}
@@ -20,7 +23,7 @@ export default function Input({ value, onChangeText, placeholder, secureTextEntr
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
     container: {
         marginBottom: 16,
     },

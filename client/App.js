@@ -1,7 +1,12 @@
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as SplashScreen from 'expo-splash-screen';
+import { useNetInfo } from '@react-native-community/netinfo';
+
+// Keep the native splash up until login state and the base font are ready (no white flash in between)
+SplashScreen.preventAutoHideAsync().catch(() => {});
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createDrawerNavigator } from '@react-navigation/drawer';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef } from 'react';
 import { View, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Platform, AppState, Alert } from 'react-native';
@@ -66,9 +71,10 @@ const IS_WEB = Platform.OS === 'web';
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   const { theme } = useTheme();
   const { colors } = theme;
+  const insets = useSafeAreaInsets(); // keep tabs above the iPhone home indicator / Android gesture bar
 
   return (
-    <View style={[styles.tabBarContainer, { borderTopColor: colors.border, backgroundColor: colors.body }]}>
+    <View style={[styles.tabBarContainer, { borderTopColor: colors.border, backgroundColor: colors.body, paddingBottom: insets.bottom }]}>
       <View style={[styles.fnbList, { backgroundColor: colors.body }]}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
@@ -131,7 +137,6 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
-const Drawer = createDrawerNavigator();
 
 function MainTabNavigator() {
   return (
@@ -146,36 +151,11 @@ function MainTabNavigator() {
   );
 }
 
-function DrawerNavigator() {
-  return (
-    <Drawer.Navigator
-      screenOptions={{
-        headerShown: false,
-        drawerStyle: { backgroundColor: '#fff', width: 280 },
-        drawerActiveTintColor: colors.main,
-      }}
-    >
-      <Drawer.Screen
-        name="Home"
-        component={MainTabNavigator}
-        options={{
-          drawerLabel: t('홈'),
-          drawerIcon: ({ color }) => <Ionicons name="home-outline" size={22} color={color} />
-        }}
-      />
-      {/* Daily is now inside MainTabNavigator */}
-      {/* Add more items here like Settings, Theme, etc. */}
-    </Drawer.Navigator>
-  );
-}
-
 const styles = StyleSheet.create({
+  offline: { position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: '#333', paddingBottom: 6, alignItems: 'center' },
+  offlineText: { color: '#fff', fontSize: 12 },
+  // In the layout (not floating), so screens end above it and need no bottom padding hacks
   tabBarContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
     alignItems: 'center', // Center the tab bar itself
@@ -205,13 +185,15 @@ const styles = StyleSheet.create({
 
 function App() {
   return (
-    <AuthProvider>
-      <DateProvider>
-        <ThemeProvider>
-          <AuthWrapper />
-        </ThemeProvider>
-      </DateProvider>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <DateProvider>
+          <ThemeProvider>
+            <AuthWrapper />
+          </ThemeProvider>
+        </DateProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
 
@@ -219,7 +201,14 @@ const navigationRef = createNavigationContainerRef();
 
 function AuthWrapper() {
   const { user, isLoading } = useAuth();
-  const { effectiveLanguage } = useTheme();
+  const { effectiveLanguage, theme } = useTheme();
+  const insets = useSafeAreaInsets();
+  const net = useNetInfo();
+  const offline = net.isConnected === false || net.isInternetReachable === false;
+  const ready = !isLoading && theme.font !== null;
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
   const pendingScreen = useRef(null); // reminder tapped before navigation was ready
 
   // Keep reminders current: after login and whenever the user leaves the app (to-dos/diary may have changed)
@@ -235,7 +224,7 @@ function AuthWrapper() {
   // Reminder taps: 'Daily' opens today's record (no longer a tab), anything else is a tab
   const openTab = (screen) => (screen === 'Daily'
     ? navigationRef.navigate('DailyWrite')
-    : navigationRef.navigate('MainTabs', { screen: 'Home', params: { screen } }));
+    : navigationRef.navigate('MainTabs', { screen }));
 
   useEffect(() => onReminderTap((screen) => {
     if (navigationRef.isReady()) openTab(screen);
@@ -262,16 +251,11 @@ function AuthWrapper() {
         PasswordReset: 'reset-password',
         Login: 'login',
         Join: 'join',
-        // Tabs live under MainTabs → Home (drawer) → tab; skipping Home made /calendar and /mypage open the to-do tab
         MainTabs: {
           screens: {
-            Home: {
-              screens: {
-                Todolist: 'todo',
-                Calendar: 'calendar',
-                MyPage: 'mypage',
-              },
-            },
+            Todolist: 'todo',
+            Calendar: 'calendar',
+            MyPage: 'mypage',
           },
         },
         Step01: 'setup',
@@ -302,7 +286,7 @@ function AuthWrapper() {
         <Stack.Screen name="Step01" component={Step01Screen} />
         <Stack.Screen name="Step03" component={Step03Screen} />
         <Stack.Screen name="Step04" component={Step04Screen} />
-        <Stack.Screen name="MainTabs" component={DrawerNavigator} />
+        <Stack.Screen name="MainTabs" component={MainTabNavigator} />
         <Stack.Screen name="Notice" component={NoticeScreen} />
         <Stack.Screen name="Inquiry" component={InquiryScreen} />
         {/* Admin Screens (web only) */}
@@ -317,7 +301,12 @@ function AuthWrapper() {
         <Stack.Screen name="FontSettings" component={FontSettingsScreen} />
         <Stack.Screen name="LanguageSettings" component={LanguageSettingsScreen} />
       </Stack.Navigator>
-      <StatusBar style="auto" />
+      <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
+      {offline && (
+        <View style={[styles.offline, { paddingTop: insets.top + 6 }]} pointerEvents="none" accessibilityLiveRegion="polite">
+          <Text style={styles.offlineText}>{t('인터넷에 연결되어 있지 않아요. 저장되지 않을 수 있어요.')}</Text>
+        </View>
+      )}
     </NavigationContainer>
   );
 }

@@ -16,12 +16,15 @@ function withFont(font, style) {
     return [style, { fontFamily: bold ? font.bold : font.regular }, bold ? { fontWeight: 'normal' } : null];
 }
 
+// Big accessibility font sizes stay readable without breaking fixed-height rows (tab bar, buttons)
+const MAX_FONT_SCALE = 1.3;
+
 export function Text(props) {
     const font = useTheme()?.theme?.font;
-    return <RNText {...props} style={withFont(font, props.style)} />;
+    return <RNText maxFontSizeMultiplier={MAX_FONT_SCALE} {...props} style={withFont(font, props.style)} />;
 }
 
 export function TextInput(props) {
     const font = useTheme()?.theme?.font;
-    return <RNTextInput {...props} style={withFont(font, props.style)} />;
+    return <RNTextInput maxFontSizeMultiplier={MAX_FONT_SCALE} {...props} style={withFont(font, props.style)} />;
 }

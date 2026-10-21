@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, SafeAreaView, TouchableOpacity, Alert, ScrollView, Linking } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, ScrollView, Linking } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TextInput } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Header from '../components/Header';
 import Button from '../components/Button';
 import { SUPPORT_EMAIL } from '../config';
 import { t } from '../i18n';
+import { useTheme } from '../context/ThemeContext';
 
 export default function InquiryScreen({ navigation }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const [content, setContent] = useState('');
 
     // There is no inquiry backend: hand the message to the user's mail app so nothing is silently lost
@@ -26,7 +30,7 @@ export default function InquiryScreen({ navigation }) {
                 title={t('문의하기')}
                 leftButton={<TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.back}>{'<'}</Text></TouchableOpacity>}
             />
-            <ScrollView style={styles.content}>
+            <ScrollView style={styles.content} automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled">
                 <Text style={styles.label}>{t('문의 메일 주소')}</Text>
                 <Text selectable style={styles.email}>{SUPPORT_EMAIL}</Text>
                 <Text style={styles.guide}>{t('아래 내용을 적고 버튼을 누르면 메일 앱이 열립니다. 답변은 보내신 메일 주소로 드립니다.')}</Text>
@@ -51,7 +55,7 @@ export default function InquiryScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.body,
@@ -66,6 +70,6 @@ const styles = StyleSheet.create({
     guide: { fontSize: 13, color: colors.subText, lineHeight: 19, marginBottom: 20 },
     textArea: {
         height: 200, borderWidth: 1, borderColor: colors.border, borderRadius: 5,
-        padding: 16, backgroundColor: colors.white, fontSize: 14
+        padding: 16, backgroundColor: colors.body, fontSize: 14
     }
 });

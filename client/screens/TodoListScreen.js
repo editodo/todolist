@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, Alert, Modal } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TextInput } from '../components/AppText';
-import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { colors as staticColors, layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -11,16 +11,6 @@ import TodoItem from '../components/TodoItem';
 import UndoToast, { useUndoDelete } from '../components/UndoToast';
 import { API_URL, apiFetch } from '../config';
 import { t } from '../i18n';
-
-// Configure Calendar Locale (Korean)
-LocaleConfig.locales['ko'] = {
-    monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-    monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-    dayNames: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
-    dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
-    today: '오늘'
-};
-LocaleConfig.defaultLocale = 'ko';
 
 export default function TodoListScreen({ navigation }) {
     const { theme } = useTheme();
@@ -42,7 +32,7 @@ export default function TodoListScreen({ navigation }) {
     });
     const [isWriting, setIsWriting] = useState(false);
     const [newTodoText, setNewTodoText] = useState('');
-    const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     // Date Logic
     // Local date (new Date('YYYY-MM-DD') is UTC and can land on the previous day)
@@ -171,17 +161,12 @@ export default function TodoListScreen({ navigation }) {
         setSelectedDate(nextDate);
     };
 
-    const handleDayPress = (day) => {
-        setSelectedDate(day.dateString);
-        setIsCalendarVisible(false);
-    };
-
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
             {/* Design: ◀ 07.23(토) ▶ — tap the date to pick from a calendar */}
             <View style={styles.dateNav}>
                 <TouchableOpacity onPress={() => changeDate(-1)} style={styles.arrowBtn} accessibilityLabel={t('이전 날')}><Text style={styles.arrow}>◀</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setIsCalendarVisible(true)} accessibilityLabel={t('날짜 선택')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Calendar')} accessibilityLabel={t('날짜 선택')}>
                     <Text style={styles.dateText}>{formattedDate}({weekMap[dateObj.getDay()]})</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => changeDate(1)} style={styles.arrowBtn} accessibilityLabel={t('다음 날')}><Text style={styles.arrow}>▶</Text></TouchableOpacity>
@@ -190,6 +175,10 @@ export default function TodoListScreen({ navigation }) {
             <View style={styles.content}>
                 <View style={styles.contentInner}>
                     <FlatList
+                        automaticallyAdjustKeyboardInsets // iOS: keep the new-todo input above the keyboard
+                        refreshing={refreshing}
+                        onRefresh={async () => { setRefreshing(true); await fetchTodos(); setRefreshing(false); }}
+                        keyboardShouldPersistTaps="handled"
                         data={todos}
                         contentContainerStyle={{ padding: 6, paddingBottom: 20 }}
                         keyExtractor={item => item.id.toString()}
@@ -244,50 +233,6 @@ export default function TodoListScreen({ navigation }) {
                 <Text style={styles.dailyBtnText}>{t('하루 기록')}</Text>
             </TouchableOpacity>
 
-            {/* Calendar Modal */}
-            <Modal
-                transparent={true}
-                visible={isCalendarVisible}
-                animationType="fade"
-                onRequestClose={() => setIsCalendarVisible(false)}
-            >
-                <TouchableOpacity
-                    style={styles.modalOverlay}
-                    activeOpacity={1}
-                    onPress={() => setIsCalendarVisible(false)}
-                >
-                    <View style={styles.calendarContainer}>
-                        <Calendar
-                            current={selectedDate}
-                            onDayPress={handleDayPress}
-                            markedDates={{
-                                [selectedDate]: { selected: true, selectedColor: colors.main }
-                            }}
-                            theme={{
-                                backgroundColor: colors.base,
-                                calendarBackground: colors.base,
-                                textSectionTitleColor: colors.text,
-                                selectedDayBackgroundColor: colors.main,
-                                selectedDayTextColor: '#ffffff',
-                                todayTextColor: colors.main,
-                                dayTextColor: colors.text,
-                                textDisabledColor: colors.guideText,
-                                dotColor: colors.main,
-                                selectedDotColor: '#ffffff',
-                                arrowColor: colors.main,
-                                monthTextColor: colors.text,
-                                indicatorColor: colors.main,
-                                textDayFontWeight: '300',
-                                textMonthFontWeight: 'bold',
-                                textDayHeaderFontWeight: '300',
-                                textDayFontSize: 16,
-                                textMonthFontSize: 18,
-                                textDayHeaderFontSize: 14
-                            }}
-                        />
-                    </View>
-                </TouchableOpacity>
-            </Modal>
             <UndoToast visible={!!pendingDelete} message={t('할 일을 삭제했어요')} onUndo={undoDelete} />
         </SafeAreaView>
     );
@@ -314,30 +259,11 @@ const getStyles = (theme) => StyleSheet.create({
         fontWeight: '600',
         color: theme.colors.text,
     },
-    arrowBtn: { width: 30, height: 30, justifyContent: 'center', alignItems: 'center' },
+    arrowBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' }, // 44pt touch target
     arrow: {
         fontSize: 10,
         color: theme.colors.calendarColr,
     },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    calendarContainer: {
-        backgroundColor: theme.colors.base,
-        borderRadius: 15,
-        padding: 10,
-        width: '90%',
-        maxWidth: 400,
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
-
     content: {
         flex: 1,
         paddingHorizontal: 18,
@@ -370,7 +296,7 @@ const getStyles = (theme) => StyleSheet.create({
         height: 50,
         marginTop: 12,
         marginHorizontal: 18,
-        marginBottom: 70, // clears the 60px tab bar
+        marginBottom: 12,
         borderRadius: 6,
         justifyContent: 'center',
         alignItems: 'center',

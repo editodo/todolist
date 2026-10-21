@@ -3,7 +3,8 @@
 export default {
     // Tabs & navigation
     '투두리스트': 'To-do', '캘린더': 'Calendar', '마이페이지': 'My page', '홈': 'Home', '뒤로': 'Back',
-    '이전': 'Back', '다음': 'Next', '시작': 'Start', '완료': 'Done', '확인': 'OK', '취소': 'Cancel', '삭제': 'Delete', '수정': 'Save',
+    '이전': 'Back', '다음': 'Next', '시작': 'Start', '완료': 'Done',
+    '인터넷에 연결되어 있지 않아요. 저장되지 않을 수 있어요.': "You're offline. Changes may not be saved.", '확인': 'OK', '취소': 'Cancel', '삭제': 'Delete', '수정': 'Save',
     '알림': 'Notice', '오류': 'Error', '실패': 'Failed', '성공': 'Done',
 
     // Weekdays

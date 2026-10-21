@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, SafeAreaView, Alert, Platform } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TextInput } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Button from '../components/Button';
@@ -7,8 +8,11 @@ import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import SocialLoginButtons from '../components/SocialLoginButtons';
 import { t } from '../i18n';
+import { useTheme } from '../context/ThemeContext';
 
 export default function LoginScreen({ navigation }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const { login } = useAuth();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -102,7 +106,7 @@ export default function LoginScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: colors.body,
@@ -137,11 +141,11 @@ const styles = StyleSheet.create({
     input: {
         height: 44,
         borderWidth: 1,
-        borderColor: colors.lightGray,
+        borderColor: colors.border,
         paddingHorizontal: 16,
         fontSize: Platform.OS === 'web' ? 16 : 14,
         color: colors.text,
-        backgroundColor: colors.white,
+        backgroundColor: colors.body,
     },
     inputTop: { borderTopLeftRadius: 5, borderTopRightRadius: 5 },
     inputBottom: { marginTop: -1, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 },
@@ -159,7 +163,7 @@ const styles = StyleSheet.create({
         width: 18,
         height: 18,
         borderWidth: 1,
-        borderColor: '#ccc', // var(--fnb)
+        borderColor: colors.fnb, // var(--fnb)
         borderRadius: 9, // Circle
         marginRight: 6,
     },

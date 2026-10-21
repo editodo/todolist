@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, SafeAreaView, TouchableOpacity, Switch, Modal, ScrollView, Linking } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Switch, Modal, ScrollView, Linking } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Header from '../components/Header';
 import { useAuth } from '../context/AuthContext';
 import { getSettings, saveSettings, requestPermission, hasPermission, DEFAULT_SETTINGS } from '../notifications';
 import { t } from '../i18n';
+import { useTheme } from '../context/ThemeContext';
 
 const TIMES = Array.from({ length: 48 }, (_, i) => ({ hour: Math.floor(i / 2), minute: (i % 2) * 30 }));
 export const formatTime = ({ hour, minute }) =>
@@ -17,6 +19,8 @@ const ROWS = [
 ];
 
 export default function NotificationSettingsScreen({ navigation }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const { user } = useAuth();
     const [settings, setSettings] = useState(DEFAULT_SETTINGS);
     const [allowed, setAllowed] = useState(true);
@@ -104,7 +108,7 @@ export default function NotificationSettingsScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.body, maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center' },
     back: { fontSize: 24, padding: 5, color: colors.text },
     content: { flex: 1, padding: 18 },
@@ -112,16 +116,16 @@ const styles = StyleSheet.create({
     blockedText: { fontSize: 13, color: '#c0392b', lineHeight: 19 },
     blockedBtn: { marginTop: 10, alignSelf: 'flex-start' },
     blockedBtnText: { fontSize: 13, fontWeight: 'bold', color: '#c0392b', textDecorationLine: 'underline' },
-    row: { paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+    row: { paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.border },
     rowTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     title: { fontSize: 15, fontWeight: 'bold', color: colors.text },
     desc: { fontSize: 12, color: colors.subText, marginTop: 4, lineHeight: 17 },
-    timeBtn: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, paddingVertical: 10, paddingHorizontal: 12, backgroundColor: '#f7f7f7', borderRadius: 5 },
+    timeBtn: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, paddingVertical: 10, paddingHorizontal: 12, backgroundColor: colors.mypageColor, borderRadius: 5 },
     timeText: { fontSize: 14, color: colors.text },
-    dim: { color: '#bbb' },
+    dim: { color: colors.fnb },
     note: { fontSize: 12, color: colors.subText, marginTop: 20, lineHeight: 18 },
     overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-    sheet: { backgroundColor: '#fff', borderTopLeftRadius: 12, borderTopRightRadius: 12, padding: 18, paddingBottom: 30 },
+    sheet: { backgroundColor: colors.body, borderTopLeftRadius: 12, borderTopRightRadius: 12, padding: 18, paddingBottom: 30 },
     sheetTitle: { fontSize: 16, fontWeight: 'bold', color: colors.text, marginBottom: 10 },
     option: { paddingVertical: 12 },
     optionText: { fontSize: 15, color: colors.text, textAlign: 'center' },

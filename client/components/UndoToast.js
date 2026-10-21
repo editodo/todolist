@@ -55,7 +55,7 @@ export function useUndoDelete(setItems, commitDelete) {
     return { pending, remove, undo, flush };
 }
 
-export default function UndoToast({ visible, message, onUndo, bottom = 80 }) {
+export default function UndoToast({ visible, message, onUndo, bottom = 16 }) {
     if (!visible) return null;
     return (
         <View style={[styles.toast, { bottom }]} accessibilityLiveRegion="polite">

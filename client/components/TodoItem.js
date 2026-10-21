@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { Text, TextInput } from './AppText';
 import { useTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
@@ -78,7 +79,10 @@ export default function TodoItem({ id, text, isCompleted, onToggle, onEdit, onDe
         <View style={[styles.container, { borderBottomColor: colors.border, backgroundColor: colors.base }]}>
             <TouchableOpacity
                 style={styles.checkboxHit}
-                onPress={() => onToggle(id)}
+                onPress={() => {
+                    if (Platform.OS !== 'web') Haptics.selectionAsync().catch(() => {}); // light tick on check
+                    onToggle(id);
+                }}
                 activeOpacity={0.8}
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: isCompleted }}

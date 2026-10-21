@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, SafeAreaView, Alert, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import { API_URL } from '../config';
 import { t } from '../i18n';
+import { useTheme } from '../context/ThemeContext';
 
 export default function JoinScreen({ navigation }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const [userId, setUserId] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -60,7 +64,7 @@ export default function JoinScreen({ navigation }) {
                     <View style={{ width: 30 }} />
                 </View>
 
-                <ScrollView style={styles.formWrap} showsVerticalScrollIndicator={false}>
+                <ScrollView style={styles.formWrap} showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled">
                     <Input
                         label={t('아이디')}
                         placeholder={t('영문, 숫자, _ 조합 4~20자')}
@@ -125,7 +129,7 @@ export default function JoinScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: colors.body,
@@ -167,7 +171,7 @@ const styles = StyleSheet.create({
         width: 18,
         height: 18,
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: colors.fnb,
         borderRadius: 9,
         marginRight: 6,
     },
@@ -175,7 +179,7 @@ const styles = StyleSheet.create({
     termsText: {
         flex: 1,
         fontSize: 13,
-        color: '#666',
+        color: colors.calendarColr,
     },
     checkboxOn: {
         backgroundColor: colors.main,

@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, SafeAreaView, TouchableOpacity, Alert, Platform } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TextInput } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Header from '../components/Header';
 import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
 import { t } from '../i18n';
+import { useTheme } from '../context/ThemeContext';
 
 // Design: 회원정보 수정 — email is shown read-only, nickname can be changed.
 export default function UserModifyScreen({ navigation }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const { user, updateProfile } = useAuth();
     const [nickname, setNickname] = useState(user?.nickname || '');
     const [saving, setSaving] = useState(false);
@@ -49,14 +53,14 @@ export default function UserModifyScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.white, maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center' },
+const getStyles = (colors) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.body, maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center' },
     back: { fontSize: 24, padding: 5, color: colors.text },
     body: { paddingHorizontal: 18, paddingTop: 20 },
     label: { fontSize: 12, color: colors.subText, marginBottom: 5 },
     input: {
-        height: 44, borderWidth: 1, borderColor: colors.lightGray, borderRadius: 5, paddingHorizontal: 16,
-        fontSize: Platform.OS === 'web' ? 16 : 14, color: colors.text, backgroundColor: colors.white,
+        height: 44, borderWidth: 1, borderColor: colors.border, borderRadius: 5, paddingHorizontal: 16,
+        fontSize: Platform.OS === 'web' ? 16 : 14, color: colors.text, backgroundColor: colors.body,
     },
-    readonly: { backgroundColor: colors.lightGray, color: '#888888' },
+    readonly: { backgroundColor: colors.border, color: colors.guideText },
 });

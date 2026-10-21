@@ -1,11 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, SafeAreaView, Alert, Animated, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Alert, Animated, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
 import Svg, { Path } from 'react-native-svg';
 import { t } from '../i18n';
+import { useTheme } from '../context/ThemeContext';
 
 // ET 에어리언 SVG 컴포넌트
 const AlienIcon = () => (
@@ -24,6 +26,8 @@ const AlienIcon = () => (
 
 // 체크 말풍선 SVG 컴포넌트
 const CheckBubble = ({ animatedValue }) => {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const animatedStyle = {
         opacity: animatedValue,
         transform: [
@@ -49,6 +53,8 @@ const CheckBubble = ({ animatedValue }) => {
 };
 
 export default function OnboardingScreen({ navigation }) {
+    const { colors } = useTheme().theme;
+    const styles = getStyles(colors);
     const { startGuestMode } = useAuth();
     const checkBubbleAnim = useRef(new Animated.Value(0)).current;
 
@@ -111,7 +117,7 @@ export default function OnboardingScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: colors.body,
@@ -184,7 +190,7 @@ const styles = StyleSheet.create({
     copyright: {
         marginTop: 20,
         textAlign: 'center',
-        color: '#ccc',
+        color: colors.fnb,
         fontSize: 10,
     }
 });
