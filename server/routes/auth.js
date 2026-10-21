@@ -14,6 +14,7 @@ const MIN_PASSWORD = 8;
 async function userPayload(user) {
     const [prefs] = await db.query('SELECT * FROM user_preferences WHERE user_id = ?', [user.id]);
     const userPrefs = prefs[0] || {};
+    const [social] = await db.query('SELECT provider FROM social_accounts WHERE user_id = ?', [user.id]);
     return {
         id: user.id,
         username: user.username,
@@ -24,7 +25,8 @@ async function userPayload(user) {
         expires_at: user.expires_at,
         mode: userPrefs.mode,
         theme: userPrefs.theme,
-        color_theme: userPrefs.color_theme
+        color_theme: userPrefs.color_theme,
+        providers: social.map((s) => s.provider), // SNS accounts this user signs in with
     };
 }
 

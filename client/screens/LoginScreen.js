@@ -97,7 +97,7 @@ export default function LoginScreen({ navigation }) {
                     />
                     {/* New SNS accounts go through theme setup (Step01) like new guests */}
                     <SocialLoginButtons
-                        onDone={({ isNew }) => navigation.reset({ index: 0, routes: [{ name: isNew ? 'Step01' : 'MainTabs' }] })}
+                        onDone={() => navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] })} // SNS = sign-up + login in one step
                     />
                 </View>
             </View>

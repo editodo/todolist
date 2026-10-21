@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Platform, Alert, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Platform, Alert, ActivityIndicator } from 'react-native';
 import { Text } from './AppText';
-import { Ionicons } from '@expo/vector-icons';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import Constants from 'expo-constants';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +8,7 @@ import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../config';
 import { colors } from '../theme';
 import { t } from '../i18n';
 import KakaoButton from './KakaoButton';
+import SocialRound from './SocialRound';
 import { kakaoEnabled } from '../kakaoAuth';
 
 // Kakao: everywhere once KAKAO_REST_API_KEY is set. Apple: iOS only (App Store rule 4.8 requires it next to Google there). Google: Android + iOS once client IDs are set.
@@ -77,26 +77,15 @@ export default function SocialLoginButtons({ onDone }) {
         <View style={styles.wrap}>
             <View style={styles.dividerRow}>
                 <View style={styles.line} />
-                <Text style={styles.dividerText}>{t('또는')}</Text>
+                <Text style={styles.dividerText}>{t('SNS로 시작하기')}</Text>
                 <View style={styles.line} />
             </View>
-            {busy && <ActivityIndicator color={colors.main} style={{ marginBottom: 10 }} />}
-            {kakaoEnabled && <KakaoButton finish={finish} />}
-            {appleAvailable && (
-                <AppleAuthentication.AppleAuthenticationButton
-                    buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-                    buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-                    cornerRadius={5}
-                    style={styles.appleBtn}
-                    onPress={busy ? () => {} : handleApple}
-                />
-            )}
-            {googleEnabled && (
-                <TouchableOpacity style={styles.googleBtn} onPress={busy ? undefined : handleGoogle} activeOpacity={0.8} accessibilityRole="button">
-                    <Ionicons name="logo-google" size={18} color="#4285F4" />
-                    <Text style={styles.googleText}>{t('Google로 계속하기')}</Text>
-                </TouchableOpacity>
-            )}
+            <View style={styles.row}>
+                {kakaoEnabled && <KakaoButton finish={finish} />}
+                {googleEnabled && <SocialRound provider="google" label={t('Google로 계속하기')} onPress={handleGoogle} disabled={busy} />}
+                {appleAvailable && <SocialRound provider="apple" label={t('Apple로 계속하기')} onPress={handleApple} disabled={busy} />}
+            </View>
+            {busy && <ActivityIndicator color={colors.main} style={{ marginTop: 12 }} />}
         </View>
     );
 }
@@ -106,10 +95,5 @@ const styles = StyleSheet.create({
     dividerRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 14 },
     line: { flex: 1, height: 1, backgroundColor: '#eee' },
     dividerText: { marginHorizontal: 10, fontSize: 12, color: colors.subText },
-    appleBtn: { width: '100%', height: 48, marginBottom: 10 },
-    googleBtn: {
-        height: 48, borderRadius: 5, borderWidth: 1, borderColor: '#dadce0', backgroundColor: '#fff',
-        flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    },
-    googleText: { fontSize: 15, fontWeight: '600', color: '#3c4043' },
+    row: { flexDirection: 'row', justifyContent: 'center', gap: 16 },
 });

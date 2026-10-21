@@ -47,6 +47,7 @@ db.query = async (sql, p) => {
     if (sql.startsWith('INSERT INTO social_accounts')) { links.push({ provider: p[0], sub: p[1], user_id: p[2] }); return [{}]; }
     if (sql.startsWith('SELECT * FROM users WHERE id = ?')) return [users.filter((u) => u.id === p[0])];
     if (sql.startsWith('SELECT * FROM user_preferences')) return [[]];
+    if (sql.startsWith('SELECT provider FROM social_accounts')) return [links.filter((l) => l.user_id === p[0]).map((l) => ({ provider: l.provider }))];
     throw new Error(`unexpected SQL: ${sql}`);
 };
 
@@ -102,6 +103,7 @@ test('guest signing in with Google keeps their account and data', async () => {
 test('same Google account later logs into the same user', async () => {
     const data = await (await post('/google', { idToken: googleToken() })).json();
     assert.strictEqual(data.user.id, 1);
+    assert.deepStrictEqual(data.user.providers, ['google']);
 });
 
 test('new Apple user gets a new account and goes through onboarding', async () => {

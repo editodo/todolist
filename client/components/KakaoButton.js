@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Text } from './AppText';
+import { Alert } from 'react-native';
+import SocialRound from './SocialRound';
 import { kakaoAuthorize } from '../kakaoAuth';
 import { t } from '../i18n';
 
-// Kakao's login button guideline: #FEE500, black speech-bubble symbol, 85% black label.
 // finish(provider, payload) is the shared SocialLoginButtons sign-in step.
-export default function KakaoButton({ finish }) {
+export default function KakaoButton({ finish, size }) {
     const [busy, setBusy] = useState(false);
     const handle = async () => {
-        if (busy) return;
         setBusy(true);
         try {
             const payload = await kakaoAuthorize();
@@ -21,18 +18,5 @@ export default function KakaoButton({ finish }) {
             setBusy(false);
         }
     };
-    return (
-        <TouchableOpacity style={styles.btn} onPress={handle} activeOpacity={0.85} accessibilityRole="button" accessibilityState={{ busy }}>
-            <Ionicons name="chatbubble" size={18} color="#000" />
-            <Text style={styles.text}>{t('카카오로 계속하기')}</Text>
-        </TouchableOpacity>
-    );
+    return <SocialRound provider="kakao" label={t('카카오로 계속하기')} onPress={handle} disabled={busy} size={size} />;
 }
-
-const styles = StyleSheet.create({
-    btn: {
-        height: 48, borderRadius: 6, backgroundColor: '#FEE500', marginBottom: 10,
-        flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    },
-    text: { fontSize: 15, fontWeight: '600', color: 'rgba(0,0,0,0.85)' },
-});

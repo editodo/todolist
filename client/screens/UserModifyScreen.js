@@ -11,11 +11,14 @@ import { useTheme } from '../context/ThemeContext';
 import BackButton from '../components/BackButton';
 
 // Design: 회원정보 수정 — email is shown read-only, nickname can be changed.
+const PROVIDER_NAMES = { kakao: '카카오', google: 'Google', apple: 'Apple' };
+
 export default function UserModifyScreen({ navigation }) {
     const { colors } = useTheme().theme;
     const styles = getStyles(colors);
     const { user, updateProfile } = useAuth();
     const [nickname, setNickname] = useState(user?.nickname || '');
+    const social = user?.providers || [];
     const [saving, setSaving] = useState(false);
 
     const handleSave = async () => {
@@ -35,8 +38,30 @@ export default function UserModifyScreen({ navigation }) {
                 leftButton={<BackButton onPress={() => navigation.goBack()} />}
             />
             <View style={styles.body}>
-                <Text style={styles.label}>{user?.email ? t('이메일') : t('아이디')}</Text>
-                <TextInput style={[styles.input, styles.readonly]} value={user?.email || user?.username || ''} editable={false} />
+                {/* SNS sign-ups get a generated ID (google_8f3a…), so they see their SNS and email instead */}
+                {social.length > 0 ? (
+                    <>
+                        <Text style={styles.label}>{t('로그인 방식')}</Text>
+                        <TextInput style={[styles.input, styles.readonly]} value={social.map((p) => PROVIDER_NAMES[p] || p).join(', ')} editable={false} />
+                        {user?.email ? (
+                            <>
+                                <Text style={[styles.label, { marginTop: 16 }]}>{t('이메일')}</Text>
+                                <TextInput style={[styles.input, styles.readonly]} value={user.email} editable={false} />
+                            </>
+                        ) : null}
+                    </>
+                ) : (
+                    <>
+                        <Text style={styles.label}>{t('아이디')}</Text>
+                        <TextInput style={[styles.input, styles.readonly]} value={user?.username || ''} editable={false} />
+                        {user?.email ? (
+                            <>
+                                <Text style={[styles.label, { marginTop: 16 }]}>{t('이메일')}</Text>
+                                <TextInput style={[styles.input, styles.readonly]} value={user.email} editable={false} />
+                            </>
+                        ) : null}
+                    </>
+                )}
 
                 <Text style={[styles.label, { marginTop: 16 }]}>{t('닉네임')}</Text>
                 <TextInput

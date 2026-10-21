@@ -23,6 +23,7 @@ export default {
     '하루 기록': 'Daily record', '할 일을 삭제했어요': 'To-do deleted', '되돌리기': 'Undo',
     '할 일을 저장하지 못했습니다.': "Couldn't save the to-do.",
     '카카오로 계속하기': 'Continue with Kakao', '카카오 로그인을 완료하지 못했습니다.': "Couldn't finish Kakao login.",
+    'SNS로 시작하기': 'Continue with', '로그인 방식': 'Signed in with',
     '닫기': 'Close', '오늘': 'Today', '{n}월': '{n}', '연도·월 선택': 'Choose year and month',
     '이전 날': 'Previous day', '날짜 선택': 'Choose a date', '다음 날': 'Next day',
     '할 일을 입력하세요': 'Write a to-do', '입력 취소': 'Cancel', '날짜를 선택해주세요.': 'Pick a date.',

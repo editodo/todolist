@@ -1,16 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { Text } from './AppText';
-import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { GOOGLE_WEB_CLIENT_ID, APPLE_SERVICES_ID } from '../config';
 import { colors } from '../theme';
 import { t } from '../i18n';
 import KakaoButton from './KakaoButton';
+import SocialRound from './SocialRound';
 import { kakaoEnabled } from '../kakaoAuth';
 
 // Web version of the Apple/Google buttons (the native one uses the phone SDKs). Each provider's official
 // script is loaded only when its ID is configured; the server verifies the resulting ID token either way.
+const WEB_SIZE = 40; // Google's round icon button only comes in 40px; the others match it
+
 const loadScript = (src) => new Promise((resolve, reject) => {
     const existing = document.querySelector(`script[src="${src}"]`);
     if (existing) return existing.dataset.loaded ? resolve() : existing.addEventListener('load', resolve);
@@ -43,9 +45,8 @@ export default function SocialLoginButtons({ onDone }) {
                 callback: (resp) => finish('google', { idToken: resp.credential }),
             });
             if (googleBox.current) {
-                window.google.accounts.id.renderButton(googleBox.current, {
-                    theme: 'outline', size: 'large', text: 'continue_with', locale: 'ko', width: 320,
-                });
+                // Google's own round icon button (40px), so the ID token flow stays Google's
+                window.google.accounts.id.renderButton(googleBox.current, { type: 'icon', shape: 'circle', theme: 'outline', size: 'large' });
             }
         }).catch(() => {});
     }, []);
@@ -85,17 +86,16 @@ export default function SocialLoginButtons({ onDone }) {
         <View style={styles.wrap}>
             <View style={styles.dividerRow}>
                 <View style={styles.line} />
-                <Text style={styles.dividerText}>{t('또는')}</Text>
+                <Text style={styles.dividerText}>{t('SNS로 시작하기')}</Text>
                 <View style={styles.line} />
             </View>
-            {kakaoEnabled ? <KakaoButton finish={finish} /> : null}
-            {APPLE_SERVICES_ID ? (
-                <TouchableOpacity style={styles.appleBtn} onPress={appleReady ? handleApple : undefined} accessibilityRole="button" activeOpacity={0.85}>
-                    <Ionicons name="logo-apple" size={18} color="#fff" />
-                    <Text style={styles.appleText}>{t('Apple로 계속하기')}</Text>
-                </TouchableOpacity>
-            ) : null}
-            {GOOGLE_WEB_CLIENT_ID ? <View ref={googleBox} style={styles.googleBox} /> : null}
+            <View style={styles.row}>
+                {kakaoEnabled ? <KakaoButton finish={finish} size={WEB_SIZE} /> : null}
+                {GOOGLE_WEB_CLIENT_ID ? <View ref={googleBox} style={styles.googleBox} /> : null}
+                {APPLE_SERVICES_ID ? (
+                    <SocialRound provider="apple" label={t('Apple로 계속하기')} onPress={handleApple} disabled={!appleReady} size={WEB_SIZE} />
+                ) : null}
+            </View>
         </View>
     );
 }
@@ -105,10 +105,6 @@ const styles = StyleSheet.create({
     dividerRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 14 },
     line: { flex: 1, height: 1, backgroundColor: '#eee' },
     dividerText: { marginHorizontal: 10, fontSize: 12, color: colors.subText },
-    appleBtn: {
-        height: 44, borderRadius: 5, backgroundColor: '#000', marginBottom: 10,
-        flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    },
-    appleText: { color: '#fff', fontSize: 15, fontWeight: '600' },
-    googleBox: { alignItems: 'center', minHeight: 44 },
+    row: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 16 },
+    googleBox: { width: WEB_SIZE, height: WEB_SIZE },
 });
