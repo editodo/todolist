@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Editodo",
+    "name": "EdiTodo",
     "slug": "editodo",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -25,10 +25,16 @@
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "monochromeImage": "./assets/monochrome-icon.png",
+        "backgroundColor": "#5AC1CC"
       },
       "permissions": [
         "INTERNET"
+      ],
+      "blockedPermissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
       ]
     },
     "web": {
@@ -48,11 +54,17 @@
       [
         "@react-native-google-signin/google-signin",
         {
-          "iosUrlScheme": "com.googleusercontent.apps.REPLACE-WITH-IOS-CLIENT-ID"
+          "iosUrlScheme": "com.googleusercontent.apps.1066331041224-bdquag9mrcdidihcshsmirti0meea1df"
         }
       ],
       "expo-apple-authentication",
-      "expo-notifications",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#5AC1CC"
+        }
+      ],
       "expo-font",
       "expo-web-browser"
     ],

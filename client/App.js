@@ -41,6 +41,7 @@ import AdminLoginScreen from './screens/AdminLoginScreen';
 import AdminDashboardScreen from './screens/AdminDashboardScreen';
 import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
 import TermsScreen from './screens/TermsScreen';
+import AccountDeletionScreen from './screens/AccountDeletionScreen';
 import PasswordResetScreen from './screens/PasswordResetScreen';
 import NotificationSettingsScreen from './screens/NotificationSettingsScreen';
 import FontSettingsScreen from './screens/FontSettingsScreen';
@@ -246,6 +247,7 @@ function AuthWrapper() {
         ...(IS_WEB ? { AdminLogin: 'admin', AdminDashboard: 'admin/dashboard' } : {}),
         PrivacyPolicy: 'privacy',
         Terms: 'terms',
+        AccountDeletion: 'delete-account',
         DailyWrite: 'daily',
         UserModify: 'mypage/edit',
         PasswordReset: 'reset-password',
@@ -280,7 +282,7 @@ function AuthWrapper() {
           cardStyle: { backgroundColor: '#fff' }
         }}
       >
-        <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ title: 'Editodo' }} />
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ title: 'EdiTodo' }} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Join" component={JoinScreen} />
         <Stack.Screen name="Step01" component={Step01Screen} />
@@ -294,6 +296,7 @@ function AuthWrapper() {
         {IS_WEB && <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />}
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
         <Stack.Screen name="Terms" component={TermsScreen} />
+        <Stack.Screen name="AccountDeletion" component={AccountDeletionScreen} />
         <Stack.Screen name="DailyWrite" component={DailyWriteScreen} />
         <Stack.Screen name="UserModify" component={UserModifyScreen} />
         <Stack.Screen name="PasswordReset" component={PasswordResetScreen} />

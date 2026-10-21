@@ -4,7 +4,7 @@ import { COMPANY, COMPANY_WEB, SUPPORT_EMAIL } from '../config';
 
 // Follows the 개인정보보호위원회 처리방침 작성지침 section order.
 // Retention days must match GUEST_RETENTION_DAYS on the server; HOSTING_PROVIDER must name the real server host.
-const HOSTING_PROVIDER = '[서버 호스팅 업체명]';
+const HOSTING_PROVIDER = '한국오라클 유한회사(Oracle Cloud Infrastructure)';
 const GUEST_RETENTION_DAYS = 30;
 
 const sections = [
