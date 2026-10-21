@@ -21,6 +21,15 @@ jobs:
         npm install
         npm run build:web
 
+    # v1 = the previous version, frozen at the v1 tag; served at editodo.com/v1 (v1-web branch = v1 + /v1 base path)
+    - name: Build v1 web
+      run: |
+        git fetch --depth 1 origin v1-web
+        git worktree add ../v1src FETCH_HEAD
+        cd ../v1src/client
+        npm ci
+        npx expo export --platform web --output-dir "$GITHUB_WORKSPACE/client/v1"
+
     # Check before copying anything, so a missing .env leaves the live site untouched
     - name: Check server/.env exists
       uses: appleboy/ssh-action@v1.0.3
@@ -38,7 +47,7 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_KEY }}
-        source: "server,client/dist,nginx.conf"  # only what the server needs (no .git, no secrets)
+        source: "server,client/dist,client/v1,nginx.conf"  # only what the server needs (no .git, no secrets)
         target: "/var/www/editodo"
         strip_components: 0
 
