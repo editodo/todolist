@@ -35,12 +35,12 @@ export const SUPPORT_EMAIL = 'hello@codemodo.kr';
 // WEB is the "Web application" client: its ID is the token audience the server checks (GOOGLE_CLIENT_IDS).
 // IOS is the "iOS" client; also put its reversed form in app.json → google-signin plugin → iosUrlScheme.
 // While WEB is empty the Google button is hidden (and on iOS while IOS is empty).
-export const GOOGLE_WEB_CLIENT_ID = '';
-export const GOOGLE_IOS_CLIENT_ID = '';
+export const GOOGLE_WEB_CLIENT_ID = '1066331041224-7bafibaqtumf848ud4b8782bnbmv27bf.apps.googleusercontent.com';
+export const GOOGLE_IOS_CLIENT_ID = '1066331041224-bdquag9mrcdidihcshsmirti0meea1df.apps.googleusercontent.com';
 
 // Sign in with Apple on the web: the Services ID (Apple Developer → Identifiers → Services IDs). Empty = no Apple button on web.
 // Kakao login: the app's REST API key from developers.kakao.com (a public client ID; the secret stays on the server).
-export const KAKAO_REST_API_KEY = '';
+export const KAKAO_REST_API_KEY = '79e5acf7b47637ca8b608c8f0d91f32f';
 export const APPLE_SERVICES_ID = '';
 
 // Login token, set by AuthContext. Every API call goes through apiFetch so the server knows who is asking.

@@ -15,7 +15,12 @@ const jwksCache = {};
 
 // Apple tokens are issued to the iOS bundle ID or, for web sign-in, to a Services ID; both are accepted
 const appleClientIds = () => [process.env.APPLE_BUNDLE_ID || 'com.editodo.app', process.env.APPLE_SERVICES_ID].filter(Boolean);
-const googleClientIds = () => (process.env.GOOGLE_CLIENT_IDS || '').split(',').map((s) => s.trim()).filter(Boolean);
+// Public client IDs (also shipped in client/config.js), used when .env leaves them empty
+const PUBLIC_GOOGLE_CLIENT_IDS = '1066331041224-7bafibaqtumf848ud4b8782bnbmv27bf.apps.googleusercontent.com,1066331041224-bdquag9mrcdidihcshsmirti0meea1df.apps.googleusercontent.com';
+const PUBLIC_KAKAO_REST_API_KEY = '79e5acf7b47637ca8b608c8f0d91f32f';
+const kakaoRestKey = () => process.env.KAKAO_REST_API_KEY || PUBLIC_KAKAO_REST_API_KEY;
+
+const googleClientIds = () => (process.env.GOOGLE_CLIENT_IDS || PUBLIC_GOOGLE_CLIENT_IDS).split(',').map((s) => s.trim()).filter(Boolean);
 
 async function publicKeyFor(provider, kid) {
     const cached = jwksCache[provider];
@@ -45,11 +50,10 @@ async function verifyIdToken(provider, idToken) {
 const kakaoRedirectUri = () => process.env.KAKAO_REDIRECT_URI || 'https://editodo.com/api/auth/kakao/callback';
 
 async function verifyKakaoCode({ code, codeVerifier }) {
-    if (!process.env.KAKAO_REST_API_KEY) throw new Error('KAKAO_REST_API_KEY not set');
     if (typeof code !== 'string' || !code) throw new Error('missing code');
     const form = new URLSearchParams({
         grant_type: 'authorization_code',
-        client_id: process.env.KAKAO_REST_API_KEY,
+        client_id: kakaoRestKey(),
         redirect_uri: kakaoRedirectUri(),
         code,
     });
