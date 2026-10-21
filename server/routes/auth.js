@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcrypt'); // Password hashing (Install needed: npm install bcrypt)
 const crypto = require('crypto');
-const { signToken, requireAuth, userIdFromHeader, deleteUser } = require('../auth');
+const { signToken, requireAuth, userIdFromHeader, deleteUser, mergeGuestInto, callerGuestId } = require('../auth');
 const { verifySocialToken, appleRefreshToken } = require('../social');
 const { isMailConfigured, sendMail } = require('../mail');
 
@@ -60,13 +60,10 @@ router.post('/guest-login', async (req, res) => {
         const guestUsername = `guest_${crypto.randomBytes(8).toString('hex')}`; // unguessable: guests have no password
         const randomNickname = generateRandomNickname();
 
-        // 7일 후 만료 설정
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 7);
-
+        // No expiry: a not-signed-in account lives until 1 year without opening the app (cleanup_guests.js)
         const [result] = await db.query(
-            'INSERT INTO users (username, nickname, user_type, expires_at) VALUES (?, ?, ?, ?)',
-            [guestUsername, randomNickname, 'GUEST', expiresAt]
+            'INSERT INTO users (username, nickname, user_type, last_active_at) VALUES (?, ?, ?, NOW())',
+            [guestUsername, randomNickname, 'GUEST']
         );
 
         const newUserId = result.insertId;
@@ -78,7 +75,7 @@ router.post('/guest-login', async (req, res) => {
                 username: guestUsername,
                 nickname: randomNickname,
                 user_type: 'GUEST',
-                expires_at: expiresAt
+                expires_at: null
             },
             token: signToken(newUserId),
             isNew: true // 체험 단계(STEP01)로 이동 트리거
@@ -218,6 +215,7 @@ router.post('/login', async (req, res) => {
         if (!match) {
             return res.status(401).json({ error: LOGIN_FAILED });
         }
+        await mergeGuestInto(await callerGuestId(req), user.id);
 
         res.status(200).json({
             message: '로그인 성공',
@@ -235,6 +233,7 @@ router.post('/login', async (req, res) => {
 // POST /api/auth/refresh — the app calls this on every start: a valid token is swapped for a fresh 90-day one
 router.post('/refresh', requireAuth, async (req, res) => {
     try {
+        await db.query('UPDATE users SET last_active_at = NOW() WHERE id = ?', [req.userId]);
         const [users] = await db.query('SELECT * FROM users WHERE id = ?', [req.userId]);
         res.status(200).json({ token: signToken(req.userId), user: await userPayload(users[0]) });
     } catch (error) {
@@ -257,7 +256,8 @@ router.get('/kakao/callback', (req, res) => {
 
 // ✅ SNS 로그인 (Sign in with Apple / Google / Kakao)
 // POST /api/auth/social/:provider  apple: { identityToken, authorizationCode, fullName }  google: { idToken }  kakao: { code, codeVerifier }
-// Order: existing link → logged-in guest keeps their data → same verified email links → new account.
+// Order: existing link → guest becomes the account → same verified email links → new account.
+// A guest's records always come along: merged into an existing account, or kept when the guest itself converts.
 router.post('/social/:provider', async (req, res) => {
     const { provider } = req.params;
     if (!['apple', 'google', 'kakao'].includes(provider)) return res.status(404).json({ error: '지원하지 않는 로그인 방식입니다.' });
@@ -275,23 +275,12 @@ router.post('/social/:provider', async (req, res) => {
         let userId;
         const [linked] = await db.query('SELECT user_id FROM social_accounts WHERE provider = ? AND provider_user_id = ?', [provider, profile.sub]);
 
-        // A guest converting with an SNS account that already belongs to another member: switching accounts
-        // would silently leave the guest's records behind, so refuse and let them choose.
-        if (linked.length > 0) {
-            const callerId = userIdFromHeader(req);
-            if (callerId && callerId !== linked[0].user_id) {
-                const [caller] = await db.query("SELECT id FROM users WHERE id = ? AND user_type = 'GUEST'", [callerId]);
-                if (caller.length > 0) {
-                    return res.status(409).json({ error: '이미 EdiTodo에 가입된 계정이에요. 체험 기록을 옮기려면 다른 계정으로 전환하거나, 아이디로 전환해 주세요.' });
-                }
-            }
-        }
-
+        const guestId = await callerGuestId(req);
         if (linked.length > 0) {
             userId = linked[0].user_id;
+            await mergeGuestInto(guestId, userId);
         } else {
-            const guestId = userIdFromHeader(req);
-            const [guest] = guestId ? await db.query("SELECT id FROM users WHERE id = ? AND user_type = 'GUEST'", [guestId]) : [[]];
+            const guest = guestId ? [{ id: guestId }] : [];
             const [sameEmail] = profile.email && profile.emailVerified
                 ? await db.query("SELECT id FROM users WHERE email = ? AND user_type = 'REGULAR'", [profile.email])
                 : [[]];
@@ -305,6 +294,7 @@ router.post('/social/:provider', async (req, res) => {
                 );
             } else if (sameEmail.length > 0) {
                 userId = sameEmail[0].id;
+                await mergeGuestInto(guestId, userId);
             } else {
                 const [emailTaken] = profile.email ? await db.query('SELECT id FROM users WHERE email = ?', [profile.email]) : [[]];
                 const [result] = await db.query(

@@ -12,10 +12,10 @@ import BackButton from '../components/BackButton';
 import SocialLoginButtons from '../components/SocialLoginButtons';
 import { useAuth } from '../context/AuthContext';
 
-// Also the 정회원 전환 screen (route.params.convert): same form, but the guest account and its data are kept.
-export default function JoinScreen({ navigation, route }) {
-    const convert = !!route.params?.convert;
-    const { convertAccount } = useAuth();
+// Signing up while using the app without an account keeps that account and its records (server /convert).
+export default function JoinScreen({ navigation }) {
+    const { convertAccount, isGuest: convert } = useAuth();
+    const goHome = () => navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
     const { colors } = useTheme().theme;
     const styles = getStyles(colors);
     const [userId, setUserId] = useState('');
@@ -37,9 +37,9 @@ export default function JoinScreen({ navigation, route }) {
 
         if (convert) {
             const result = await convertAccount({ username: userId, email, password, nickname: nickname.trim() || undefined });
-            if (!result.success) return Alert.alert(t('실패'), result.error || t('계정 전환에 실패했습니다.'));
-            navigation.goBack();
-            return Alert.alert(t('성공'), t('정회원으로 전환되었습니다!'));
+            if (!result.success) return Alert.alert(t('가입 실패'), result.error || t('가입하지 못했습니다.'));
+            goHome();
+            return Alert.alert(t('가입 성공'), t('가입이 완료됐어요. 지금까지의 기록도 그대로 이어져요.'));
         }
 
         try {
@@ -71,12 +71,12 @@ export default function JoinScreen({ navigation, route }) {
             <View style={styles.container}>
                 <View style={styles.header}>
                     <BackButton onPress={() => navigation.goBack()} />
-                    <Text style={styles.headerTitle}>{convert ? t('정회원 전환') : t('회원가입')}</Text>
+                    <Text style={styles.headerTitle}>{t('회원가입')}</Text>
                     <View style={{ width: 30 }} />
                 </View>
 
                 <ScrollView style={styles.formWrap} showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled">
-                    {convert && <Text style={styles.convertNote}>{t('체험 계정의 데이터를 그대로 유지합니다.')}</Text>}
+                    {convert && <Text style={styles.convertNote}>{t('지금까지 쓴 기록이 새 계정으로 그대로 이어져요.')}</Text>}
                     <Input
                         label={t('아이디')}
                         placeholder={t('영문, 숫자, _ 조합 4~20자')}
@@ -129,21 +129,14 @@ export default function JoinScreen({ navigation, route }) {
                     </View>
 
                     {/* SNS: the server sees the guest token and keeps this account's data */}
-                    {convert && (
-                        <View style={{ marginBottom: 20 }}>
-                            <SocialLoginButtons
-                                onDone={() => {
-                                    navigation.goBack();
-                                    Alert.alert(t('성공'), t('정회원으로 전환되었습니다!'));
-                                }}
-                            />
-                        </View>
-                    )}
+                    <View style={{ marginBottom: 20 }}>
+                        <SocialLoginButtons onDone={goHome} />
+                    </View>
                 </ScrollView>
 
                 <View style={styles.bottomBtnGroup}>
                     <Button
-                        title={convert ? t('전환하기') : t('가입')}
+                        title={t('가입')}
                         type="main"
                         onPress={handleJoin}
                     />

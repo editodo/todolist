@@ -77,7 +77,7 @@ export default function OnboardingScreen({ navigation }) {
                 navigation.replace('MainTabs');
             }
         } else {
-            Alert.alert(t('오류'), t('체험판 시작에 실패했습니다.'));
+            Alert.alert(t('오류'), t('시작하지 못했어요. 잠시 후 다시 시도해주세요.'));
         }
     };
 
@@ -100,7 +100,7 @@ export default function OnboardingScreen({ navigation }) {
 
                 <View style={styles.bottomBtnGroup}>
                     <Button
-                        title={t('취향저격 투두리스트 체험판')}
+                        title={t('취향저격 투두리스트 시작하기')}
                         type="main"
                         onPress={handleStartGuest}
                     />

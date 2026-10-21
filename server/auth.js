@@ -80,4 +80,39 @@ async function deleteUser(userId) {
     }
 }
 
-module.exports = { signToken, requireAuth, userIdFromHeader, deleteUser };
+// Logging in from a not-signed-in (guest) session: move the guest's to-dos and daily records into the
+// account, then remove the guest. Same-day records are joined (account's text first, its sticker kept).
+async function mergeGuestInto(guestId, targetId) {
+    if (!guestId || guestId === targetId) return;
+    const conn = await db.getConnection();
+    try {
+        await conn.beginTransaction();
+        await conn.query('UPDATE todos SET user_id = ? WHERE user_id = ?', [targetId, guestId]);
+        await conn.query(
+            "UPDATE diaries t JOIN diaries g ON g.date = t.date AND g.user_id = ? SET t.content = CONCAT(t.content, '\n\n', g.content) WHERE t.user_id = ?",
+            [guestId, targetId]
+        );
+        await conn.query('DELETE g FROM diaries g JOIN diaries t ON t.date = g.date AND t.user_id = ? WHERE g.user_id = ?', [targetId, guestId]);
+        await conn.query('UPDATE diaries SET user_id = ? WHERE user_id = ?', [targetId, guestId]);
+        // An account that never saved settings takes the theme/font/language chosen before logging in
+        const [targetPrefs] = await conn.query('SELECT user_id FROM user_preferences WHERE user_id = ?', [targetId]);
+        if (targetPrefs.length === 0) await conn.query('UPDATE user_preferences SET user_id = ? WHERE user_id = ?', [targetId, guestId]);
+        await conn.commit();
+    } catch (e) {
+        await conn.rollback();
+        throw e;
+    } finally {
+        conn.release();
+    }
+    await deleteUser(guestId);
+}
+
+// The guest behind this request's token, if the caller is one (null otherwise)
+async function callerGuestId(req) {
+    const id = userIdFromHeader(req);
+    if (!id) return null;
+    const [rows] = await db.query("SELECT id FROM users WHERE id = ? AND user_type = 'GUEST'", [id]);
+    return rows.length ? id : null;
+}
+
+module.exports = { signToken, requireAuth, userIdFromHeader, deleteUser, mergeGuestInto, callerGuestId };

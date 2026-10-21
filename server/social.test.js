@@ -47,6 +47,7 @@ db.query = async (sql, p) => {
     if (sql.startsWith('INSERT INTO social_accounts')) { links.push({ provider: p[0], sub: p[1], user_id: p[2] }); return [{}]; }
     if (sql.startsWith('SELECT * FROM users WHERE id = ?')) return [users.filter((u) => u.id === p[0])];
     if (sql.startsWith('SELECT * FROM user_preferences')) return [[]];
+    if (sql.startsWith('SELECT apple_refresh_token') || sql.startsWith('SELECT provider_user_id FROM social_accounts')) return [[]];
     if (sql.startsWith('SELECT provider FROM social_accounts')) return [links.filter((l) => l.user_id === p[0]).map((l) => ({ provider: l.provider }))];
     throw new Error(`unexpected SQL: ${sql}`);
 };
@@ -136,9 +137,20 @@ test('Kakao callback hands the code to the app scheme, or to the web opener with
     assert.ok(web.includes('"https://editodo.com"'));
 });
 
-test('guest converting with an SNS account that already belongs to a member is refused, guest kept', async () => {
+test('guest signing in with an SNS account that already has an account: guest records merge in, guest removed', async () => {
     users.push({ id: 99, username: 'guest_xyz', nickname: '졸린토끼', email: null, user_type: 'GUEST' });
-    const r = await post('/google', { idToken: googleToken() }, jwt.sign({ userId: 99 }, process.env.JWT_SECRET)); // g-1 is linked to user 1
-    assert.strictEqual(r.status, 409);
-    assert.strictEqual(users.find((u) => u.id === 99).user_type, 'GUEST');
+    const merged = [];
+    db.getConnection = async () => ({
+        beginTransaction: async () => {}, commit: async () => {}, rollback: async () => {}, release: () => {},
+        query: async (sql, p) => {
+            merged.push(sql.split(' ').slice(0, 3).join(' '));
+            if (sql.startsWith('DELETE FROM users')) users.splice(users.findIndex((u) => u.id === p[0]), 1);
+            return sql.startsWith('SELECT') ? [[]] : [{}];
+        },
+    });
+    const r = await post('/google', { idToken: googleToken() }, jwt.sign({ userId: 99 }, process.env.JWT_SECRET)); // g-1 belongs to user 1
+    assert.strictEqual(r.status, 200);
+    assert.strictEqual((await r.json()).user.id, 1);
+    assert.ok(merged.includes('UPDATE todos SET'), 'to-dos moved');
+    assert.ok(!users.some((u) => u.id === 99), 'guest removed');
 });

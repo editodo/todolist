@@ -80,6 +80,9 @@ const startServer = async () => {
     // 글꼴 변경 / 언어 settings
     await db.query('ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS font_id INT NULL, ADD COLUMN IF NOT EXISTS language VARCHAR(5) NULL');
     await require('./routes/fonts').ensureFontTables();
+    // Not-signed-in accounts no longer expire; they're removed after 1 year without opening the app
+    await db.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active_at DATETIME NULL');
+    await db.query("UPDATE users SET expires_at = NULL WHERE user_type = 'GUEST' AND expires_at IS NOT NULL");
   } catch (e) {
     console.error('⚠️  Could not ensure password_resets/social_accounts tables:', e.code || e.message);
   }
@@ -120,6 +123,14 @@ const startServer = async () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
+
+  // Daily: remove not-signed-in accounts unused for a year (production only, so local runs never delete)
+  if (process.env.NODE_ENV === 'production') {
+    const { cleanupGuests } = require('./cleanup_guests');
+    const run = () => cleanupGuests().catch((e) => console.error('Guest cleanup failed:', e.message));
+    setTimeout(run, 60 * 1000);
+    setInterval(run, 24 * 60 * 60 * 1000);
+  }
 };
 
 startServer();

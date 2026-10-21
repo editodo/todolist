@@ -32,17 +32,6 @@ export default function MyPageScreen({ navigation }) {
 
     // Robust check for guest status
     const isGuest = user?.user_type === 'GUEST' || user?.username?.startsWith('guest_');
-    const isExpired = user?.isExpired;
-
-    // Expiration Calc
-    const getDaysLeft = () => {
-        if (!user?.expires_at) return null;
-        const expiry = new Date(user.expires_at);
-        const now = new Date();
-        const diff = expiry - now;
-        return Math.ceil(diff / (1000 * 60 * 60 * 24));
-    };
-    const daysLeft = getDaysLeft();
 
     const handleLogout = () => {
         const logoutAction = async () => {
@@ -51,11 +40,11 @@ export default function MyPageScreen({ navigation }) {
         };
 
         if (Platform.OS === 'web') {
-            if (window.confirm(isGuest ? t('체험계정을 종료하시겠습니까? 데이터가 유실될 수 있습니다.') : t('로그아웃 하시겠습니까?'))) {
+            if (window.confirm(isGuest ? t('로그인하지 않은 상태에서 로그아웃하면 지금까지의 기록을 다시 볼 수 없어요. 계속할까요?') : t('로그아웃 하시겠습니까?'))) {
                 logoutAction();
             }
         } else {
-            Alert.alert(t('로그아웃'), isGuest ? t('체험계정을 종료하면 데이터가 삭제될 수 있습니다. 계속하시겠습니까?') : t('로그아웃 하시겠습니까?'), [
+            Alert.alert(t('로그아웃'), isGuest ? t('로그인하지 않은 상태에서 로그아웃하면 지금까지의 기록을 다시 볼 수 없어요. 계속할까요?') : t('로그아웃 하시겠습니까?'), [
                 { text: t('취소'), style: 'cancel' },
                 { text: t('확인'), style: 'destructive', onPress: logoutAction }
             ]);
@@ -88,10 +77,10 @@ export default function MyPageScreen({ navigation }) {
     return (
         <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
             <ScrollView style={styles.content}>
-                {/* Design: name header. Member → edit profile; guest → keep data by converting */}
+                {/* Design: name header. Member → edit profile; not signed in → log in (records come along) */}
                 <TouchableOpacity
                     style={styles.infoBar}
-                    onPress={() => (isGuest ? navigation.navigate('Join', { convert: true }) : navigation.navigate('UserModify'))}
+                    onPress={() => (isGuest ? navigation.navigate('Login') : navigation.navigate('UserModify'))}
                     accessibilityRole="button"
                 >
                     <Text style={styles.infoName}>{isGuest ? t('로그인/회원가입') : (user?.nickname || user?.username)}</Text>
@@ -99,11 +88,9 @@ export default function MyPageScreen({ navigation }) {
                 </TouchableOpacity>
 
                 {isGuest && (
-                    <TouchableOpacity style={styles.trialBox} onPress={() => navigation.navigate('Join', { convert: true })}>
-                        <Text style={[styles.trialText, daysLeft <= 0 && styles.expired]}>
-                            {daysLeft > 0 ? t('체험 기간 {n}일 남음', { n: daysLeft }) : t('체험 기간이 끝났어요')}
-                        </Text>
-                        <Text style={styles.trialSub}>{t('정회원으로 전환하면 지금까지의 기록이 그대로 유지돼요')}</Text>
+                    <TouchableOpacity style={styles.trialBox} onPress={() => navigation.navigate('Login')}>
+                        <Text style={styles.trialText}>{t('로그인하고 기록 백업하기')}</Text>
+                        <Text style={styles.trialSub}>{t('지금까지의 기록이 그대로 이어지고, 다른 기기에서도 볼 수 있어요')}</Text>
                     </TouchableOpacity>
                 )}
 
@@ -134,7 +121,7 @@ export default function MyPageScreen({ navigation }) {
 
                 <View style={styles.menuGroup}>
                     <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-                        <Text style={styles.menuText}>{isGuest ? t('체험 종료 (로그아웃)') : t('로그아웃')}</Text>
+                        <Text style={styles.menuText}>{t('로그아웃')}</Text>
                     </TouchableOpacity>
                 </View>
 

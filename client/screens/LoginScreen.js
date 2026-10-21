@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TextInput } from '../components/AppText';
 import { colors, layout } from '../theme';
 import Button from '../components/Button';
-import { API_URL } from '../config';
+import { API_URL, apiFetch } from '../config';
 import { useAuth } from '../context/AuthContext';
 import SocialLoginButtons from '../components/SocialLoginButtons';
 import { t } from '../i18n';
@@ -20,7 +20,8 @@ export default function LoginScreen({ navigation }) {
 
     const handleLogin = async () => {
         try {
-            const response = await fetch(`${API_URL}/api/auth/login`, {
+            // apiFetch carries the not-signed-in session's token: the server moves those records into this account
+            const response = await apiFetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -32,7 +33,7 @@ export default function LoginScreen({ navigation }) {
 
                 await login({ ...loggedInUser, token: data.token }); // Save user + token to context
                 Alert.alert(t('로그인 성공'), t('환영합니다 {name}님!', { name: loggedInUser.nickname || loggedInUser.username }));
-                navigation.navigate('MainTabs'); // Navigate to main app
+                navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
             } else {
                 Alert.alert(t('로그인 실패'), data.error);
             }
