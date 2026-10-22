@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TextInput } from '../components/AppText';
@@ -33,6 +33,7 @@ export default function TodoListScreen({ navigation }) {
     });
     const [isWriting, setIsWriting] = useState(false);
     const [newTodoText, setNewTodoText] = useState('');
+    const draft = useRef(''); // latest text; read once per save so Enter + the blur that follows can't add it twice
     const [refreshing, setRefreshing] = useState(false);
 
     // Date Logic
@@ -112,8 +113,17 @@ export default function TodoListScreen({ navigation }) {
         setIsWriting(true);
     };
 
+    const changeDraft = (text) => {
+        draft.current = text;
+        setNewTodoText(text);
+    };
+
+    // Saves on Enter and when the field loses focus (tapping elsewhere)
     const handleAddSubmit = async () => {
-        if (!newTodoText.trim()) {
+        const text = draft.current.trim();
+        draft.current = '';
+        if (!text) {
+            setNewTodoText('');
             setIsWriting(false);
             return;
         }
@@ -121,12 +131,12 @@ export default function TodoListScreen({ navigation }) {
         const tempId = Date.now();
         const optimisticTodo = {
             id: tempId,
-            text: newTodoText,
+            text,
             isCompleted: false
         };
 
         // UI Optimistic Update
-        setTodos([...todos, optimisticTodo]);
+        setTodos(prev => [...prev, optimisticTodo]);
         setNewTodoText('');
         setIsWriting(false);
 
@@ -209,14 +219,16 @@ export default function TodoListScreen({ navigation }) {
                                     <TextInput
                                         style={styles.input}
                                         value={newTodoText}
-                                        onChangeText={setNewTodoText}
+                                        onChangeText={changeDraft}
                                         placeholder={t('할 일을 입력하세요')}
                                         placeholderTextColor={theme.colors.dominant}
                                         autoFocus
                                         onSubmitEditing={handleAddSubmit}
+                                        // web: focus moving to × means cancel (the browser blurs before × reports the press)
+                                        onBlur={(e) => { if (e?.nativeEvent?.relatedTarget?.dataset?.testid !== 'todo-cancel') handleAddSubmit(); }}
                                         returnKeyType="done"
                                     />
-                                    <TouchableOpacity onPress={() => setIsWriting(false)} style={styles.cancelBtn} accessibilityLabel={t('입력 취소')}>
+                                    <TouchableOpacity testID="todo-cancel" onPress={() => { changeDraft(''); setIsWriting(false); }} style={styles.cancelBtn} accessibilityLabel={t('입력 취소')}>
                                         <View style={styles.cancelIconCircle}>
                                             <Text style={styles.cancelIconText}>×</Text>
                                         </View>
