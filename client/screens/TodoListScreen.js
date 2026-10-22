@@ -13,14 +13,10 @@ import UndoToast, { useUndoDelete } from '../components/UndoToast';
 import DatePicker from '../components/DatePicker';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { API_URL, apiFetch } from '../config';
-import { loadTodos, saveTodos, send, todoOps } from '../todoStore';
+import { loadTodos, saveTodos, send, todoOps, localToday } from '../todoStore';
 import { t } from '../i18n';
 
 const REPEATS = [null, 'daily', 'weekdays', 'weekly']; // tap the chip to cycle
-const localToday = () => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
 
 export default function TodoListScreen({ navigation }) {
     const { theme } = useTheme();

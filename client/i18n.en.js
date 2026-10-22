@@ -33,6 +33,7 @@ export default {
     '지난 날 못 한 일 {n}개': '{n} unfinished from earlier days', '오늘로 가져오기': 'Move to today', '+ 할 일 추가': '+ new todo',
     '반복 할 일': 'Repeating to-do', '앞으로 반복되는 할 일도 모두 삭제할까요?': 'Also delete all future repeats?',
     '이 날만': 'Only this day', '반복 전체': 'All repeats', '확인: 앞으로의 반복까지 삭제 / 취소: 이 날만 삭제': 'OK: delete future repeats too / Cancel: only this day',
+    '오늘 할 일': 'Today', 'EdiTodo를 열어 시작해 주세요': 'Open EdiTodo to get started', '오늘 할 일이 없어요 · 눌러서 추가': 'Nothing for today · tap to add',
     '닫기': 'Close', '오늘': 'Today', '{n}월': '{n}', '연도·월 선택': 'Choose year and month',
     '이전 날': 'Previous day', '날짜 선택': 'Choose a date', '다음 날': 'Next day',
     '할 일을 입력하세요': 'Write a to-do', '입력 취소': 'Cancel', '날짜를 선택해주세요.': 'Pick a date.',

@@ -6,6 +6,11 @@ import { API_URL, apiFetch } from './config';
 // - changes made offline wait in a queue and are sent in order once the server is reachable
 // A server error (4xx/5xx) is a real failure and is thrown; only "couldn't reach the server" is queued.
 
+export const localToday = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
 const queueKey = (userId) => `todoQueue:${userId}`;
 const cacheKey = (userId, date) => `todos:${userId}:${date}`;
 
@@ -104,8 +109,14 @@ export async function loadTodos(userId, date) {
     return { items: await readJson(cacheKey(userId, date), []), offline: true };
 }
 
-// Keep the device copy in step with what the screen shows (including changes still queued)
-export const saveTodos = (userId, date, items) => writeJson(cacheKey(userId, date), items);
+export const readTodos = (userId, date) => readJson(cacheKey(userId, date), []);
+
+// Keep the device copy in step with what the screen shows (including changes still queued);
+// today's list also redraws the Android home-screen widget (required lazily: the widget code imports this file)
+export const saveTodos = async (userId, date, items) => {
+    await writeJson(cacheKey(userId, date), items);
+    if (date === localToday()) require('./widget/refresh').refreshWidget();
+};
 
 export const todoOps = {
     create: (tempId, text, date, repeat) => ({ method: 'POST', path: '/api/todos', tempId, body: { text, target_date: date, ...(repeat ? { repeat } : {}) } }),

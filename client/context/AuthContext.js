@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { API_URL, apiFetch, setAuthToken } from '../config';
 import { cancelAll as cancelReminders } from '../notifications';
+import { refreshWidget } from '../widget/refresh';
 import { t } from '../i18n';
 
 const AuthContext = createContext();
@@ -93,6 +94,7 @@ export const AuthProvider = ({ children }) => {
         setAuthToken(userData.token);
         setUser(userData);
         await storage.set('user', JSON.stringify(userData));
+        refreshWidget();
     };
 
     const logout = async () => {
@@ -100,6 +102,7 @@ export const AuthProvider = ({ children }) => {
         setAuthToken(null);
         setUser(null);
         await storage.remove('user');
+        refreshWidget();
     };
 
     const startGuestMode = async () => {
