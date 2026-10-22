@@ -7,11 +7,19 @@ import { colors as staticColors, layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useDate } from '../context/DateContext';
-import TodoItem from '../components/TodoItem';
+import TodoItem, { askRepeatDelete } from '../components/TodoItem';
 import UndoToast, { useUndoDelete } from '../components/UndoToast';
 import DatePicker from '../components/DatePicker';
+import { useNetInfo } from '@react-native-community/netinfo';
 import { API_URL, apiFetch } from '../config';
+import { loadTodos, saveTodos, send, todoOps } from '../todoStore';
 import { t } from '../i18n';
+
+const REPEATS = [null, 'daily', 'weekdays', 'weekly']; // tap the chip to cycle
+const localToday = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 
 export default function TodoListScreen({ navigation }) {
     const { theme } = useTheme();
@@ -24,8 +32,7 @@ export default function TodoListScreen({ navigation }) {
     // ✕ removes at once; the server delete runs when the undo toast expires (failure → reload from server)
     const { pending: pendingDelete, remove: removeTodo, undo: undoDelete, flush: flushDelete } = useUndoDelete(setTodos, async (item) => {
         try {
-            const response = await apiFetch(`${API_URL}/api/todos/${item.id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error('delete failed');
+            await send(user.id, todoOps.remove(item.id));
         } catch (e) {
             console.error('Delete failed', e);
             fetchTodos();
@@ -35,6 +42,11 @@ export default function TodoListScreen({ navigation }) {
     const [newTodoText, setNewTodoText] = useState('');
     const draft = useRef(''); // latest text; read once per save so Enter + the blur that follows can't add it twice
     const [refreshing, setRefreshing] = useState(false);
+    const [repeat, setRepeat] = useState(null);
+    const inputRef = useRef(null);
+    const [overdue, setOverdue] = useState(0); // 지난 날 못 한 일 (today only)
+    const loadedFor = useRef(null); // the date `todos` belongs to, so a stale list is never saved under a new date
+    const net = useNetInfo();
 
     // Date Logic
     // Local date (new Date('YYYY-MM-DD') is UTC and can land on the previous day)
@@ -49,23 +61,51 @@ export default function TodoListScreen({ navigation }) {
         if (user) flushDelete().then(fetchTodos);
     }, [user, selectedDate]); // Refetch when date changes
 
+    // From the server, or this device's copy when offline (see todoStore)
     const fetchTodos = async () => {
         try {
-            const response = await apiFetch(`${API_URL}/api/todos/${user.id}?date=${selectedDate}`);
-            if (response.ok) {
-                const data = await response.json();
-                // Map DB columns (if snake_case) to app state attributes
-                const mappedData = data.map(item => ({
-                    id: item.id,
-                    text: item.text,
-                    isCompleted: !!item.is_completed // 0 or 1 to boolean
-                }));
-                setTodos(mappedData);
-            }
+            const { items, offline } = await loadTodos(user.id, selectedDate);
+            loadedFor.current = selectedDate;
+            setTodos(items);
+            if (!offline && selectedDate === localToday()) fetchOverdue();
         } catch (e) {
             console.error(e);
         }
     };
+
+    const fetchOverdue = async () => {
+        try {
+            const res = await apiFetch(`${API_URL}/api/todos/overdue?date=${selectedDate}`);
+            setOverdue(res.ok ? (await res.json()).count : 0);
+        } catch (e) {
+            setOverdue(0);
+        }
+    };
+
+    const carryOver = async () => {
+        setOverdue(0);
+        try {
+            await apiFetch(`${API_URL}/api/todos/carry-over`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ date: selectedDate }),
+            });
+        } finally {
+            fetchTodos();
+        }
+    };
+
+    // Keep the device copy matching the screen (it's what shows when offline)
+    useEffect(() => {
+        if (user && loadedFor.current === selectedDate) saveTodos(user.id, selectedDate, todos);
+    }, [todos]);
+
+    // Back online: send what was queued and reload
+    useEffect(() => {
+        if (net.isConnected && user) fetchTodos();
+    }, [net.isConnected]);
+
+    useEffect(() => { setOverdue(0); }, [selectedDate]);
 
     // Handlers
     const handleToggle = async (id) => {
@@ -78,16 +118,11 @@ export default function TodoListScreen({ navigation }) {
             todo.id === id ? { ...todo, isCompleted: newStatus } : todo
         ));
 
-        // API Call
         try {
-            await apiFetch(`${API_URL}/api/todos/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ is_completed: newStatus })
-            });
+            await send(user.id, todoOps.update(id, { is_completed: newStatus }));
         } catch (e) {
             console.error('Update failed', e);
-            // Revert on failure if needed
+            setTodos(prev => prev.map(todo => (todo.id === id ? { ...todo, isCompleted: !newStatus } : todo)));
         }
     };
 
@@ -95,19 +130,37 @@ export default function TodoListScreen({ navigation }) {
         const before = todos.find(t => t.id === id)?.text;
         setTodos(prev => prev.map(t => (t.id === id ? { ...t, text } : t)));
         try {
-            const response = await apiFetch(`${API_URL}/api/todos/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text })
-            });
-            if (!response.ok) throw new Error('edit failed');
+            await send(user.id, todoOps.update(id, { text }));
         } catch (e) {
             console.error('Edit failed', e);
             setTodos(prev => prev.map(t => (t.id === id ? { ...t, text: before } : t)));
         }
     };
 
-    const handleDelete = (id) => removeTodo(todos, id);
+    const handleDelete = (id) => {
+        const item = todos.find(t => t.id === id);
+        if (!item?.repeat) return removeTodo(todos, id);
+        askRepeatDelete(() => removeTodo(todos, id), async () => {
+            setTodos(prev => prev.filter(t => t.id !== id));
+            try {
+                await send(user.id, todoOps.remove(id, true));
+            } catch (e) {
+                console.error('Delete repeat failed', e);
+                fetchTodos();
+            }
+        });
+    };
+
+    const repeatLabel = (r) => {
+        if (r === 'daily') return t('매일');
+        if (r === 'weekdays') return t('평일');
+        if (r === 'weekly') return t('매주 {day}요일', { day: weekMap[dateObj.getDay()] });
+        return t('반복 안 함');
+    };
+    const cycleRepeat = () => {
+        setRepeat(r => REPEATS[(REPEATS.indexOf(r) + 1) % REPEATS.length]);
+        inputRef.current?.focus(); // web: the chip took focus; keep typing
+    };
 
     const handleAddStart = () => {
         setIsWriting(true);
@@ -132,35 +185,22 @@ export default function TodoListScreen({ navigation }) {
         const optimisticTodo = {
             id: tempId,
             text,
-            isCompleted: false
+            isCompleted: false,
+            repeat,
         };
 
-        // UI Optimistic Update
         setTodos(prev => [...prev, optimisticTodo]);
         setNewTodoText('');
         setIsWriting(false);
+        setRepeat(null);
 
-        // API Call
         try {
-            const response = await apiFetch(`${API_URL}/api/todos`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_id: user.id,
-                    text: optimisticTodo.text,
-                    target_date: selectedDate
-                })
-            });
-
-            if (response.ok) {
-                const savedTodo = await response.json();
-                // Update temporary ID with real ID from DB
-                setTodos(prev => prev.map(t =>
-                    t.id === tempId ? { ...t, id: savedTodo.id } : t
-                ));
-            }
+            const saved = await send(user.id, todoOps.create(tempId, text, selectedDate, repeat));
+            // Offline: keeps the temporary id until the queue is sent and the list reloads
+            if (saved?.id) setTodos(prev => prev.map(t => (t.id === tempId ? { ...t, id: saved.id } : t)));
         } catch (e) {
             console.error('Create failed', e);
+            setTodos(prev => prev.filter(t => t.id !== tempId));
             Alert.alert(t('오류'), t('할 일을 저장하지 못했습니다.'));
         }
     };
@@ -194,6 +234,12 @@ export default function TodoListScreen({ navigation }) {
 
             <View style={styles.content}>
                 <View style={styles.contentInner}>
+                    {overdue > 0 && (
+                        <TouchableOpacity style={styles.carryBar} onPress={carryOver} accessibilityRole="button">
+                            <Text style={styles.carryText}>{t('지난 날 못 한 일 {n}개', { n: overdue })}</Text>
+                            <Text style={styles.carryAction}>{t('오늘로 가져오기')}</Text>
+                        </TouchableOpacity>
+                    )}
                     <FlatList
                         automaticallyAdjustKeyboardInsets // iOS: keep the new-todo input above the keyboard
                         refreshing={refreshing}
@@ -207,6 +253,7 @@ export default function TodoListScreen({ navigation }) {
                                 id={item.id}
                                 text={item.text}
                                 isCompleted={item.isCompleted}
+                                repeat={item.repeat}
                                 onToggle={handleToggle}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
@@ -217,6 +264,7 @@ export default function TodoListScreen({ navigation }) {
                             isWriting ? (
                                 <View style={styles.writeRow}>
                                     <TextInput
+                                        ref={inputRef}
                                         style={styles.input}
                                         value={newTodoText}
                                         onChangeText={changeDraft}
@@ -224,10 +272,13 @@ export default function TodoListScreen({ navigation }) {
                                         placeholderTextColor={theme.colors.dominant}
                                         autoFocus
                                         onSubmitEditing={handleAddSubmit}
-                                        // web: focus moving to × means cancel (the browser blurs before × reports the press)
-                                        onBlur={(e) => { if (e?.nativeEvent?.relatedTarget?.dataset?.testid !== 'todo-cancel') handleAddSubmit(); }}
+                                        // web: focus moving to × (cancel) or the repeat chip isn't "done typing"
+                                        onBlur={(e) => { if (!['todo-cancel', 'todo-repeat'].includes(e?.nativeEvent?.relatedTarget?.dataset?.testid)) handleAddSubmit(); }}
                                         returnKeyType="done"
                                     />
+                                    <TouchableOpacity testID="todo-repeat" onPress={cycleRepeat} style={[styles.repeatChip, repeat && styles.repeatChipOn]} accessibilityRole="button" accessibilityLabel={t('반복')}>
+                                        <Text style={[styles.repeatChipText, repeat && styles.repeatChipTextOn]}>↻ {repeatLabel(repeat)}</Text>
+                                    </TouchableOpacity>
                                     <TouchableOpacity testID="todo-cancel" onPress={() => { changeDraft(''); setIsWriting(false); }} style={styles.cancelBtn} accessibilityLabel={t('입력 취소')}>
                                         <View style={styles.cancelIconCircle}>
                                             <Text style={styles.cancelIconText}>×</Text>
@@ -235,9 +286,9 @@ export default function TodoListScreen({ navigation }) {
                                     </TouchableOpacity>
                                 </View>
                             ) : (
-                                // Design: "+ new todo" pill inside the card, palette accent color
+                                // Design: "+ 할 일 추가" pill inside the card, palette accent color
                                 <TouchableOpacity style={styles.newTodoBtn} onPress={handleAddStart} accessibilityRole="button">
-                                    <Text style={styles.newTodoText}>+ new todo</Text>
+                                    <Text style={styles.newTodoText}>{t('+ 할 일 추가')}</Text>
                                 </TouchableOpacity>
                             )
                         }
@@ -339,6 +390,7 @@ const getStyles = (theme) => StyleSheet.create({
     },
     input: {
         flex: 1,
+        minWidth: 0, // web: let the field shrink so the repeat chip and × fit
         fontSize: 16,
         color: theme.colors.checkboxCol,
         marginRight: 10,
@@ -347,6 +399,30 @@ const getStyles = (theme) => StyleSheet.create({
     cancelBtn: {
         padding: 5,
     },
+    repeatChip: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: theme.colors.dominant,
+        marginRight: 4,
+    },
+    repeatChipOn: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
+    repeatChipText: { fontSize: 12, color: theme.colors.guideText },
+    repeatChipTextOn: { color: theme.colors.base },
+    carryBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginHorizontal: 15,
+        marginTop: 12,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+        backgroundColor: theme.colors.body,
+    },
+    carryText: { fontSize: 13, color: theme.colors.text },
+    carryAction: { fontSize: 13, fontWeight: '600', color: theme.colors.accent },
     cancelIconCircle: {
         width: 24,
         height: 24,

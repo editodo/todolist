@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { View, StyleSheet, TouchableOpacity, ScrollView, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,7 +6,7 @@ import { Text } from '../components/AppText';
 import { colors, layout } from '../theme';
 import { useTheme } from '../context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import TodoItem from '../components/TodoItem'; // Reusing TodoItem
+import TodoItem, { askRepeatDelete } from '../components/TodoItem'; // Reusing TodoItem
 import UndoToast, { useUndoDelete } from '../components/UndoToast';
 import { STICKER_MAP } from '../components/stickers';
 import DatePicker from '../components/DatePicker';
@@ -19,6 +19,8 @@ const EMOJI_MAP = STICKER_MAP;
 import { useAuth } from '../context/AuthContext';
 import { useDate } from '../context/DateContext';
 import { API_URL, apiFetch } from '../config';
+import { loadTodos, saveTodos, send, todoOps } from '../todoStore';
+import { useNetInfo } from '@react-native-community/netinfo';
 import { t } from '../i18n';
 
 function generateCalendar(year, month) {
@@ -60,13 +62,23 @@ export default function CalendarScreen({ navigation }) {
     // Same delete-with-undo as the to-do tab
     const { pending: pendingDelete, remove: removeTodo, undo: undoDelete, flush: flushDelete } = useUndoDelete(setSelectedTodos, async (item) => {
         try {
-            const response = await apiFetch(`${API_URL}/api/todos/${item.id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error('delete failed');
+            await send(user.id, todoOps.remove(item.id));
         } catch (e) {
             console.error('Delete failed', e);
             fetchDateTodos();
         }
     });
+    const loadedFor = useRef(null); // the date selectedTodos belongs to
+    const net = useNetInfo();
+
+    // Same device copy as the to-do tab, so a day changed here shows there offline too
+    useEffect(() => {
+        if (user && loadedFor.current === selectedDate) saveTodos(user.id, selectedDate, selectedTodos);
+    }, [selectedTodos]);
+
+    useEffect(() => {
+        if (net.isConnected && user) fetchDateTodos();
+    }, [net.isConnected]);
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -111,15 +123,9 @@ export default function CalendarScreen({ navigation }) {
 
     const fetchDateTodos = async () => {
         try {
-            const response = await apiFetch(`${API_URL}/api/todos/${user.id}?date=${selectedDate}`);
-            if (response.ok) {
-                const data = await response.json();
-                setSelectedTodos(data.map(item => ({
-                    id: item.id,
-                    text: item.text,
-                    isCompleted: !!item.is_completed
-                })));
-            }
+            const { items } = await loadTodos(user.id, selectedDate);
+            loadedFor.current = selectedDate;
+            setSelectedTodos(items);
         } catch (e) {
             console.error(e);
         }
@@ -148,13 +154,8 @@ export default function CalendarScreen({ navigation }) {
             todo.id === id ? { ...todo, isCompleted: newStatus } : todo
         ));
 
-        // API Call to persist completion status
         try {
-            await apiFetch(`${API_URL}/api/todos/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ is_completed: newStatus })
-            });
+            await send(user.id, todoOps.update(id, { is_completed: newStatus }));
         } catch (e) {
             console.error('Update failed', e);
             // Revert on failure if needed
@@ -168,19 +169,26 @@ export default function CalendarScreen({ navigation }) {
         const before = selectedTodos.find(t => t.id === id)?.text;
         setSelectedTodos(prev => prev.map(t => (t.id === id ? { ...t, text } : t)));
         try {
-            const response = await apiFetch(`${API_URL}/api/todos/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text })
-            });
-            if (!response.ok) throw new Error('edit failed');
+            await send(user.id, todoOps.update(id, { text }));
         } catch (e) {
             console.error('Edit failed', e);
             setSelectedTodos(prev => prev.map(t => (t.id === id ? { ...t, text: before } : t)));
         }
     };
 
-    const handleDelete = (id) => removeTodo(selectedTodos, id);
+    const handleDelete = (id) => {
+        const item = selectedTodos.find(t => t.id === id);
+        if (!item?.repeat) return removeTodo(selectedTodos, id);
+        askRepeatDelete(() => removeTodo(selectedTodos, id), async () => {
+            setSelectedTodos(prev => prev.filter(t => t.id !== id));
+            try {
+                await send(user.id, todoOps.remove(id, true));
+            } catch (e) {
+                console.error('Delete repeat failed', e);
+                fetchDateTodos();
+            }
+        });
+    };
 
     return (
         <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
@@ -283,6 +291,7 @@ export default function CalendarScreen({ navigation }) {
                                     id={todo.id}
                                     text={todo.text}
                                     isCompleted={todo.isCompleted}
+                                    repeat={todo.repeat}
                                     onToggle={handleToggle}
                                     onEdit={handleEdit}
                                     onDelete={handleDelete}

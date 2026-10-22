@@ -66,6 +66,7 @@ async function deleteUser(userId) {
     try {
         await conn.beginTransaction();
         await conn.query('DELETE FROM todos WHERE user_id = ?', [userId]);
+        await conn.query('DELETE FROM todo_repeats WHERE user_id = ?', [userId]);
         await conn.query('DELETE FROM diaries WHERE user_id = ?', [userId]);
         await conn.query('DELETE FROM user_preferences WHERE user_id = ?', [userId]);
         await conn.query('DELETE FROM password_resets WHERE user_id = ?', [userId]);
@@ -88,6 +89,7 @@ async function mergeGuestInto(guestId, targetId) {
     try {
         await conn.beginTransaction();
         await conn.query('UPDATE todos SET user_id = ? WHERE user_id = ?', [targetId, guestId]);
+        await conn.query('UPDATE todo_repeats SET user_id = ? WHERE user_id = ?', [targetId, guestId]);
         await conn.query(
             "UPDATE diaries t JOIN diaries g ON g.date = t.date AND g.user_id = ? SET t.content = CONCAT(t.content, '\n\n', g.content) WHERE t.user_id = ?",
             [guestId, targetId]

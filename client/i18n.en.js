@@ -4,7 +4,7 @@ export default {
     // Tabs & navigation
     '투두리스트': 'To-do', '캘린더': 'Calendar', '마이페이지': 'My page', '홈': 'Home', '뒤로': 'Back',
     '이전': 'Back', '다음': 'Next', '시작': 'Start', '완료': 'Done',
-    '인터넷에 연결되어 있지 않아요. 저장되지 않을 수 있어요.': "You're offline. Changes may not be saved.", '확인': 'OK', '취소': 'Cancel', '삭제': 'Delete', '수정': 'Save',
+    '인터넷에 연결되어 있지 않아요. 할 일은 연결되면 자동으로 저장돼요.': "You're offline. To-dos will save automatically when you're back online.", '확인': 'OK', '취소': 'Cancel', '삭제': 'Delete', '수정': 'Save',
     '알림': 'Notice', '오류': 'Error', '실패': 'Failed', '성공': 'Done',
 
     // Weekdays
@@ -29,6 +29,10 @@ export default {
     '로그인하지 않은 상태에서 로그아웃하면 지금까지의 기록을 다시 볼 수 없어요. 계속할까요?': "You're not signed in. If you log out, you won't be able to get these records back. Continue?",
     '로그인하고 기록 백업하기': 'Log in to back up your records', '지금까지의 기록이 그대로 이어지고, 다른 기기에서도 볼 수 있어요': 'Keep everything so far and see it on your other devices',
     '시작하지 못했어요. 잠시 후 다시 시도해주세요.': "Couldn't start. Please try again.", '취향저격 투두리스트 시작하기': 'Get started',
+    '매일': 'Daily', '평일': 'Weekdays', '매주 {day}요일': 'Every {day}', '반복 안 함': 'No repeat', '반복': 'Repeat',
+    '지난 날 못 한 일 {n}개': '{n} unfinished from earlier days', '오늘로 가져오기': 'Move to today', '+ 할 일 추가': '+ new todo',
+    '반복 할 일': 'Repeating to-do', '앞으로 반복되는 할 일도 모두 삭제할까요?': 'Also delete all future repeats?',
+    '이 날만': 'Only this day', '반복 전체': 'All repeats', '확인: 앞으로의 반복까지 삭제 / 취소: 이 날만 삭제': 'OK: delete future repeats too / Cancel: only this day',
     '닫기': 'Close', '오늘': 'Today', '{n}월': '{n}', '연도·월 선택': 'Choose year and month',
     '이전 날': 'Previous day', '날짜 선택': 'Choose a date', '다음 날': 'Next day',
     '할 일을 입력하세요': 'Write a to-do', '입력 취소': 'Cancel', '날짜를 선택해주세요.': 'Pick a date.',

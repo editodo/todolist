@@ -1,13 +1,26 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, Platform, Alert } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Text, TextInput } from './AppText';
 import { useTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
 
+// Deleting a repeating to-do: just this day (undo toast as usual) or the repeat from here on.
+// The web's confirm() has only OK/Cancel, so the message spells out which is which.
+export function askRepeatDelete(onDay, onSeries) {
+    const web = Platform.OS === 'web' ? `
+
+${t('확인: 앞으로의 반복까지 삭제 / 취소: 이 날만 삭제')}` : '';
+    Alert.alert(t('반복 할 일'), t('앞으로 반복되는 할 일도 모두 삭제할까요?') + web, [
+        { text: t('이 날만'), style: 'cancel', onPress: onDay },
+        { text: t('반복 전체'), style: 'destructive', onPress: onSeries },
+    ]);
+}
+
 // Standard to-do row: checkbox toggles done, tapping the text edits it in place, ✕ deletes
 // (the screen shows an undo toast instead of a confirm dialog). No menus, modals or dimmed backdrops.
-export default function TodoItem({ id, text, isCompleted, onToggle, onEdit, onDelete }) {
+// repeat: 'daily' | 'weekdays' | 'weekly' | null — shows ↻ after the text.
+export default function TodoItem({ id, text, isCompleted, repeat, onToggle, onEdit, onDelete }) {
     const { theme } = useTheme();
     const colors = theme.colors;
     const [isEditing, setIsEditing] = useState(false);
@@ -111,6 +124,7 @@ export default function TodoItem({ id, text, isCompleted, onToggle, onEdit, onDe
                         isCompleted && { color: colors.checkboxCheckedLabel || colors.guideText, textDecorationLine: 'line-through' }
                     ]}>
                         {text}
+                        {repeat ? <Text style={[styles.repeatMark, { color: colors.guideText }]} accessibilityLabel={t('반복')}>  ↻</Text> : null}
                     </Text>
 
                     {/* Skitch/Kitsch Underline */}
@@ -192,5 +206,6 @@ const styles = StyleSheet.create({
         marginLeft: 6,
     },
     deleteText: { fontSize: 14 },
+    repeatMark: { fontSize: 13, textDecorationLine: 'none' },
     editInput: { flex: 1, fontSize: 15, borderBottomWidth: 1, paddingVertical: 4, marginRight: 8 }
 });

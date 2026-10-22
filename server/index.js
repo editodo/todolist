@@ -82,6 +82,19 @@ const startServer = async () => {
     await require('./routes/fonts').ensureFontTables();
     // Not-signed-in accounts no longer expire; they're removed after 1 year without opening the app
     await db.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active_at DATETIME NULL');
+    // Repeating to-dos: the rule, plus each day's copy in todos (one per day; a deleted day is kept as deleted = 1)
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS todo_repeats (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        text TEXT NOT NULL,
+        rule VARCHAR(20) NOT NULL,
+        start_date DATE NOT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        KEY idx_repeat_user (user_id)
+      )`);
+    await db.query('ALTER TABLE todos ADD COLUMN IF NOT EXISTS repeat_id INT NULL, ADD COLUMN IF NOT EXISTS deleted TINYINT(1) NOT NULL DEFAULT 0');
+    await db.query('ALTER TABLE todos ADD UNIQUE INDEX IF NOT EXISTS uniq_repeat_day (repeat_id, target_date)');
     await db.query("UPDATE users SET expires_at = NULL WHERE user_type = 'GUEST' AND expires_at IS NOT NULL");
     // Members who signed up from a guest via SNS kept the guest_ ID; give them an sns_ one
     await db.query("UPDATE users SET username = CONCAT('sns_', SUBSTRING(username, 7)) WHERE user_type = 'REGULAR' AND username LIKE 'guest\_%'");

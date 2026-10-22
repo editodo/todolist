@@ -309,7 +309,7 @@ function AuthWrapper() {
       <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
       {offline && (
         <View style={[styles.offline, { paddingTop: insets.top + 6 }]} pointerEvents="none" accessibilityLiveRegion="polite">
-          <Text style={styles.offlineText}>{t('인터넷에 연결되어 있지 않아요. 저장되지 않을 수 있어요.')}</Text>
+          <Text style={styles.offlineText}>{t('인터넷에 연결되어 있지 않아요. 할 일은 연결되면 자동으로 저장돼요.')}</Text>
         </View>
       )}
     </NavigationContainer>
