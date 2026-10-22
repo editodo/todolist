@@ -26,7 +26,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "monochromeImage": "./assets/monochrome-icon.png",
-        "backgroundColor": "#5AC1CC"
+        "backgroundColor": "#5FBECA"
       },
       "permissions": [
         "INTERNET"

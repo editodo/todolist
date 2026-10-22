@@ -11,7 +11,7 @@ Play Console(https://play.google.com/console)에 그대로 옮겨 쓸 수 있게
 | 휴대전화 스크린샷 (2~8장) | `screenshots/01_todo.png` ~ `06_picker.png` | 1080×1920 PNG, 6장 |
 
 - 스크린샷 순서: 투두리스트 → 캘린더 스티커 → 하루 기록 → 테마 선택 → 다크 모드 → 날짜 선택.
-- 아이콘은 온보딩 캐릭터로 만든 **임시 디자인**입니다. 정식 아이콘으로 바꿀 때는 `client/assets/`의 같은 이름 파일(icon, adaptive-icon, monochrome-icon, splash-icon, notification-icon, favicon)과 이 폴더의 `icon-512.png`를 함께 교체하면 됩니다.
+- 아이콘은 힉스필드로 만든 시안 5번(체크 말풍선 + 빼꼼 얼굴)입니다. 시안 전체는 `store/icon-drafts/`에 있습니다. 바꿀 때는 `client/assets/`의 같은 이름 파일(icon, adaptive-icon, monochrome-icon, splash-icon, notification-icon, favicon)과 이 폴더의 `icon-512.png`, `feature-graphic.png`를 함께 교체하세요.
 
 ## 2. 기본 스토어 등록정보 (한국어)
 
