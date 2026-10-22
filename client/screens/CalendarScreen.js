@@ -89,10 +89,13 @@ export default function CalendarScreen({ navigation }) {
         if (user) fetchMonthData();
     }, [user, year, month]);
 
-    // Coming back from the 하루 기록 screen: show the new/removed sticker
+    // Coming back to this tab (하루 기록 screen, or to-dos added on the to-do tab): reload the stickers and the day's list
     useFocusEffect(useCallback(() => {
-        if (user) fetchMonthData();
-    }, [user, year, month]));
+        if (user) {
+            fetchMonthData();
+            fetchDateTodos();
+        }
+    }, [user, year, month, selectedDate]));
 
     // Fetch Selected Date Todos
     useEffect(() => {

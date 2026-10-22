@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TextInput } from '../components/AppText';
@@ -94,6 +95,11 @@ export default function TodoListScreen({ navigation }) {
             fetchTodos();
         }
     };
+
+    // Back on this tab (e.g. after changing this day's to-dos in the calendar): reload
+    useFocusEffect(useCallback(() => {
+        if (user) fetchTodos();
+    }, [user, selectedDate]));
 
     // Keep the device copy matching the screen (it's what shows when offline)
     useEffect(() => {
