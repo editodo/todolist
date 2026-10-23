@@ -13,7 +13,7 @@ import UndoToast, { useUndoDelete } from '../components/UndoToast';
 import DatePicker from '../components/DatePicker';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { API_URL, apiFetch } from '../config';
-import { loadTodos, saveTodos, send, todoOps, localToday } from '../todoStore';
+import { loadTodos, readTodos, saveTodos, send, todoOps, localToday } from '../todoStore';
 import { t } from '../i18n';
 
 const REPEATS = [null, 'daily', 'weekdays', 'weekly']; // tap the chip to cycle
@@ -52,19 +52,23 @@ export default function TodoListScreen({ navigation }) {
     const formattedDate = `${String(selM).padStart(2, '0')}.${String(selD).padStart(2, '0')}`;
     const weekMap = [t('일'), t('월'), t('화'), t('수'), t('목'), t('금'), t('토')];
 
-    // Initial Fetch
-    useEffect(() => {
-        // Commit a pending delete first, or the old date's list could bring it back
-        if (user) flushDelete().then(fetchTodos);
-    }, [user, selectedDate]); // Refetch when date changes
+    const dateRef = useRef(selectedDate); // the date on screen now, so a slow answer for an earlier date is dropped
+    dateRef.current = selectedDate;
 
-    // From the server, or this device's copy when offline (see todoStore)
+    // Show this phone's copy at once, then replace it with the server's (or keep it when offline, see todoStore)
     const fetchTodos = async () => {
+        const date = selectedDate;
         try {
-            const { items, offline } = await loadTodos(user.id, selectedDate);
-            loadedFor.current = selectedDate;
+            if (loadedFor.current !== date) {
+                const cached = await readTodos(user.id, date);
+                if (dateRef.current !== date) return;
+                loadedFor.current = date;
+                setTodos(cached);
+            }
+            const { items, offline } = await loadTodos(user.id, date);
+            if (dateRef.current !== date) return;
             setTodos(items);
-            if (!offline && selectedDate === localToday()) fetchOverdue();
+            if (!offline && date === localToday()) fetchOverdue();
         } catch (e) {
             console.error(e);
         }
@@ -92,22 +96,28 @@ export default function TodoListScreen({ navigation }) {
         }
     };
 
-    // Back on this tab (e.g. after changing this day's to-dos in the calendar): reload
+    // One load per visit: entering the tab, or a new date while on it (also after changes made in the calendar)
     useFocusEffect(useCallback(() => {
         if (user) fetchTodos();
-    }, [user, selectedDate]));
+    }, [user?.id, selectedDate]));
 
     // Keep the device copy matching the screen (it's what shows when offline)
     useEffect(() => {
         if (user && loadedFor.current === selectedDate) saveTodos(user.id, selectedDate, todos);
     }, [todos]);
 
-    // Back online: send what was queued and reload
+    // Back online after being offline: send what was queued and reload (not on the first connection report)
+    const wasOnline = useRef(null);
     useEffect(() => {
-        if (net.isConnected && user) fetchTodos();
+        if (wasOnline.current === false && net.isConnected && user) fetchTodos();
+        wasOnline.current = net.isConnected;
     }, [net.isConnected]);
 
-    useEffect(() => { setOverdue(0); }, [selectedDate]);
+    // New date: commit a pending delete from the old one, clear the old date's banner
+    useEffect(() => {
+        flushDelete();
+        setOverdue(0);
+    }, [selectedDate]);
 
     // Handlers
     const handleToggle = async (id) => {

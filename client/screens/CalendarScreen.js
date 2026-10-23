@@ -19,7 +19,7 @@ const EMOJI_MAP = STICKER_MAP;
 import { useAuth } from '../context/AuthContext';
 import { useDate } from '../context/DateContext';
 import { API_URL, apiFetch } from '../config';
-import { loadTodos, saveTodos, send, todoOps } from '../todoStore';
+import { loadTodos, readTodos, saveTodos, send, todoOps } from '../todoStore';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { t } from '../i18n';
 
@@ -76,18 +76,18 @@ export default function CalendarScreen({ navigation }) {
         if (user && loadedFor.current === selectedDate) saveTodos(user.id, selectedDate, selectedTodos);
     }, [selectedTodos]);
 
+    // Back online after being offline (not on the first connection report)
+    const wasOnline = useRef(null);
     useEffect(() => {
-        if (net.isConnected && user) fetchDateTodos();
+        if (wasOnline.current === false && net.isConnected && user) fetchDateTodos();
+        wasOnline.current = net.isConnected;
     }, [net.isConnected]);
+    const dateRef = useRef(selectedDate);
+    dateRef.current = selectedDate;
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const calendarData = generateCalendar(year, month);
-
-    // Fetch Month Data (Diaries)
-    useEffect(() => {
-        if (user) fetchMonthData();
-    }, [user, year, month]);
 
     // Coming back to this tab (하루 기록 screen, or to-dos added on the to-do tab): reload the stickers and the day's list
     useFocusEffect(useCallback(() => {
@@ -95,12 +95,12 @@ export default function CalendarScreen({ navigation }) {
             fetchMonthData();
             fetchDateTodos();
         }
-    }, [user, year, month, selectedDate]));
+    }, [user?.id, year, month, selectedDate]));
 
-    // Fetch Selected Date Todos
+    // New date: commit a pending delete from the old one (the focus effect above loads the new day)
     useEffect(() => {
-        if (user && selectedDate) flushDelete().then(fetchDateTodos);
-    }, [user, selectedDate]);
+        flushDelete();
+    }, [selectedDate]);
 
     const fetchMonthData = async () => {
         try {
@@ -124,10 +124,18 @@ export default function CalendarScreen({ navigation }) {
         }
     };
 
+    // Phone's copy first, then the server's; a slow answer for a date no longer selected is dropped
     const fetchDateTodos = async () => {
+        const date = selectedDate;
         try {
-            const { items } = await loadTodos(user.id, selectedDate);
-            loadedFor.current = selectedDate;
+            if (loadedFor.current !== date) {
+                const cached = await readTodos(user.id, date);
+                if (dateRef.current !== date) return;
+                loadedFor.current = date;
+                setSelectedTodos(cached);
+            }
+            const { items } = await loadTodos(user.id, date);
+            if (dateRef.current !== date) return;
             setSelectedTodos(items);
         } catch (e) {
             console.error(e);
