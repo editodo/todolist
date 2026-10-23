@@ -29,23 +29,28 @@ export async function todayState({ fromServer = true } = {}) {
     return { status: 'ok', userId: user.id, date, items };
 }
 
+// Draw from this phone's copy first (no network wait), then catch up with the server.
 export async function widgetTaskHandler({ widgetAction, clickAction, clickActionData, renderWidget }) {
     if (widgetAction === 'WIDGET_DELETED') return;
-    const state = await todayState();
+    const state = await todayState({ fromServer: false });
 
     if (widgetAction === 'WIDGET_CLICK' && clickAction === 'TOGGLE' && state.status === 'ok') {
         const item = state.items.find((i) => i.id === clickActionData?.id);
-        if (item) {
-            item.isCompleted = !item.isCompleted;
+        if (!item) return renderWidget(TodayWidget(state));
+        item.isCompleted = !item.isCompleted;
+        renderWidget(TodayWidget(state)); // the tick shows at once
+        await saveTodos(state.userId, state.date, state.items);
+        try {
+            await send(state.userId, todoOps.update(item.id, { is_completed: item.isCompleted }));
+        } catch (e) {
+            item.isCompleted = !item.isCompleted; // the server refused it: undo
             await saveTodos(state.userId, state.date, state.items);
-            renderWidget(TodayWidget(state)); // show the tick right away
-            try {
-                await send(state.userId, todoOps.update(item.id, { is_completed: item.isCompleted }));
-            } catch (e) {
-                item.isCompleted = !item.isCompleted; // the server refused it: undo
-                await saveTodos(state.userId, state.date, state.items);
-            }
+            renderWidget(TodayWidget(state));
         }
+        return;
     }
+
     renderWidget(TodayWidget(state));
+    const fresh = await todayState(); // server (or the phone copy when offline)
+    renderWidget(TodayWidget(fresh));
 }
