@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 import { Text } from './AppText';
@@ -22,14 +23,14 @@ export default function ThemePreview({ theme }) {
 
     const assets = {
         skitch: {
-            off: require('../assets/images/common/check_skitch.svg'),
-            on: require('../assets/images/common/checked_skitch.svg'),
-            line: require('../assets/images/common/line_skitch.svg')
+            off: require('../assets/images/common/check_skitch.png'),
+            on: require('../assets/images/common/checked_skitch.png'),
+            line: require('../assets/images/common/line_skitch.png')
         },
         kitsch: {
-            off: require('../assets/images/common/check_kitsch.svg'),
-            on: require('../assets/images/common/checked_kitsch.svg'),
-            line: require('../assets/images/common/line_kitsch.svg')
+            off: require('../assets/images/common/check_kitsch.png'),
+            on: require('../assets/images/common/checked_kitsch.png'),
+            line: require('../assets/images/common/line_kitsch.png')
         }
     };
 
@@ -51,7 +52,7 @@ export default function ThemePreview({ theme }) {
                             isRound && { borderRadius: 10 },
                             item.completed && { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent }
                         ]}>
-                            {item.completed && <Text style={styles.checkMark}>✓</Text>}
+                            {item.completed && <Ionicons name="checkmark" size={14} color="#fff" />}
                         </View>
                     )}
 

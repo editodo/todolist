@@ -1,4 +1,5 @@
 
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { View, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
@@ -293,7 +294,7 @@ export default function TodoListScreen({ navigation }) {
                                     </TouchableOpacity>
                                     <TouchableOpacity testID="todo-cancel" onPress={() => { changeDraft(''); setIsWriting(false); }} style={styles.cancelBtn} accessibilityLabel={t('입력 취소')}>
                                         <View style={styles.cancelIconCircle}>
-                                            <Text style={styles.cancelIconText}>×</Text>
+                                            <Ionicons name="close" size={16} color="#fff" />
                                         </View>
                                     </TouchableOpacity>
                                 </View>

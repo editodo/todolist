@@ -19,12 +19,20 @@ function withFont(font, style) {
 // Big accessibility font sizes stay readable without breaking fixed-height rows (tab bar, buttons)
 const MAX_FONT_SCALE = 1.3;
 
+// Android adds Noto Sans KR's extra top/bottom font padding, which pushes Korean text down and clips it in
+// fixed-height buttons and inputs. Single-line inputs also drop Android's default vertical padding so the
+// text sits centred in their 40–44 px boxes. A screen's own style still wins.
+const ANDROID = Platform.OS === 'android';
+const TEXT_FIX = ANDROID ? { includeFontPadding: false } : null;
+const INPUT_FIX = ANDROID ? { includeFontPadding: false, paddingVertical: 0 } : null;
+
 export function Text(props) {
     const font = useTheme()?.theme?.font;
-    return <RNText maxFontSizeMultiplier={MAX_FONT_SCALE} {...props} style={withFont(font, props.style)} />;
+    return <RNText maxFontSizeMultiplier={MAX_FONT_SCALE} {...props} style={withFont(font, [TEXT_FIX, props.style])} />;
 }
 
 export function TextInput(props) {
     const font = useTheme()?.theme?.font;
-    return <RNTextInput maxFontSizeMultiplier={MAX_FONT_SCALE} {...props} style={withFont(font, props.style)} />;
+    const fix = props.multiline ? TEXT_FIX : INPUT_FIX;
+    return <RNTextInput maxFontSizeMultiplier={MAX_FONT_SCALE} {...props} style={withFont(font, [fix, props.style])} />;
 }

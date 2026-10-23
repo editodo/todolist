@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Platform, Alert } from 'react-native';
 import * as Haptics from 'expo-haptics';
@@ -49,14 +50,14 @@ export default function TodoItem({ id, text, isCompleted, repeat, onToggle, onEd
     // Asset Map
     const assets = {
         skitch: {
-            off: require('../assets/images/common/check_skitch.svg'),
-            on: require('../assets/images/common/checked_skitch.svg'),
-            line: require('../assets/images/common/line_skitch.svg')
+            off: require('../assets/images/common/check_skitch.png'),
+            on: require('../assets/images/common/checked_skitch.png'),
+            line: require('../assets/images/common/line_skitch.png')
         },
         kitsch: {
-            off: require('../assets/images/common/check_kitsch.svg'),
-            on: require('../assets/images/common/checked_kitsch.svg'),
-            line: require('../assets/images/common/line_kitsch.svg')
+            off: require('../assets/images/common/check_kitsch.png'),
+            on: require('../assets/images/common/checked_kitsch.png'),
+            line: require('../assets/images/common/line_kitsch.png')
         }
     };
 
@@ -83,7 +84,7 @@ export default function TodoItem({ id, text, isCompleted, repeat, onToggle, onEd
                     borderColor: colors.accent
                 }
             ]}>
-                {isCompleted && <Text style={[styles.checkMark, { color: colors.base }]}>✓</Text>}
+                {isCompleted && <Ionicons name="checkmark" size={15} color={colors.base} />}
             </View>
         );
     };

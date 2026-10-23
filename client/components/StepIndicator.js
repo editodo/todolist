@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from './AppText';
@@ -33,7 +34,7 @@ export default function StepIndicator({ step }) {
                                 (isActive || isCompleted) && styles.circleActive,
                                 isCompleted && styles.circleCompleted
                             ]}>
-                                <Text style={styles.checkMark}>✓</Text>
+                                <Ionicons name="checkmark" size={11} color="#fff" />
                             </View>
                             <Text style={[
                                 styles.label,
