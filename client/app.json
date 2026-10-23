@@ -3,6 +3,12 @@
     "name": "EdiTodo",
     "slug": "editodo",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/dd8b1948-e135-4f85-bbee-a069e0a62da5"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
