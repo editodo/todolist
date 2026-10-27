@@ -2,6 +2,8 @@
 
 App Store Connect(https://appstoreconnect.apple.com)에 그대로 옮겨 쓸 수 있게 정리한 자료입니다.
 
+**처음부터 단계별로 따라 하려면 [REGISTER.md](REGISTER.md)를 보세요.** 이 문서는 칸에 넣을 문구·답변 모음입니다.
+
 ## 1. 앱 정보 (처음 앱을 만들 때)
 
 | 항목 | 값 |
@@ -141,7 +143,7 @@ eas submit -p ios                       # App Store Connect로 업로드 → Tes
 
 - [ ] Apple Developer Program 가입 ($99/년)
 - [ ] App Store Connect에 앱 만들기 (위 1번)
-- [ ] 서버 `.env`에 애플 로그인 탈퇴용 키 넣기: `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`
-  (Apple Developer → Keys → "Sign in with Apple" 키 생성. 탈퇴 시 애플 연결 해제에 필요, 심사 규정 5.1.1(v))
+- [ ] 애플 로그인 탈퇴용 키를 GitHub Secrets에 넣기: `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`
+  (만드는 법은 REGISTER.md 1단계. 다음 배포 때 서버 `.env`에 자동으로 들어감)
 - [ ] `eas build -p ios` → `eas submit -p ios` → TestFlight로 실기기 확인
 - [ ] 위 2~7번 입력 후 심사 제출
